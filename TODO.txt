@@ -1,0 +1,9 @@
+Router
+------
+* includes from sub-apps
+* path_info and routing to sub-apps (http://routes.groovie.org/setting_up.html#magic-path-info)
+* allow strings as a key when mapping request handler classes
+* autodiscovering of routes via facets (and sorting thus)
+* additional checks (http method, headers, arbitrary functions) http://routes.groovie.org/setting_up.html#conditions
+* short-circuiting routes
+

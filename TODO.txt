@@ -13,5 +13,5 @@ Router
 Request/Response
 ----------------
 Cookies
+Conditional responses
 File uploading
-Forms (get/post)

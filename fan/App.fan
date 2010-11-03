@@ -4,12 +4,19 @@ using concurrent
 
 const abstract class App {
   const Binding[] routes := [,]
-  const TemplateLoader[] templateLoaders := [,]  
+  const File[] templateDirs := [,]  
   const Charset charset := Charset.utf8
+
+//////////////////////////////////////////////////////////////////////////
+// App instance
+//////////////////////////////////////////////////////////////////////////
   
-  virtual WebMod rootMod() {
-    return RoutingMod.make(routes)
-  }
+  static App instance() { Actor.locals["spectre.app"] }
+  File appDir() { Actor.locals["spectre.app_dir"] }
+
+//////////////////////////////////////////////////////////////////////////
+// URL binding
+//////////////////////////////////////////////////////////////////////////
   
   static Binding bind(Str url, Method controllerMethod) {
     controllerType := controllerMethod.parent
@@ -29,13 +36,5 @@ const abstract class App {
   static Binding bindB(Str url, |->Controller| controllerBuilder, Str? method := "dispatch") {
     m := Matcher.fromStr(url)
     return Binding.make(m, controllerBuilder, method)
-  }
-
-  static App instance() { Actor.locals["spectre.app"] }
-  
-  File appDir() { Actor.locals["spectre.app_dir"] }
-  
-  Obj? loadTemplate(Str name) {
-    return templateLoaders.eachrWhile { it.load(name) }
   }
 }

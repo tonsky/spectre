@@ -101,10 +101,10 @@ const class Matcher {
 
 const class Binding {
   const Matcher matcher
-  const |->Controller| controllerBuilder
+  const |->Obj| controllerBuilder
   const Str? method
   
-  new make(Matcher matcher, |->Controller| controllerBuilder, Str? method) {
+  new make(Matcher matcher, |->Obj| controllerBuilder, Str? method) {
     this.matcher = matcher
     this.controllerBuilder = controllerBuilder
     this.method = method
@@ -124,23 +124,27 @@ mixin Router {
       b := this.bindings.find |b| { b.matcher.match(path) != null }
       
       if (b != null) {
-        Controller controller := b.controllerBuilder.call   
+        Obj controller := b.controllerBuilder.call   
         Str:Str pathParams := b.matcher.match(path)
         return callController(request, controller, b.method, pathParams)      
       } else
         return callController(request, Handler404.make(bindings.map { it.matcher }), "dispatch", [:])
+    } catch (Http404 err) {
+      return callController(request, Handler404.make(bindings.map { it.matcher }), "dispatch", [:])
     } catch (Err err) {
       return callController(request, Handler500.make(err), "dispatch", [:])
     }
   }
   
-  virtual HttpRes callController(HttpReq request, Controller controller, Str? methodName, Str:Str pathParams) {
+  virtual HttpRes callController(HttpReq request, Obj controller, Str? methodName, Str:Str pathParams) {
     method := controller.typeof.method(methodName ?: pathParams["method"])
     if (!method.returns.fits(HttpRes#))
       throw Err.make("Action method must return spectre::Response instead of $method.returns: $controller.typeof.name#$method.name")
 
     callArgs := method.params.map |param| { 
       Obj? paramValue := pathParams[param.name]
+      if (param.type == HttpReq#)
+        paramValue = request      
       if (paramValue == null && !param.hasDefault)
         throw Err.make("Unmatched action param '$param.name' in $controller.typeof.name#$method.name
                         matches are $pathParams")
@@ -149,7 +153,6 @@ mixin Router {
       return paramValue
     }
 
-    controller.req = request
     return method.callOn(controller, callArgs)
   }
 }

@@ -2,32 +2,11 @@
 using web
 using mustache
 
-//class Http404 : Err {
-//  
-//}
-
-abstract class Controller {
-  HttpReq? req// := WebletRequest.make()
-  
-//  new make(|->| callable := |->|{}) { callable.call }
+const class Http404 : Err {
+  new make(Str msg) : super.make(msg) {}
 }
 
-
-//class FuncController : ViewController {
-//  Int statusCode
-//  |->Str| onServiceFunc
-//  
-//  new make(Int statusCode, |->Str| func) {
-//    this.statusCode = statusCode
-//    this.onServiceFunc = func
-//  }
-//  
-//  Void dispatch() {
-//    toResponse(onServiceFunc.call, this.statusCode)
-//  }
-//}
-
-class Handler500 : Controller {
+class Handler500 {
   Err err
   new make(Err err): super() {
     this.err = err
@@ -39,20 +18,20 @@ class Handler500 : Controller {
   }
 }
 
-class Handler404 : Controller {
+class Handler404 {
   Matcher[] tried
   new make(Matcher[] tried) {
     this.tried = tried
   }
   
-  HttpRes dispatch() {
+  HttpRes dispatch(HttpReq req) {
     HttpResNotFound.make("<h1>404 Not found</h1><strong>Requested:</strong><br/>"
       +"<pre>$req.pathInfo</pre><br/><strong>Tried:</strong><br/><pre>" 
       + tried.map { it.toStr }.join("\n") + "</pre>")
   }
 }
 
-class Static : Controller {
+class StaticController {
   File staticDir
   new make(File staticDir) {
     this.staticDir = staticDir
@@ -66,7 +45,7 @@ class Static : Controller {
     return "\"" + file.size.toHex + "-" + file.modified.ticks.toHex + "\""
   }
 
-  virtual HttpRes dispatch(Str pathRest) {
+  virtual HttpRes dispatch(HttpReq req, Str pathRest) {
     file := staticDir + Uri.fromStr(pathRest)
     
     // if file doesn't exist
@@ -74,7 +53,7 @@ class Static : Controller {
       return HttpRes.make("File not found: $file", 404)
     }
 
-    if (checkNotModified(file))
+    if (checkNotModified(req, file))
       return HttpRes.make("", 304)
     
     response := HttpRes.make(file, 200, file.mimeType?.toStr ?: "")
@@ -90,8 +69,7 @@ class Static : Controller {
   **
   ** This method supports ETag "If-None-Match" and "If-Modified-Since" modification time.
   **
-  virtual protected Bool checkNotModified(File file)
-  {
+  virtual protected Bool checkNotModified(HttpReq req, File file) {
     // check If-Match-None
     matchNone := req.headers["If-None-Match"]
     if (matchNone != null) {

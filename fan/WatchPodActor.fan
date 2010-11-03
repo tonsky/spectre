@@ -3,23 +3,6 @@ using web
 using concurrent
 using build
 
-const class AppReloadMod : WebMod {
-  const Actor watchPodActor
-  const File podDir
-  
-  new make(File podDir) {
-    watchPodActor = WatchPodActor.make(ActorPool(), podDir)
-    this.podDir = podDir
-  }
-  
-  override Void onService() {
-    App? app := watchPodActor.send(null).get
-    Actor.locals["spectre.app"] = app
-    Actor.locals["spectre.app_dir"] = podDir
-    app.rootMod.onService
-  }
-}
-
 const class WatchPodActor : Actor {
   const File podDir
   const Uri buildFileName

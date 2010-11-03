@@ -2,42 +2,16 @@
 using web
 using mustache
 
-
-internal const class WebletImpl : Weblet {
-}
+//class Http404 : Err {
+//  
+//}
 
 abstract class Controller {
-  private const static WebletImpl webletImpl := WebletImpl.make
-  WebReq req() { webletImpl.req }
-//  WebRes res() { webletImpl.res }
+  HttpReq? req// := WebletRequest.make()
   
-  Str:Str params// { get { &params.ro } }
-  
-  new make() {
-    this.params = req.uri.query.dup
-  }
- 
-//  Void toResponse(Str content,
-//                  Int statusCode := 200,
-//                  Str contentType := "text/html; charset=utf-8") {
-//    res.statusCode = statusCode
-//    res.headers["Content-Type"] = contentType
-//    res.out.print(content)
-//  }
-  
+//  new make(|->| callable := |->|{}) { callable.call }
 }
 
-mixin MustacheTemplates {
-  Str renderTemplate(Str templateName,
-                     Str:Obj? context := [:],
-                     Int statusCode := 200,
-                     Str contentType := "text/html; charset=utf-8") {
-    Mustache? template := App.instance.loadTemplate(templateName)
-    if (template == null)
-      throw Err.make("Cannot find template $templateName")
-    return template.render(context)
-  }
-}
 
 //class FuncController : ViewController {
 //  Int statusCode
@@ -55,19 +29,26 @@ mixin MustacheTemplates {
 
 class Handler500 : Controller {
   Err err
-  new make(Err err) {
+  new make(Err err): super() {
     this.err = err
   }
   
-  Response dispatch() {
-    Response.make("<pre>" + this.err.traceToStr + "</pre>", 200)
+  HttpRes dispatch() {
+    HttpResServerError.make("<h1>500 Internal server error</h1>"
+      +"<pre>$err.traceToStr</pre>")
   }
 }
 
 class Handler404 : Controller {
-  Response dispatch(Matcher[] tried) {
-    Response.make("<h1>Route not found</h1>" + req.uri
-      + "<hr/>Tried: " + tried.map { it.toStr }.join("<br/>"), 200)
+  Matcher[] tried
+  new make(Matcher[] tried) {
+    this.tried = tried
+  }
+  
+  HttpRes dispatch() {
+    HttpResNotFound.make("<h1>404 Not found</h1><strong>Requested:</strong><br/>"
+      +"<pre>$req.pathInfo</pre><br/><strong>Tried:</strong><br/><pre>" 
+      + tried.map { it.toStr }.join("\n") + "</pre>")
   }
 }
 
@@ -85,18 +66,18 @@ class Static : Controller {
     return "\"" + file.size.toHex + "-" + file.modified.ticks.toHex + "\""
   }
 
-  virtual Response dispatch(Str pathRest) {
+  virtual HttpRes dispatch(Str pathRest) {
     file := staticDir + Uri.fromStr(pathRest)
     
     // if file doesn't exist
     if (!file.exists) {
-      return Response.make("File not found: $file", 404)
+      return HttpRes.make("File not found: $file", 404)
     }
 
     if (checkNotModified(file))
-      return Response.make("", 304)
+      return HttpRes.make("", 304)
     
-    response := Response.make(file, 200, file.mimeType?.toStr ?: "")
+    response := HttpRes.make(file, 200, file.mimeType?.toStr ?: "")
     
     // set identity headers
     response.headers["ETag"] = etag(file)

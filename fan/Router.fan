@@ -111,50 +111,34 @@ const class Binding {
   }
 }
 
-@Serializable
-const class RoutingMod : WebMod {
-  static Str[] preparePath(Str url) {
-    url.split('/').exclude { it == "" }
-  }
-  
-  const Binding[] bindings := Binding[,]
-  const static Log log := RoutingMod#.pod.log
+mixin Router {
+  const static Log log := Router#.pod.log
+  abstract Binding[] bindings()
 
-  new make(Binding[] bindings) {
-    if (bindings.isEmpty) throw ArgErr("RoutingMod.bindings cannot be empty")
-    this.bindings = bindings
-  }
-  
-  override Void onService() {
-    Response result := process()
-    result.writeResponse(res)
-  }
-  
-  virtual Response process() {
-    Str[] path := preparePath(req.modRel.pathStr)
-    log.info("[REQ] $req.modRel.pathStr")
+  virtual HttpRes process(HttpReq request) {
+    pathStr := request.pathInfo.pathStr
+    Str[] path := request.pathInfo.path
+    log.info("[REQ] $pathStr")
     
     try {
       b := this.bindings.find |b| { b.matcher.match(path) != null }
-      if (b != null)
-        return callController(b, path)
-      else
-        return Handler404.make.dispatch(bindings.map { it.matcher })
+      
+      if (b != null) {
+        Controller controller := b.controllerBuilder.call   
+        Str:Str pathParams := b.matcher.match(path)
+        return callController(request, controller, b.method, pathParams)      
+      } else
+        return callController(request, Handler404.make(bindings.map { it.matcher }), "dispatch", [:])
     } catch (Err err) {
-      return Handler500.make(err).dispatch
+      return callController(request, Handler500.make(err), "dispatch", [:])
     }
   }
   
-  virtual Response callController(Binding b, Str[] path) {
-    Controller controller := b.controllerBuilder.call
-
-    Str:Str pathParams := b.matcher.match(path)
-    controller.params.addAll(pathParams)
-    
-    method := controller.typeof.method(b.method ?: pathParams["method"])
-    if (!method.returns.fits(Response#))
+  virtual HttpRes callController(HttpReq request, Controller controller, Str? methodName, Str:Str pathParams) {
+    method := controller.typeof.method(methodName ?: pathParams["method"])
+    if (!method.returns.fits(HttpRes#))
       throw Err.make("Action method must return spectre::Response instead of $method.returns: $controller.typeof.name#$method.name")
-    
+
     callArgs := method.params.map |param| { 
       Obj? paramValue := pathParams[param.name]
       if (paramValue == null && !param.hasDefault)
@@ -164,6 +148,8 @@ const class RoutingMod : WebMod {
         paramValue = param.type.method("fromStr").call(paramValue)
       return paramValue
     }
+
+    controller.req = request
     return method.callOn(controller, callArgs)
   }
 }

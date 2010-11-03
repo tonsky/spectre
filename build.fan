@@ -5,7 +5,7 @@ class Build : build::BuildPod
   {
     podName = "spectre"
     summary = ""
-    srcDirs = [`test/`, `fan/`]
+    srcDirs = [`test/`, `fan/`, `fan/wisp/`, `fan/mustache/`]
     depends = ["sys 1.0",
                "build 1.0",
                "compiler 1.0",

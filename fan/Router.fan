@@ -32,27 +32,28 @@ const class Pathterm {
   }
 }
 
-const class Matcher {
-  static const Str FREE_ENDING_PARAM := "pathRest" 
+const class UrlMatcher {
+  static const Str PATH_TAIL_PARAM := "pathTail" 
   
   const Pathterm[] pathterms
-  const Bool freeEnding
-  new make(Pathterm[] pathterms, Bool freeEnding) {
+  const Bool freeTail
+  new make(Pathterm[] pathterms, Bool freeTail) {
     this.pathterms = pathterms
-    this.freeEnding = freeEnding
+    this.freeTail = freeTail
   }
   
-  static Matcher fromStr(Str pattern) {
+  static UrlMatcher fromStr(Str pattern) {
     Str[] segments := pattern.split('/').exclude { it == "" }
-    freeEnding := segments.size >= 1 && segments[-1] == "*"
+    freeTail := segments.size >= 1 && segments[-1] == "*"
     if (segments.size >= 2)
       segments[0..-2].each {
         if (it == "*")
-          if (freeEnding)
+          if (freeTail)
             throw InvalidPatternErr(pattern, "There may be only one '*' segment at the end of the pattern")
           else
             throw InvalidPatternErr(pattern, "'*' may only be present as the last pathterm in pattern")
       }
+    
     Pathterm[] pathterms := segments.exclude { it == "*" }.map |segment| {
       Pathterm? pt
       try {
@@ -60,8 +61,8 @@ const class Matcher {
       } catch(Err e) {
         throw InvalidPatternErr.make(pattern, "Incorrect segment syntax '$segment'", e)
       }
-      if (pt.name == FREE_ENDING_PARAM)
-        throw InvalidPatternErr.make(pattern, "'$FREE_ENDING_PARAM' is not a reserved parameter name for '*' pathterm")
+      if (pt.name == PATH_TAIL_PARAM)
+        throw InvalidPatternErr.make(pattern, "'$PATH_TAIL_PARAM' is reserved param name for '*' pathterm")
       return pt
     }
     
@@ -73,11 +74,11 @@ const class Matcher {
     else if (duplicateVars.size > 1)
       throw InvalidPatternErr(pattern, "Duplicate variables '" + duplicateVars.join("', '") + "'")
     
-    return Matcher.make(pathterms, freeEnding)
+    return UrlMatcher(pathterms, freeTail)
   }
   
   virtual [Str:Str]? match(Str[] path) {
-    if (!this.freeEnding && path.size != pathterms.size)
+    if (!this.freeTail && path.size != pathterms.size)
       return null
     
     res := Str:Str[:]
@@ -89,70 +90,66 @@ const class Matcher {
       }
       return false
     }
-    if (all && this.freeEnding)
-      res[FREE_ENDING_PARAM] = path.size == pathterms.size ? "" : path[pathterms.size..-1].join("/")
+    if (all && this.freeTail)
+      res[PATH_TAIL_PARAM] = path.size == pathterms.size ? "" : path[pathterms.size..-1].join("/")
     return all ? res : null
   }
   
   override Str toStr() {
-    "/" + pathterms.map { it.toStr }.join("/") + (this.freeEnding ? "/*" : "") + ""
+    "/" + pathterms.map { it.toStr }.join("/") + (this.freeTail ? "/*" : "") + ""
   }
 }
 
-const class Binding {
-  const Matcher matcher
-  const |->Obj| controllerBuilder
-  const Str? method
+class UrlMatcherTurtle : Turtle {
+  UrlMatcher matcher
+  Turtle? child
   
-  new make(Matcher matcher, |->Obj| controllerBuilder, Str? method) {
-    this.matcher = matcher
-    this.controllerBuilder = controllerBuilder
-    this.method = method
+  new make(UrlMatcher matcher, Turtle? child := null) { this.matcher = matcher; this.child = child }
+  
+  override Res? dispatch(Req req) {
+    [Str:Str]? match := matcher.match(req.pathInfo.path)
+    if (match == null)
+      return null
+    populateContext(match, req)
+    return child.dispatch(req)
+  }
+  
+  virtual Void populateContext([Str:Str] match, Req req) {
+    req.context.addAll(match)
   }
 }
 
-mixin Router {
-  const static Log log := Router#.pod.log
-  abstract Binding[] bindings()
+class Router : Turtle {
+  Turtle[] _routes := [,]
 
-  virtual HttpRes process(HttpReq request) {
-    pathStr := request.pathInfo.pathStr
-    Str[] path := request.pathInfo.path
-    log.info("[REQ] $pathStr")
-    
-    try {
-      b := this.bindings.find |b| { b.matcher.match(path) != null }
-      
-      if (b != null) {
-        Obj controller := b.controllerBuilder.call   
-        Str:Str pathParams := b.matcher.match(path)
-        return callController(request, controller, b.method, pathParams)      
-      } else
-        return callController(request, Handler404.make(bindings.map { it.matcher }), "dispatch", [:])
-    } catch (Http404 err) {
-      return callController(request, Handler404.make(bindings.map { it.matcher }), "dispatch", [:])
-    } catch (Err err) {
-      return callController(request, Handler500.make(err), "dispatch", [:])
-    }
+  new make(|This| f) { f.call(this) }
+
+  virtual Turtle asRoute(Obj route) { route is Str ? any(route) : route as Turtle }
+  
+  virtual Turtle? asView(Obj target) {
+    if (target is Turtle)
+      return target
+    else if (target is Func)
+      return FuncView { func = target }
+    else if (target is Method) {
+      m := target as Method
+      if (m.isStatic)
+        return FuncView { func = m.func }
+      else
+        return MethodView(m)
+    } 
+    return null
   }
   
-  virtual HttpRes callController(HttpReq request, Obj controller, Str? methodName, Str:Str pathParams) {
-    method := controller.typeof.method(methodName ?: pathParams["method"])
-    if (!method.returns.fits(HttpRes#))
-      throw Err.make("Action method must return spectre::Response instead of $method.returns: $controller.typeof.name#$method.name")
-
-    callArgs := method.params.map |param| { 
-      Obj? paramValue := pathParams[param.name]
-      if (param.type == HttpReq#)
-        paramValue = request      
-      if (paramValue == null && !param.hasDefault)
-        throw Err.make("Unmatched action param '$param.name' in $controller.typeof.name#$method.name
-                        matches are $pathParams")
-      if (param.type != Str#)
-        paramValue = param.type.method("fromStr").call(paramValue)
-      return paramValue
-    }
-
-    return method.callOn(controller, callArgs)
+  virtual Turtle any(Str path) { UrlMatcherTurtle(UrlMatcher(path)) }
+  
+  virtual Void routes(Obj[][] arg) { arg.each { Router#bind.func.callOn(this, it) } }
+  
+  virtual Void bind(Obj route, Obj target) {
+    route = asRoute(route)
+    route->child = asView(target)
+    _routes.add(route)
   }
+  
+  override Res? dispatch(Req req) { return _routes.eachWhile { it.dispatch(req) } }
 }

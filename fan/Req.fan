@@ -1,8 +1,9 @@
 
 using web
 
-abstract class HttpReq {
+abstract class Req {
   const static Log log := WatchPodActor#.pod.log
+  [Str:Str] context := [:]
   
   abstract QueryMap get()
   abstract QueryMap post()

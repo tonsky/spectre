@@ -1,4 +1,6 @@
-
+**
+** A map with support of multiple values for key, [Str:Str[]]
+** 
 class QueryMap {
   const static Log log := WatchPodActor#.pod.log
   
@@ -61,6 +63,7 @@ class QueryMap {
   ** >>> qm.get("x", "local_def")
   ** "local_def"
   **
+  @Operator
   Str? get(Str key, Str? _def := def) {
     Str[]? res := impl.get(key)
     return res == null ? _def : chooseVal(res)
@@ -122,6 +125,7 @@ class QueryMap {
   ** If key is null throw NullErr.  Throw ReadonlyErr if readonly.
   ** Shortcut is 'a[key] = val'.
   **
+  @Operator
   This set(Str key, Str val) { impl[key] = Str[val]; return this }
 
   **

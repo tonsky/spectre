@@ -1,7 +1,7 @@
 
 using web
 
-class WebletRequest : HttpReq, Weblet {
+class WebletReq : Req, Weblet {
   once override QueryMap get() { QueryMap.decodeQuery(req.uri.queryStr).ro }
   once override QueryMap post() { QueryMap.decodeQuery(form).ro }
   once override QueryMap request() { QueryMap.decodeQuery(req.uri.queryStr).setAllMap(post).ro }
@@ -12,17 +12,13 @@ class WebletRequest : HttpReq, Weblet {
   
   override InStream in() { req.in }
   
-  virtual protected once Str? form()
-  {
+  virtual protected once Str? form() {
     ct := headers.get("Content-Type", "").lower
-    if (ct.startsWith("application/x-www-form-urlencoded"))
-    {
+    if (ct.startsWith("application/x-www-form-urlencoded")) {
       len := headers["Content-Length"]
       if (len == null) throw IOErr("Missing Content-Length header")
       return req.in.readLine(len.toInt)
     }
     return null
   }
-  
-  
 }

@@ -13,16 +13,15 @@ mixin MustacheTemplates {
     return template.render(context)
   }
   
-  HttpRes renderToResponse(Str templateName,
-                           Str:Obj? context := [:],
-                           Int statusCode := 200,
-                           Str contentType := "text/html") {
-    return HttpRes.make(renderTemplate(templateName, context), statusCode, contentType)
+  Res renderToResponse(Str templateName,
+                       Str:Obj? context := [:],
+                       Int statusCode := 200,
+                       Str contentType := "text/html") {
+    return Res(renderTemplate(templateName, context), statusCode, contentType)
   }
 }
 
-
-const class MustacheTemplateLoader : TemplateLoader {
+const class MustacheTemplateLoader {
   const Str otag
   const Str ctag
   
@@ -31,9 +30,9 @@ const class MustacheTemplateLoader : TemplateLoader {
     this.ctag = ctag
   }
   
-  override Obj? load(Str name) {
+  Obj? load(Str name) {
     nameUri := Uri.fromStr(name)
-    lookupPaths := App.instance.templateDirs
+    lookupPaths := Settings.instance.templateDirs
     File? path := lookupPaths.find { (it + nameUri).exists }
     if (path == null)
       return null

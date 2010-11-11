@@ -15,37 +15,38 @@ const class WatchPodActor : Actor {
     this.podDir = podDir.normalize
     this.buildFileName = buildFileName
   }
+
+  DateTime lastModified { get { Actor.locals["spectre.watch_pod.last_modified"] ?: DateTime.makeTicks(0) }
+                          set { Actor.locals["spectre.watch_pod.last_modified"] = it } }
   
+  Int ver { get{ Actor.locals.getOrAdd("spectre.watch_pod.ver") { 1 } }
+            set{ Actor.locals["spectre.watch_pod.ver"] = it } }
+  
+  Pod? pod { get{ Actor.locals["spectre.watch_pod.pod"] }
+             set{ Actor.locals["spectre.watch_pod.pod"] = it } }
   **
   ** Returns cached instance of Pod's App instance
   ** Invalidates cache and reloads Pod if any *.fan files were changed in podDir
   ** 
-  protected override App? receive(Obj? msg) {
+  protected override Obj? receive(Obj? msg) {
     File? modified := Util.findFirstFile(podDir) |f| {
-      wathedFiles.matches(f.name) && f.modified > Actor.locals["spectre.last_modified"]
+      wathedFiles.matches(f.name) && f.modified > lastModified 
     }
-
-    if (modified != null || Actor.locals["spectre.app"] == null) {
-      try{
+    
+    if (modified != null || pod == null) {
+      try {
         if (log.isDebug && modified != null)
           log.debug("Found modified file $modified")
         
-        Pod appPod := reloadPod()
-        appType := appPod.types.find { it.fits(App#) }
-        if (appType == null)
-          throw Err.make("Cannot find spectre::App implementation in $podDir")
-        
-        Actor.locals["spectre.app_dir"] = podDir
-        Actor.locals["spectre.app"] = appType.make
-        Actor.locals["spectre.last_modified"] = DateTime.now
+        pod = reloadPod()
+        lastModified = DateTime.now
       } catch(Err err) {
-        log.err("", err)
+        log.err("Error", err)
       } finally {
-        Actor.locals["spectre.ver"] = 1 + Actor.locals["spectre.ver"]
+        ver = ver + 1
       }
     }
-    
-    return Actor.locals["spectre.app"]
+    return pod
   }
   
   Pod reloadPod() {
@@ -63,17 +64,17 @@ const class WatchPodActor : Actor {
     buildPod.compile()
     File f := buildPod.outDir.toFile + Uri.fromStr(buildPod.podName + ".pod")
     log.info("Rebuildind pod $podDir.name as $f")
-    pod := Pod.load(f.in)
+    loadedPod := Pod.load(f.in)
     if (log.isDebug)
       log.debug("Pod loaded: $f")
     f.delete
     if (log.isDebug)
       log.debug("[Temporary file removed] $f")
     
-    return pod
+    return loadedPod
   }
   
   Str tmpPodName(BuildPod buildPod) {
-    return buildPod.podName += "_reloaded_" + Actor.locals.getOrAdd("spectre.ver") { 1 }
+    return buildPod.podName += "_reloaded_" + ver
   }
 }

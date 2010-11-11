@@ -1,5 +1,3 @@
-#! /usr/bin/env fan
-
 using concurrent
 using util
 using web
@@ -14,46 +12,61 @@ class WispServer : AbstractMain
   File? appDir
   
   override Int run() {
-    return runServices([ WispService { it.port = this.port; root = AppReloadMod.make(appDir) } ])
+    return runServices([ WispService { it.port = this.port; root = WispApp(appDir) } ])
   }
 }
 
-const class AppReloadMod : WebMod {
-  const Actor watchPodActor
-  const File podDir
+const class WispApp : WebMod {
+  const static Log log := WatchPodActor#.pod.log
+  
+  const WatchPodActor watchPodActor
   
   new make(File podDir) {
-    watchPodActor = WatchPodActor.make(ActorPool(), podDir)
-    this.podDir = podDir
+    pool := ActorPool { maxThreads = 1 }
+    watchPodActor = WatchPodActor.make(pool, podDir)
+  }
+  
+  Pod? activePod { get { Actor.locals["spectre.app_pod"] } 
+                   set { Actor.locals["spectre.app_pod"] = it } }
+  
+  Turtle activeApp() {
+    Pod? loadedPod := watchPodActor.send(null).get
+    if (loadedPod !== activePod) {
+      restartApp(loadedPod)
+      activePod = loadedPod
+    }
+    return Settings.instance.root
+  }
+  
+  Void restartApp(Pod appPod) {
+    log.info("Restarting pod $appPod")
+    Type? settingsType := appPod.types.find { it.fits(Settings#) }
+    if (settingsType == null)
+      throw Err.make("Cannot find spectre::Settings implementation in ${watchPodActor.podDir}")
+    
+    Settings settings := settingsType.make([watchPodActor.podDir])
+    Settings.setInstance(settings)
   }
   
   override Void onService() {
-    App? app := watchPodActor.send(null).get
-    Actor.locals["spectre.app"] = app
-    Actor.locals["spectre.app_dir"] = podDir
-    //FIXME store this value somewhere
-    RoutingMod.make(app.routes).onService
-  }
-}
-
-const class RoutingMod : WebMod, Router {
-  override const Binding[] bindings := Binding[,]
-
-  new make(Binding[] bindings) {
-    if (bindings.isEmpty) throw ArgErr("RoutingMod.bindings cannot be empty")
-    this.bindings = bindings
-  }
-
-  override Void onService() {
-    HttpRes result := process(WebletRequest.make)
-    writeResponse(result)
+    Req req := WebletReq()
+    
+    Res? response := activeApp.dispatch(req)
+    if(response != null)
+      writeResponse(response)
+    else {
+      res.statusCode = 500
+      res.headers["Content-Type"] = "text/html"
+      res.out.writeChars("App returned empty response")
+      res.done
+    }
   }
   
-  Void writeResponse(HttpRes response) {
+  Void writeResponse(Res response) {
+    response.beforeWrite
     res.headers.addAll(response.headers)
     res.statusCode = response.statusCode
     res.out.charset = response.charset
-    response.writeBody(Env.cur.out)
     response.writeBody(res.out)
     res.done
   }

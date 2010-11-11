@@ -1,11 +1,11 @@
 
 using web
 
-class HttpRes {
+class Res {
   virtual Str:Str headers := [:]
   internal virtual Int statusCode
   internal virtual Obj body 
-  internal virtual Charset charset := App.instance.charset
+  internal virtual Charset charset := Settings.instance.charset
   
   new make(Obj content := "", Int status := 200, Str? contentType := "text/html") {
     this.body = content
@@ -14,56 +14,62 @@ class HttpRes {
       this.headers["Content-Type"] = "$contentType; charset=$this.charset"
   }
   
+  // FIXME hmm
+  Void beforeWrite() {
+    if (body is File)
+      headers["Content-Length"] = (body as File).size.toStr
+  }
+  
   Void writeBody(OutStream out) {
     if (body is InStream)
       (body as InStream).pipe(out)
-    else if (body is File)
+    else if (body is File) {
       (body as File).in.pipe(out, (body as File).size)
-    else if (body is List)
+    } else if (body is List)
       (body as List).each { out.writeChars(it == null ? "null" : it.toStr) }
     else
       out.writeChars(body.toStr)
   }
 }
 
-class HttpResRedirect : HttpRes {
+class ResRedirect : Res {
   new make(Uri redirectTo) : super("", 302) {
     headers["Location"] = redirectTo.encode
   }
 }
 
-class HttpResPermanentRedirect : HttpRes {
+class ResPermanentRedirect : Res {
   new make(Uri redirectTo) : super("", 301) {
     headers["Location"] = redirectTo.encode
   }
 }
 
-class HttpResNotModified : HttpRes {
+class ResNotModified : Res {
   new make() : super("", 304) {}
 }
 
-class HttpResBadRequest : HttpRes {
+class ResBadRequest : Res {
   new make() : super("", 400) {}
 }
 
-class HttpResNotFound : HttpRes {
+class ResNotFound : Res {
   new make(Obj content := "") : super(content, 404) {}
 }
 
-class HttpResForbidden : HttpRes {
+class ResForbidden : Res {
   new make() : super("", 403) {}
 }
 
-class HttpResNotAllowed : HttpRes {
+class ResNotAllowed : Res {
   new make(Str[] permittedMethods) : super("", 405) {
     headers["Allow"] = permittedMethods.join(", ")
   }
 }
 
-class HttpResGone : HttpRes {
+class ResGone : Res {
   new make(Obj content := "", Int status := 410, Str? contentType := "text/html") : super(content, status, contentType) {}
 }
 
-class HttpResServerError : HttpRes {
+class ResServerError : Res {
   new make(Obj content := "", Int status := 500, Str? contentType := "text/html") : super(content, status, contentType) {}
 }

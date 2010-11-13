@@ -15,12 +15,24 @@ class Res {
   }
   
   // FIXME hmm
-  Void beforeWrite() {
+  virtual Void beforeWrite() {
     if (body is File)
       headers["Content-Length"] = (body as File).size.toStr
   }
+
+  virtual This setCookie(spectre::Cookie cookie) {
+    if (headers["Set-Cookie"] == null)
+      headers["Set-Cookie"] = cookie.toStr
+    else
+      headers["Set-Cookie"] = headers["Set-Cookie"] + "," + cookie.toStr
+    return this
+  }
   
-  Void writeBody(OutStream out) {
+  virtual This deleteCookie(Str cookieName) {
+    setCookie(spectre::Cookie {name=cookieName; maxAge = Duration(-1)})
+  }
+  
+  virtual Void writeBody(OutStream out) {
     if (body is InStream)
       (body as InStream).pipe(out)
     else if (body is File) {

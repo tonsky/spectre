@@ -14,4 +14,15 @@ abstract class Req {
   abstract Str method()
   
   abstract InStream in()
+  
+  virtual once [Str:Str] cookies() {
+    Str? cookieHeader := headers["Cookie"]
+    if (cookieHeader == null)
+      return [:]
+    
+    [Str:Str] result := [:]
+    cookies := spectre::Cookie.load(cookieHeader)
+    cookies.each { result.add(it.name, it.val) }
+    return result
+  }
 }

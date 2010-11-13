@@ -162,8 +162,9 @@ class StaticView : Turtle {
       return Res("File not found: $file", 404)
     }
 
-    if (checkNotModified(req, file))
-      return Res("", 304)
+    //FIXME investigate this bug in safari
+//    if (checkNotModified(req, file))
+//      return Res("", 304)
     
     response := Res(file, 200, file.mimeType?.toStr ?: "")
     

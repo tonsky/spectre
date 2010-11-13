@@ -1,17 +1,38 @@
-Router
-------
-* includes from sub-apps
-* path_info and routing to sub-apps (http://routes.groovie.org/setting_up.html#magic-path-info)
-? allow strings as a key when mapping request handler classes
-* autodiscovering of routes via facets (and sorting thus)
-* additional checks (http method, headers, arbitrary functions) http://routes.groovie.org/setting_up.html#conditions
-* short-circuiting routes
-* differentiate request method
-* pass additional params to controller
-* names and reverse url construction
-
-Request/Response
+Request
 ----------------
 Cookies
+Session
+raw in stream
+
 Conditional responses
 File uploading
+
+Templates
+---------
+Template response
+
+
+Response
+--------
+investigate Safari refresh/304 bug
+
+
+Router
+------
+* includes
+* reverse url lookup
+* autodiscovering of routes via facets (and sorting thus)
+* additional checks (http method, headers, arbitrary functions) http://routes.groovie.org/setting_up.html#conditions
+
+
+* path_info and routing to sub-apps (http://routes.groovie.org/setting_up.html#magic-path-info)
+? allow strings as a key when mapping request handler classes
+(v) short-circuiting routes
+* differentiate request method
+(v) pass additional params to controller
+
+
+Middlewares
+-----------
+APPEND_SLASH
+PREPEND_WWW

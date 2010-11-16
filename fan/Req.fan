@@ -3,7 +3,7 @@ using web
 
 abstract class Req {
   const static Log log := WatchPodActor#.pod.log
-  [Str:Str] context := [:]
+  [Str:Obj] context := [:]
   
   abstract QueryMap get()
   abstract QueryMap post()

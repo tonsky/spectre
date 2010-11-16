@@ -1,11 +1,13 @@
 Request
 ----------------
-Cookies
+(v) Cookies
 Session
 raw in stream
 
 Conditional responses
 File uploading
+
+Investigate multiple cookies bug
 
 Templates
 ---------

@@ -13,9 +13,9 @@ mixin View {
   }
   
   virtual Obj? tryMethodCall(Method method, Obj instance, Req req) {
-    func := method.func.bind([instance])
-    paramValues := resolveParamValues(func.params, req)
-    return func.callList(paramValues)
+    func := method.func//.bind([instance]) // because after bind param names are erased (1.0.56)
+    paramValues := resolveParamValues(func.params[1..-1], req)
+    return func.callList(paramValues.insert(0, instance))
   }
   
   virtual Obj? tryCall(Func func, Req req) {
@@ -56,8 +56,11 @@ mixin View {
       return req
       
     if (req.context.containsKey(param.name)) {
-      Str paramStr := req.context[param.name]
-      return param.type == Str# ? paramStr : param.type.method("fromStr").call(paramStr)
+      return req.context[param.name]
+      // TODO maybe some intelligent conversion later
+      
+//      Str paramStr := req.context[param.name]
+//      return param.type == Str# ? paramStr : param.type.method("fromStr").call(paramStr)
     }
     
     throw ArgErr("Unmatched action param '$param.name' in $caller
@@ -176,9 +179,7 @@ class StaticView : Turtle {
     return response
   }
 
-  **
   ** This method supports ETag "If-None-Match" and "If-Modified-Since" modification time.
-  **
   virtual protected Bool checkNotModified(Req req, File file) {
     // check If-Match-None
     matchNone := req.headers["If-None-Match"]

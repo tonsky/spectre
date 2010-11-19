@@ -12,22 +12,39 @@ spectre_webapp.fan
 ------------------
     using spectre
 
+    
     class SpectreWebapp : Settings {
       new make(File appDir) : super(appDir) {
         routes := Router { routes([
-          ["/", IndexView#index],
+          ["/", TestView#index],
           ["/items/", IndexView#items],
           ["/item/{idx:\\d+}", IndexView#itemByIdx],
+          ["/item/{id}/", |Req req2, Str id->Res?| { IndexView.make.item(id) }], //won't work
+          ["/item/{method}/{id}/", IndexView#], //won't work either
+
+          ["/set-cookie/", TestView#setCookie],
+          ["/delete-cookie/", TestView#deleteCookie],
+
+          ["/init-session/", TestView#initSession],
+          ["/change-session/", TestView#changeSession],
+          ["/clear-session/", TestView#clearSession],
+
           ["/err/", BrokenView#err],
+
           ["/static/*", StaticView.make(appDir + `static/`)]
         ])}
 
         root = Handler500 { child = 
           Handler404 { child = 
-            routes
+            SessionMiddleware(routes) {
+              sessionStore = InmemorySessionStore { 
+                maxSessionAge = Duration.fromStr("5sec")
+                cleanupPeriod = Duration.fromStr("3sec")
+              }
+            }
           }
         }
-    
+
         templateDirs = [
           appDir + `templates/`
         ]
@@ -39,26 +56,49 @@ views.fan
 ---------
     using spectre
 
-    class IndexView : MustacheTemplates {
-      Res index() {
-        return renderToResponse("index.html", ["title":"Hi there"])
+    class TestView : MustacheTemplates {
+      Res index(Req req) {
+        session := req.context["session"]
+        context := ["title":"Hi there", "cookies": req.cookies, "session": session]
+        res := renderToResponse("index.html", context)
+        res.setCookie(Cookie { name = "z"; val = "index"/*; maxAge = Duration.fromStr("1day")*/ })
+          .setCookie(Cookie { name = "secondcookie"; val = "b"/*; maxAge = Duration.fromStr("1day")*/ })
+          .setCookie(Cookie { name = "thirdcookie"; val = "c"/*; maxAge = Duration.fromStr("1day")*/ })
+        return res
       }
-  
-      Res items() {
-        return renderToResponse("items.html", ["items": ["Alice", "Bob", "Charlie"],
-                                               "title": "Items list page"])
+
+      Res initSession(Req req) {
+        Session session := req.context["session"]
+        session["test"] = "test_value"
+
+        return ResRedirect(`/`)
       }
-  
-      Res item(Str id) {
-        return renderToResponse("item.html", ["id": id, "title": "Item page $id"])
+
+      Res changeSession(Req req, Session session) {
+        session.set("test", "changed_value")
+
+        return ResRedirect(`/`)
       }
-  
-      Res itemByIdx(Int idx) {
-        item = "item"
-        return Res(
-          "<a href='/'>Index</a> → <a href='/items/'>Items</a> → <strong>item [$idx]</strong>"
-          + "<h1>Item page</h1>" + item
-          + "<br/><br/><a href='/'>Back to main</a>")
+
+      Res clearSession(Req req, Session session) {
+        session.delete
+        return ResRedirect(`/`)
+      }
+
+      virtual Res setCookie(Req req) {
+        res := ResRedirect(`/`)
+          .setCookie(Cookie { name = req.get["cookie-name"]; val = req.get["cookie-value"]/*; maxAge = Duration.fromStr("1day")*/ })
+          .setCookie(Cookie { name = "secondcookie"; val = "b"/*; maxAge = Duration.fromStr("1day")*/ })
+          .setCookie(Cookie { name = "thirdcookie"; val = "c"/*; maxAge = Duration.fromStr("1day")*/ })
+
+        res.headers["Content-Length"] = "1400"
+    //    res.headers["Connection"] = "close"
+
+        return res
+      }
+
+      virtual Res deleteCookie(Req req) {
+        return ResRedirect(`/`).deleteCookie(req.get["cookie-name"])
       }
     }
 

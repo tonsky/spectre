@@ -49,15 +49,22 @@ const class WispApp : WebMod {
   }
   
   override Void onService() {
-    Req req := WebletReq()
-    
-    Res? response := activeApp.dispatch(req)
-    if(response != null)
-      writeResponse(response)
-    else {
+    try {
+      Req req := WebletReq()
+      
+      Res? response := activeApp.dispatch(req)
+      if(response != null)
+        writeResponse(response)
+      else {
+        throw Err("App returned empty response")
+      }
+    } catch(Err err) {
+      log.err("Error occured", err)
+
       res.statusCode = 500
       res.headers["Content-Type"] = "text/html"
-      res.out.writeChars("App returned empty response")
+      res.out.writeChars("<h1>500 Internal server error</h1>"
+                       + "<pre>${Util.traceToStr(err)}</pre>")
       res.done
     }
   }

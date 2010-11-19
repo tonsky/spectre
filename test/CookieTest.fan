@@ -72,16 +72,16 @@ class CookieTest : Test {
   }
   
   Void testToStr() {
-    verifyEq(Cookie { name="a"; val="b" }.toStr, "a=b;Path=/")
-    verifyEq(Cookie { name="a"; val="b"; path="/"; domain="a.com"; secure=true }.toStr, "a=b;Domain=a.com;Path=/;Secure")
-    verifyEq(Cookie { name="a"; val="b c d" }.toStr, "a=\"b c d\";Path=/")
-    verifyEq(Cookie { name="a"; val="b;c=d" }.toStr, "a=\"b\\x3bc=d\";Path=/")
+    verifyEq(Cookie { name="a"; val="b" }.toStr, "a=b; Path=/")
+    verifyEq(Cookie { name="a"; val="b"; path="/"; domain="a.com"; secure=true }.toStr, "a=b; Domain=a.com; Path=/; Secure")
+    verifyEq(Cookie { name="a"; val="b c d" }.toStr, "a=\"b c d\"; Path=/")
+    verifyEq(Cookie { name="a"; val="b;c=d" }.toStr, "a=\"b\\x3bc=d\"; Path=/")
 
     // testing expires
     // TODO may fail on if second change after this call
     nextDay := (DateTime.nowUtc+Duration.fromStr("1day")).toHttpStr
-    verifyEq(Cookie { name="a"; val="b"; maxAge = Duration.fromStr("1day") }.toStr, "a=b;Max-Age=86400;Expires=$nextDay;Path=/")
-    verifyEq(Cookie { name="a"; maxAge = Duration.make(-1) }.toStr, "a=;Max-Age=0;Expires=Sat, 01 Jan 2000 00:00:00 GMT;Path=/")
+    verifyEq(Cookie { name="a"; val="b"; maxAge = Duration.fromStr("1day") }.toStr, "a=b; Max-Age=86400; Expires=$nextDay; Path=/")
+    verifyEq(Cookie { name="a"; maxAge = Duration.make(-1) }.toStr, "a=; Max-Age=0; Expires=Sat, 01 Jan 2000 00:00:00 GMT; Path=/")
     
     // incorrect names
     verifyErr(ArgErr#) { Cookie { name="a b c"; val = "b" }.toStr }

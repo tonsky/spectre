@@ -1,4 +1,6 @@
 
+using concurrent
+
 abstract class Util
 {
   const static Log log := Util#.pod.log
@@ -33,4 +35,11 @@ abstract class Util
     
     return found
   }
+  
+  static Str traceToStr(Err err, Int maxDepth := 1000) {
+    buf := StrBuf() 
+    err.trace(buf.out, ["maxDepth": 1000])
+    return buf.toStr
+  } 
 }
+

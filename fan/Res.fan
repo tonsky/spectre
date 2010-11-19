@@ -3,9 +3,9 @@ using web
 
 class Res {
   virtual Str:Str headers := [:]
-  internal virtual Int statusCode
-  internal virtual Obj body 
-  internal virtual Charset charset := Settings.instance.charset
+  virtual Int statusCode
+  virtual Obj body 
+  virtual Charset charset := Settings.instance.charset
   
   new make(Obj content := "", Int status := 200, Str? contentType := "text/html") {
     this.body = content

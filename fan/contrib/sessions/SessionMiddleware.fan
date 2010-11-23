@@ -55,7 +55,7 @@ class SessionMiddleware : Middleware {
   ** 
   Bool saveEveryRequest := false
   
-  new make(Turtle child, |This|? f := null) : super(child) { f?.call(this) }
+  new make(|This|? f := null) { f?.call(this) }
 
   override Res? dispatch(Req req) {
     cookieData := loadCookieData(req)
@@ -63,13 +63,14 @@ class SessionMiddleware : Middleware {
     req.context[contextAttrName] = session
     
     Res? res := child.dispatch(req)
-
-    Str? updatedCookieData := sessionStore.save(session, cookieData, saveEveryRequest)
-    if (null == updatedCookieData)
-      res.deleteCookie(cookieName)
-    else
-      if (cookieData != updatedCookieData || saveEveryRequest)
-        saveCookie(updatedCookieData, res)
+    if (res != null) {
+      Str? updatedCookieData := sessionStore.save(session, cookieData, saveEveryRequest)
+      if (null == updatedCookieData)
+        res.deleteCookie(cookieName)
+      else
+        if (cookieData != updatedCookieData || saveEveryRequest)
+          saveCookie(updatedCookieData, res)
+    }
 
     return res
   }

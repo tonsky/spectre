@@ -3,7 +3,7 @@ using web
 
 abstract class Req {
   const static Log log := WatchPodActor#.pod.log
-  [Str:Obj] context := [:]
+  [Str:Obj?] context := [:]
   
   abstract QueryMap get()
   abstract QueryMap post()
@@ -23,6 +23,6 @@ abstract class Req {
     [Str:Str] result := [:]
     cookies := spectre::Cookie.load(cookieHeader)
     cookies.each { result.add(it.name, it.val) }
-    return result
+    return result.toImmutable
   }
 }

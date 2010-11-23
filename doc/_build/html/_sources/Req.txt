@@ -1,0 +1,42 @@
+.. _Req:
+
+Req
+===
+
+Represents incoming http request. A new instance of :ref:`Req` will be created for each incoming request. :ref:`Req` instance is read-only mostly except for :ref:`req.context <ref_context>`.
+
+.. class:: Req
+
+   .. attribute:: pathInfo
+   
+      ``Uri`` of current http request
+
+   .. attribute:: get
+   .. attribute:: post
+
+      ``QueryMap`` of current request arguments. ``QueryMap`` interface is mostly equivalent to ``[Str:Str]``, except that it allows multiple values for single key (accessed through ``getList(Str key)`` method).
+
+   .. attribute:: request
+
+      Contains values from both :attr:`get` and :attr:`post` combined in a single ``QueryMap``. If value exist in both :attr:`get` and :attr:`post`, value from :attr:`post` is used.
+
+   .. attribute:: headers
+
+      ``[Str:Str]`` of http request headers
+
+   .. attribute:: method
+   
+      ``Str`` of http request method (``"get"`` or ``"post"`` or another)
+
+   .. attribute:: cookies
+
+      ``[Str:Str]`` of current browser session cookies. It's for reading only, to set cookie, use :func:`~Res.setCookie`.
+
+   .. attribute:: context
+   
+      ``[Str:Obj?]`` usually populated by middlewares to prepare values for views. All values presented in ``context`` can be used as view arguments (resolved by name).
+ 
+      Two standard use cases of :attr:`context` includes:
+
+      + :class:`Router` will put capture values to context if url matches this route.
+      + :class:`SessionMiddleware` puts ``Session session`` object in context.

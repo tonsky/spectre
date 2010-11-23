@@ -5,7 +5,7 @@ using web::WebUtil
 ** and brower as defined by the original Netscape cookie specification
 ** and RFC 2109.  Note the newer RFC 2965 is unsupported by most browsers,
 ** and even 2109 isn't really supported by some of the major browsers.
-** See `Req.cookies` and `Res.cookies`.
+** See `Req.cookies` and `Res.setCookie`.
 **
 class Cookie {
   ** These strings cannot be used as cookie names
@@ -84,8 +84,8 @@ class Cookie {
 
   **
   ** Defines the lifetime of the cookie, after the the max-age
-  ** elapses the client should discard the cookie.  The duration
-  ** is floored to seconds (fractional seconds are truncated).
+  ** elapses the client should discard the cookie.  
+  ** 
   ** If maxAge is null (the default) then the  cookie persists
   ** until the client is shutdown.  If zero is specified, the
   ** cookie is discarded immediately.  Note that many browsers

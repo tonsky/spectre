@@ -19,14 +19,14 @@ class StaticView : Turtle {
     
     // if file doesn't exist
     if (!file.exists) {
-      return Res("File not found: $file", 404)
+      return Res("File not found: $file", ["statusCode" : 404])
     }
 
     //FIXME investigate this bug in safari
 //    if (checkNotModified(req, file))
 //      return Res("", 304)
     
-    response := Res(file, 200, file.mimeType?.toStr ?: "")
+    response := Res(file, ["contentType" : file.mimeType?.toStr ?: ""])
     
     // set identity headers
     response.headers["ETag"] = etag(file)

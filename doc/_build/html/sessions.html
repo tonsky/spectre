@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Sessions &mdash; Spectre v0.9 documentation</title>
+    <title>Sessions &mdash; Spectre v0.8 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.9',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,8 +22,9 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Spectre v0.9 documentation" href="index.html" />
-    <link rel="prev" title="Cookie" href="Cookie.html" /> 
+    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
+    <link rel="next" title="Cookie" href="Cookie.html" />
+    <link rel="prev" title="Res" href="Res.html" /> 
   </head>
   <body>
     <div class="related">
@@ -31,8 +32,11 @@
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="Cookie.html" title="Cookie"
-             accesskey="P">previous</a></li>
-        <li><a href="index.html">Spectre v0.9 documentation</a> &raquo;</li> 
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="Res.html" title="Res"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
 
@@ -42,36 +46,114 @@
             
   <div class="section" id="sessions">
 <h1>Sessions<a class="headerlink" href="#sessions" title="Permalink to this headline">¶</a></h1>
-<p>Session provides a name/value map associated with a specific browser &#8220;connection&#8221; to the web server.</p>
-<p>You can inject session to your view using &#8216;Session session&#8217; view arg (recommended) or find it in <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> as <tt class="docutils literal"><span class="pre">req.context[&quot;session&quot;]</span></tt>.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Sessions will only be avaliable after <tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt> is executed.</p>
-</div>
-<p>To make sessions work, you should specify a session store to define a way you want your sesisons to be stored. For now, spectre offers only one type of store: <tt class="xref py py-class docutils literal"><span class="pre">InmemoreSessionStore</span></tt>.</p>
+<p><a class="reference internal" href="#Session" title="Session"><tt class="xref py py-class docutils literal"><span class="pre">Session</span></tt></a> provides a name/value map associated with a specific browser &#8220;connection&#8221; to the web server. You can inject session to your view using &#8216;Session session&#8217; view arg (recommended) or access it as <tt class="docutils literal"><span class="pre">req.context[&quot;session&quot;]</span></tt>.</p>
 <dl class="class">
 <dt id="Session">
 <em class="property">class </em><tt class="descname">Session</tt><a class="headerlink" href="#Session" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="function">
+<dd><p>A common interface you&#8217;ll work with in your code.</p>
+<dl class="function">
 <dt>
 <tt class="descname">Obj? get(Str k)</tt></dt>
-<dd><p>Return value stored in session.</p>
+<dd><p>Return value stored in current session.</p>
 </dd></dl>
 
 <dl class="function">
 <dt>
 <tt class="descname">This set(Str k, Obj? v)</tt></dt>
-<dd><p>Store value in session.</p>
+<dd><p>Store value in current session.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="Session.map">
 <tt class="descname">map</tt><a class="headerlink" href="#Session.map" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is a map of values stored in the current session. Note that this field will usually be read-only, use <tt class="xref py py-func docutils literal"><span class="pre">set()</span></tt> to set/change value in session.</p>
+<dd><p><tt class="docutils literal"><span class="pre">[Str:Obj?]</span></tt> of values stored in the current session. Note that this field will usually be read-only, use <tt class="xref py py-func docutils literal"><span class="pre">set()</span></tt> method to set/change value in current session.</p>
 </dd></dl>
 
 </dd></dl>
 
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Sessions will only be avaliable after <a class="reference internal" href="#SessionMiddleware" title="SessionMiddleware"><tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt></a> was executed (see below).</p>
+</div>
+<div class="section" id="setting-up">
+<h2>Setting up<a class="headerlink" href="#setting-up" title="Permalink to this headline">¶</a></h2>
+<p>To set up sessions, wrap your app with <a class="reference internal" href="#SessionMiddleware" title="SessionMiddleware"><tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt></a> and specify <a class="reference internal" href="#SessionMiddleware.sessionStore" title="SessionMiddleware.sessionStore"><tt class="xref py py-attr docutils literal"><span class="pre">sessionStore</span></tt></a> attribute. For now, spectre offers only one type of store: <a class="reference internal" href="#InmemorySessionStore" title="InmemorySessionStore"><tt class="xref py py-class docutils literal"><span class="pre">InmemorySessionStore</span></tt></a>.</p>
+<p>Example:</p>
+<div class="highlight-python"><pre>sessionMiddlware := SessionMiddleware {
+  sessionStore = InmemorySessionStore {
+    maxSessionAge = Duration.fromStr("14day")
+    cleanupPeriod = Duration.fromStr("1hr")
+  }
+}
+
+sessionMiddlware.wrap(router)</pre>
+</div>
+<dl class="class">
+<dt id="SessionMiddleware">
+<em class="property">class </em><tt class="descname">SessionMiddleware</tt><a class="headerlink" href="#SessionMiddleware" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="SessionMiddleware.sessionStore">
+<tt class="descname">sessionStore</tt><a class="headerlink" href="#SessionMiddleware.sessionStore" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">SessionStore</span></tt>. How to store sessions. Must be assigned in constructor.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SessionMiddleware.cookieName">
+<tt class="descname">cookieName</tt><a class="headerlink" href="#SessionMiddleware.cookieName" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt>. Name of cookie used to identify user&#8217;s session. Defaults to <tt class="docutils literal"><span class="pre">&quot;__spectre_session&quot;</span></tt>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SessionMiddleware.cookieDomain">
+<tt class="descname">cookieDomain</tt><a class="headerlink" href="#SessionMiddleware.cookieDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">Str?</span></tt>. Domain parameter of session cookie. See <a class="reference internal" href="Cookie.html#Cookie.domain" title="Cookie.domain"><tt class="xref py py-attr docutils literal"><span class="pre">Cookie.domain</span></tt></a>. Defaults to <tt class="docutils literal"><span class="pre">null</span></tt>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SessionMiddleware.cookiePath">
+<tt class="descname">cookiePath</tt><a class="headerlink" href="#SessionMiddleware.cookiePath" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">Str?</span></tt>. Path parameter of session cookie. See <a class="reference internal" href="Cookie.html#Cookie.path" title="Cookie.path"><tt class="xref py py-attr docutils literal"><span class="pre">Cookie.path</span></tt></a>. Defaults to <tt class="docutils literal"><span class="pre">null</span></tt>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SessionMiddleware.cookieSecure">
+<tt class="descname">cookieSecure</tt><a class="headerlink" href="#SessionMiddleware.cookieSecure" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">Str?</span></tt>. Secure parameter of session cookie. See <a class="reference internal" href="Cookie.html#Cookie.secure" title="Cookie.secure"><tt class="xref py py-attr docutils literal"><span class="pre">Cookie.secure</span></tt></a>. Defaults to <tt class="docutils literal"><span class="pre">false</span></tt>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SessionMiddleware.contextAttrName">
+<tt class="descname">contextAttrName</tt><a class="headerlink" href="#SessionMiddleware.contextAttrName" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt>. Name to store session in <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a>. Defaults to <tt class="docutils literal"><span class="pre">&quot;session&quot;</span></tt>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SessionMiddleware.saveEveryRequest">
+<tt class="descname">saveEveryRequest</tt><a class="headerlink" href="#SessionMiddleware.saveEveryRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">Bool</span></tt>. If set to <tt class="docutils literal"><span class="pre">true</span></tt>, session&#8217;s last accessed time and session cookie will be updated on each request.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="InmemorySessionStore">
+<em class="property">class </em><tt class="descname">InmemorySessionStore</tt><a class="headerlink" href="#InmemorySessionStore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store all session data in memory. For performance reasons it&#8217;s allowed to store constant objects only (<tt class="docutils literal"><span class="pre">toImmutable</span> <span class="pre">==</span> <span class="pre">true</span></tt>).</p>
+<dl class="attribute">
+<dt id="InmemorySessionStore.maxSessionAge">
+<tt class="descname">maxSessionAge</tt><a class="headerlink" href="#InmemorySessionStore.maxSessionAge" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">Duration?</span></tt>. All sessions updated more than <a class="reference internal" href="#InmemorySessionStore.maxSessionAge" title="InmemorySessionStore.maxSessionAge"><tt class="xref py py-attr docutils literal"><span class="pre">maxSessionAge</span></tt></a> ago will be invalidated. When set to null, sessions will last until browser window close. Defaults to 14 days.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="InmemorySessionStore.cleanupPeriod">
+<tt class="descname">cleanupPeriod</tt><a class="headerlink" href="#InmemorySessionStore.cleanupPeriod" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">Duration?</span></tt>. Session store will run cleaning (removing expired sessions from memory) with this interval. When set to null, no cleaning will be run. Defaults to 1 hour.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -84,8 +166,11 @@
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="Cookie.html" title="Cookie"
-             >previous</a></li>
-        <li><a href="index.html">Spectre v0.9 documentation</a> &raquo;</li> 
+             >next</a></li>
+        <li class="right" >
+          <a href="Res.html" title="Res"
+             >previous</a> |</li>
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

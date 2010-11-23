@@ -2,15 +2,20 @@ Spectre web framework
 ===================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+
+   installation
+   getting_started
+   devserver
 
    turtles
    routing
    views
+   templates
    Req
    Res
-   Cookie
    sessions
+   Cookie
 
 .. Indices and tables
 .. ==================

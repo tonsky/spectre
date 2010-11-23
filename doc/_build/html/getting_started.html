@@ -1,0 +1,253 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Getting started &mdash; Spectre v0.8 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
+    <link rel="next" title="Spectre development server" href="devserver.html" />
+    <link rel="prev" title="Installing Spectre" href="installation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="devserver.html" title="Spectre development server"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="installation.html" title="Installing Spectre"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>Let&#8217;s create your first Spectre application. Create a folder where you&#8217;ll keep all your app files:</p>
+<div class="highlight-python"><pre>demo_app/
+  fan/
+  static/
+  templates/
+  build.fan</pre>
+</div>
+<p>The only thing mandatory here is the <tt class="docutils literal"><span class="pre">build.fan</span></tt> file, it must exists in the root folder of your app. Everything else may be changed to better fit your needs.</p>
+<p>In <tt class="docutils literal"><span class="pre">build.fan</span></tt>, specify dependency on Spectre v.0.8:</p>
+<div class="highlight-python"><pre>using build
+class Build : build::BuildPod {
+  new make() {
+    podName = "demo_app"
+    summary = ""
+    srcDirs = [`fan/`]
+    depends = ["sys 1.0", "spectre 0.8"]
+  }
+}</pre>
+</div>
+<p>In <tt class="docutils literal"><span class="pre">fan/</span></tt> create your root application&#8217;s class:</p>
+<div class="highlight-python"><pre>using spectre
+
+class DemoApp : Settings {
+  new make(File appDir) : super() {
+
+  }
+}</pre>
+</div>
+<p>You&#8217;ll need one and only one <tt class="xref py py-class docutils literal"><span class="pre">Settings</span></tt> implementation in your app, it will be used as a root of your application. For application to work, you set <tt class="xref py py-attr docutils literal"><span class="pre">Settings.root</span></tt> property to the root <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a> of your application.</p>
+<p>Let&#8217;s add some routes and set them as the root of our app:</p>
+<div class="highlight-python"><pre>using spectre
+
+class DemoApp : Settings {
+  new make(File appDir) : super() {
+    routes := Router {
+      ["/", IndexView#index],
+    }
+
+    root = Handler500().wrap(
+             Handler404().wrap(
+               routes
+             )
+           )
+  }
+}</pre>
+</div>
+<p>Here we&#8217;ve added two error barriers (<tt class="xref py py-class docutils literal"><span class="pre">Handler500</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">Handler404</span></tt>) which will catch errors in our app and show error messages to user explaning what happened. It&#8217;s recommended to set them as top-level middlewares of your app.</p>
+<p>Our route still points at an unimplemented class method (view). Let&#8217;s implement it:</p>
+<div class="highlight-python"><pre>class IndexView {
+  Res? index() {
+    return Res("&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello from the other world!&lt;/h1&gt;&lt;a href='/items/'&gt;List of items&lt;/a&gt;&lt;/body&gt;&lt;/html&gt;")
+  }
+}</pre>
+</div>
+<p>Now you can run:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fan</span> <span class="n">spectre</span><span class="p">::</span><span class="n">WispServer</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">demo_app</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>and point your browser at <a class="reference external" href="http://localhost:8080/">http://localhost:8080/</a>. You should see your hello message. Relax, take a cup of coffee, take a deep breath. We&#8217;re just in the beginning.</p>
+<p>What we&#8217;ve done is the simplest possible way to implement view: just return <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> instance with all the content of html page. However, we are not using any power of templates at all. Let&#8217;s fix that in <tt class="xref py py-class docutils literal"><span class="pre">ItemsView</span></tt>:</p>
+<div class="highlight-python"><pre>class ItemsView {
+  [Str:Obj][] items() {
+    [["id": 1, "name": "Item 1"], ["id": 2, "name": "Item 2"], ["id": 3, "name": "Item 3"]]
+  }
+
+  TemplateRes list() {
+    return TemplateRes("items_list.html", ["items": items])
+  }
+}</pre>
+</div>
+<p>By returning <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt>, we are sending data obtained in view (<tt class="docutils literal"><span class="pre">items</span></tt>) to be rendered in <tt class="xref py py-attr docutils literal"><span class="pre">template</span></tt> <tt class="docutils literal"><span class="pre">items_list.html</span></tt> with <tt class="xref py py-attr docutils literal"><span class="pre">context</span></tt> <tt class="docutils literal"><span class="pre">[&quot;items&quot;:</span> <span class="pre">items]</span></tt>. Let&#8217;s create <tt class="docutils literal"><span class="pre">items_list.html</span></tt> template in <tt class="docutils literal"><span class="pre">templates</span></tt> folder:</p>
+<div class="highlight-python"><pre>&lt;html&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Items:&lt;/h1&gt;
+    &lt;ul&gt;
+      {{#items}}
+        &lt;li&gt;&lt;a href="/items/{{id}}/"&gt;{{name}}&lt;/a&gt;&lt;/li&gt;
+      {{/items}}
+    &lt;/ul&gt;
+
+    &lt;br/&gt;&lt;br/&gt;
+    &lt;a href="/"&gt;← Return to main page&lt;/a&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</pre>
+</div>
+<p>Syntax used here is the &#8220;mustache&#8221; template language. You can find a really short introduction to musatche syntax <a class="reference external" href="http://mustache.github.com/mustache.5.html">on their website</a>.</p>
+<p>For this template to work, we should wrap routes with <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt>. <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will then be properly intercepted and rendered. Add this to <tt class="xref py py-class docutils literal"><span class="pre">DemoApp</span></tt> constructor:</p>
+<div class="highlight-python"><pre>tempalteRenderer := MustacheRenderer { templateDirs = [appDir + `templates/`] }
+
+root = Handler500().wrap(
+         Handler404().wrap(
+           tempalteRenderer.wrap(
+             routes
+           )
+         )
+       )</pre>
+</div>
+<p>And don&#8217;t forget to add a route to our brand-new <tt class="xref py py-class docutils literal"><span class="pre">ItemsView</span></tt> class:</p>
+<div class="highlight-python"><pre>routes := Router {
+  ["/", IndexView#index],
+  ["/items/", ItemsView#list],
+}</pre>
+</div>
+<p>Switch back to your browser, find a link on the index page and click it. You should be redirected to view we&#8217;ve just implemented. Have you noticed that without restarting the server you still could see new changes? That&#8217;s a feature, not a bug (see <a class="reference internal" href="devserver.html"><em>Spectre development server</em></a> for more details. You also will find out how to put static files into your project — css, js, images. This can make your app much prettier).</p>
+<p>But we&#8217;re not using any request parameters yet. Let&#8217;s fix it by creating a page for individual item. Add a method to <tt class="xref py py-class docutils literal"><span class="pre">ItemsView</span></tt>:</p>
+<div class="highlight-python"><pre>TemplateRes edit(Str itemId) {
+  Int _itemId := Int.fromStr(itemId)
+  item := items.find { it["id"] as Int == _itemId }
+
+  return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"]])
+}</pre>
+</div>
+<p>now add a route:</p>
+<div class="highlight-python"><pre>routes := Router {
+  ...
+  ["/items/{itemId}/", ItemsView#edit],
+}</pre>
+</div>
+<p><tt class="docutils literal"><span class="pre">itemId</span></tt> parameter will be captured in url and passed to your view as an <tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt> argument with the same name. Finally you create a template:</p>
+<div class="highlight-python"><pre>&lt;html&gt;
+  &lt;body&gt;
+    &lt;h1&gt;{{name}}&lt;/h1&gt;
+
+    &lt;form action="." method="POST"&gt;
+      &lt;table&gt;
+        &lt;tr&gt;
+          &lt;td&gt;Id:&lt;/td&gt;&lt;td&gt;{{id}}&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td&gt;Name:&lt;/td&gt;&lt;td&gt;&lt;input type="text" name="name" value="{{name}}"/&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td&gt;&lt;/td&gt;
+          &lt;td&gt;
+            &lt;div style="color: lightgreen"&gt;{{message}}&lt;/div&gt;
+            &lt;input type="submit" value="Save changes"/&gt;
+          &lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/table&gt;
+    &lt;/form&gt;
+    &lt;br/&gt;&lt;br/&gt;
+    &lt;a href="/items"&gt;← Return to items&lt;/a&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</pre>
+</div>
+<p>Now on <a class="reference external" href="http://localhost:8080/items/1/">http://localhost:8080/items/1/</a> you should see a form, but the button doesn&#8217;t work. Let&#8217;s change our view a little:</p>
+<div class="highlight-python"><pre>TemplateRes edit(Str itemId, Req req) {
+  Int _itemId := Int.fromStr(itemId)
+  item := items.find { it["id"] as Int == _itemId }
+
+  Str message := ""
+
+  if (req.method == "POST") {
+    item["name"] = req.post["name"]
+    message = "Item '" + item["name"] + "' saved"
+  }
+
+  return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"], "message": message])
+}</pre>
+</div>
+<p>Here we detect form posting via <a class="reference internal" href="Req.html#Req.method" title="Req.method"><tt class="xref py py-attr docutils literal"><span class="pre">Req.method</span></tt></a> attribute, and then access form data through <a class="reference internal" href="Req.html#Req.post" title="Req.post"><tt class="xref py py-attr docutils literal"><span class="pre">Req.post</span></tt></a> which is a map-like object containing all POST parameters.</p>
+<p>&#8220;Save changes&#8221; button should work now. If you were watching close enough you&#8217;ll see that changes are not actually persisted, but hey, it&#8217;s just a demo. You should get the general idea.</p>
+<p>Last thing is missing: we should redirect back to page using GET after processing POST request to avoid form reposting on page refresh. Let&#8217;s see how we can do this:</p>
+<div class="highlight-python"><pre>Res edit(Str itemId, Req req) {
+  Int _itemId := Int.fromStr(itemId)
+  item := items.find { it["id"] as Int == _itemId }
+
+  if (req.method == "POST") {
+    item["name"] = req.post["name"]
+    Str message := "Item '" + item["name"] + "' saved"
+    return ResRedirect(Uri.fromStr("/items/" + item["id"] + "/?message=$message"))
+  }
+
+  Str message := req.get.get("message", "")
+
+  return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"], "message": message])
+}</pre>
+</div>
+<p>Here we just return <a class="reference internal" href="Res.html#ResRedirect" title="ResRedirect"><tt class="xref py py-class docutils literal"><span class="pre">ResRedirect</span></tt></a> from view that will issue 302 FOUND http redirect.</p>
+<p>Congratulations! You&#8217;ve just completed this tutorial and should have basic undestanding of how to build applications with Spectre. You may now continue by reading <a class="reference internal" href="turtles.html"><em>Understanding basics</em></a> to get a deeper understanding of how these things actually work. Wish you good luck!</p>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="devserver.html" title="Spectre development server"
+             >next</a></li>
+        <li class="right" >
+          <a href="installation.html" title="Installing Spectre"
+             >previous</a> |</li>
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, xored &amp; Nikita Prokopov.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

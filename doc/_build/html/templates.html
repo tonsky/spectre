@@ -1,0 +1,101 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Templates &mdash; Spectre v0.8 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
+    <link rel="next" title="Req" href="Req.html" />
+    <link rel="prev" title="Views" href="views.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="Req.html" title="Req"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="views.html" title="Views"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="templates">
+<h1>Templates<a class="headerlink" href="#templates" title="Permalink to this headline">¶</a></h1>
+<p>Usually you&#8217;ll need pages a little bit more complex than just a <tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt> with substitution variables. That&#8217;s where you&#8217;ll need templates.</p>
+<p>Templates are simple text files (html, xml, csv, etc.) with special instructions in them. For now, spectre comes with built-in support for mustache templates only. You can find a really short introduction to musatche syntax <a class="reference external" href="http://mustache.github.com/mustache.5.html">on their website</a>.</p>
+<p>The recommended way to deal with templating is to return <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> object from the view and then intercept it and render in template rendering middleware. This decouples view from presentation details and leaves you a place to do something site-wide with <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> after it was returned from view (e.g. populate <tt class="xref py py-attr docutils literal"><span class="pre">context</span></tt> with some site-wide attributes like current user&#8217;s name, or change path to <tt class="xref py py-class docutils literal"><span class="pre">template</span></tt> basing on client&#8217;s platform, moving this logic out of view).</p>
+<div class="section" id="how-to-use-templates">
+<h2>How to use templates<a class="headerlink" href="#how-to-use-templates" title="Permalink to this headline">¶</a></h2>
+<p>First, create <tt class="docutils literal"><span class="pre">templates/</span></tt> folder somewhere inside your app&#8217;s folder (it&#8217;s just a convention, you are free to choose any name you want).</p>
+<p>Set up renderer by wrapping your app with <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt>:</p>
+<div class="highlight-python"><pre>tempalteRenderer := MustacheRenderer { templateDirs = [appDir + `templates/`] }
+tempalteRenderer.wrap(router)</pre>
+</div>
+<p>Then, create a template file inside <tt class="docutils literal"><span class="pre">templates/</span></tt> folder, for example <tt class="docutils literal"><span class="pre">index.html</span></tt>:</p>
+<div class="highlight-python"><pre>&lt;h1&gt;Hello from other world, {{name}}!&lt;/h1&gt;
+You have just won ${{value}}!&lt;br/&gt;
+{{#in_ca}}
+Well, ${{taxed_value}}, after taxes.
+{{/in_ca}}</pre>
+</div>
+<p>Finally, return <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> instead of <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> from view:</p>
+<div class="highlight-python"><pre>Res index(Req req, Session session) {
+  context := ["name": session["current_user"].name,
+              "value": 200,
+              "in_ca": true,
+              "taxed_value": 15]
+  return TemplateRes("index.html", context)
+}</pre>
+</div>
+<p>When intercepted by <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will be rendered using <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.template</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.context</span></tt>, and result will be stored in <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.content</span></tt>. After that, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will be used as a typical <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> instance — returned from app, its content will be sent to the client.</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="Req.html" title="Req"
+             >next</a></li>
+        <li class="right" >
+          <a href="views.html" title="Views"
+             >previous</a> |</li>
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, xored &amp; Nikita Prokopov.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

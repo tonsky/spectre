@@ -6,20 +6,22 @@ There are three kinds of views supported:
 
 + class method;
 + static class method;
-+ ``Func`` object (closures; note that due to the `Fantom bug #1308 <http://fantom.org/sidewalk/topic/1308>`_ only :ref:`Req` parameter is supported for closures).
++ ``Func`` object (including closures; note that due to the `Fantom bug #1308 <http://fantom.org/sidewalk/topic/1308>`_ only :ref:`Req` parameter is now supported for closures).
 
-When called, view function args are resolved within :attr:`Req.context` by their names. :attr:`Req.context` contains all route capture values, session object (usually under name ``"session"``; only if :class:`SessionMiddleware` was executed before). Additionaly, :class:`Req` itself is also allowed as a view argument, but it will be resolved by its type.
+When called, view function args are resolved within :attr:`Req.context` by their names. :attr:`Req.context` contains all url path capture values, session object (usually under name ``"session"``; only if :class:`SessionMiddleware` was executed before). Additionaly, :class:`Req` itself is also allowed as a view argument, but it will be resolved by its type.
 
-All non-default args must be resovlable, otherwise ``ArgErr`` will be thrown.
+All non-default args of view function must be resovlable, otherwise :class:`ArgErr` will be thrown.
 
-When view is a class method, new class instance will be creared upon each request. Constructor args are resolved exactly in the same way as view args are.
+If view is a class method, new class instance will be creared upon each request. Constructor args are resolved exactly in the same way as view args are.
 
-.. rubric:: Returning result
+Returning result
+----------------
 
 Each view must return :class:`Res` instance or ``null``. 
 
 
-.. rubric:: Examples
+Examples
+--------
 
 Having following route: ::
 
@@ -53,7 +55,7 @@ or even as::
     ...
   }
 
-or::
+or as a closure::
 
   |Req req->Res?| { return Res(...) }
 

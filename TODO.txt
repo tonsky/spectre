@@ -1,7 +1,10 @@
+QueryDecode doesn't actually decodes percents and spaces!!!
+Report compilation errors
+
 Request
 ----------------
 (v) Cookies
-Session
+(v) Session
 raw in stream
 
 Conditional responses
@@ -11,7 +14,7 @@ Investigate multiple cookies bug
 
 Templates
 ---------
-Template response
+(v) Template response
 
 
 Response
@@ -38,3 +41,6 @@ Middlewares
 -----------
 APPEND_SLASH
 PREPEND_WWW
+
+
+StaticView: serve single files like favicon.ico, not "pathTail" only.

@@ -1,0 +1,29 @@
+==========
+ Sessions
+==========
+
+Session provides a name/value map associated with a specific browser "connection" to the web server.
+   
+You can inject session to your view using 'Session session' view arg (recommended) or find it in :attr:`Req.context` as ``req.context["session"]``.
+   
+.. note::
+   Sessions will only be avaliable after :class:`SessionMiddleware` is executed. 
+      
+To make sessions work, you should specify a session store to define a way you want your sesisons to be stored. For now, spectre offers only one type of store: :class:`InmemoreSessionStore`.
+   
+   
+.. class:: Session
+
+   A common interface you'll work with in your code.
+
+   .. function:: Obj? get(Str k)
+   
+      Return value stored in session.
+      
+   .. function:: This set(Str k, Obj? v)
+   
+      Store value in session.
+
+   .. attribute:: map
+   
+      This is a map of values stored in the current session. Note that this field will usually be read-only, use :func:`set` to set/change value in session.

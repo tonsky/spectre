@@ -1,15 +1,19 @@
-Spectre
-=======
+=========
+ Spectre
+=========
 
-Requires  
-* [mustache](https://github.com/vspy/mustache)  
-* [fantom 1.0.56](http://fantom.org)  
+Requires:
+
+* `mustache <https://github.com/vspy/mustache>`_
+* `fantom 1.0.56 <http://fantom.org>`_
 
 Sample application
 ==================
 
 spectre_webapp.fan
 ------------------
+::
+
     using spectre
 
     
@@ -54,6 +58,8 @@ spectre_webapp.fan
     
 views.fan
 ---------
+::
+
     using spectre
 
     class TestView : MustacheTemplates {
@@ -110,7 +116,9 @@ views.fan
 
 How to ru(i)n it
 ----------------
-    >>> fan spectre/build.fan
-    >>> fan spectre::WispServer spectre_webapp/
+::
 
-Where `spectre_webapp/` is a path to your application home dir with `build.fan` in it
+    >>> fan spectre/build.fan
+    >>> fan spectre::WispServer spectre_demo_app/
+
+Where ``spectre_demo_app/`` is a path to your application home dir with ``build.fan`` in it.

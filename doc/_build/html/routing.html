@@ -1,0 +1,146 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Routing &mdash; Spectre v0.9 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Spectre v0.9 documentation" href="index.html" />
+    <link rel="next" title="Views" href="views.html" />
+    <link rel="prev" title="Turtles all the way down" href="turtles.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="views.html" title="Views"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="turtles.html" title="Turtles all the way down"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Spectre v0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="routing">
+<h1>Routing<a class="headerlink" href="#routing" title="Permalink to this headline">¶</a></h1>
+<p>Routing scheme of spectre app is defined as one or more <a class="reference internal" href="#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">turtles</span></tt></a>.</p>
+<dl class="class">
+<dt id="Router">
+<em class="property">class </em><tt class="descname">Router</tt><a class="headerlink" href="#Router" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of <tt class="docutils literal"><span class="pre">[&lt;route</span> <span class="pre">path&gt;,</span> <span class="pre">&lt;view</span> <span class="pre">function&gt;]</span></tt> tuples. All routes are matched in the order they are defined until matched route is found. On first match corresponding <a class="reference internal" href="views.html"><em>view function</em></a> will be invoked, and if it returns not-null value, this value is returned from <a class="reference internal" href="#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> itself. If view returned null result, matching will be continued until next matched route is found.</p>
+<p class="rubric">Example</p>
+<div class="highlight-python"><pre>router := Router {
+  ["/", ViewClass#index],
+  ["/items/", ViewClass#itemsList],
+  ["/item/{idx:\\d{4}}", ViewClass#itemByIdx],
+  ["/item/{id}/", |Req req-&gt;Res?| { return Res("Item ${req.context['id']} requested" }],
+  ["/item/{method}/{id}/", IndexView#]
+}</pre>
+</div>
+</dd></dl>
+
+<p>There are three types of matching:</p>
+<p><strong>Strict matching:</strong></p>
+<blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;/&quot;</span>
+<span class="s">&quot;/orders/&quot;</span>
+<span class="s">&quot;/some/app/edit&quot;</span>
+</pre></div>
+</div>
+<p>Number of slashed doesn&#8217;t count here.</p>
+</blockquote>
+<p><strong>Pathterm capturing:</strong></p>
+<blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;/orders/{id}/&quot;</span>
+<span class="s">&quot;/orders/{id}/{action}/&quot;</span>
+</pre></div>
+</div>
+<p>In this case all urls starting with <tt class="docutils literal"><span class="pre">&quot;orders&quot;</span></tt> followed by one or two pathterms (any strings) will match (i.e. <tt class="docutils literal"><span class="pre">&quot;/orders/1234/&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;/orders/camcoder/&quot;</span></tt> or <tt class="docutils literal"><span class="pre">&quot;orders/x56/edit&quot;</span></tt>). Actual value for each capture arg will be stored in <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> under name specified in curly braces.</p>
+<p>Additional regex may be specified to narrow match criteria:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;/articles-by-year/{year:</span><span class="se">\\</span><span class="s">d{4}}/&quot;</span>
+</pre></div>
+</div>
+<p>In this case, <tt class="docutils literal"><span class="pre">&quot;/articles-by-year/1985/&quot;</span></tt> will match, but <tt class="docutils literal"><span class="pre">&quot;/articles-by-year/100500/&quot;</span></tt> will not. You can capture whole pathterm (string between two adjacent slashes) only.</p>
+</blockquote>
+<p><strong>Tail matching:</strong></p>
+<blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;/files/*&quot;</span>
+</pre></div>
+</div>
+<p>If you specify <tt class="docutils literal"><span class="pre">/*</span></tt> at the end of url, only beginnig of url will be matched. Value of pathtail will be stored in <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> under name <tt class="docutils literal"><span class="pre">&quot;pathTail&quot;</span></tt>. <tt class="docutils literal"><span class="pre">/*</span></tt> is allowed at the end of route only.</p>
+</blockquote>
+<div class="section" id="passing-views">
+<h2>Passing views<a class="headerlink" href="#passing-views" title="Permalink to this headline">¶</a></h2>
+<p>You can pass any <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a> instead of view function:</p>
+<div class="highlight-python"><pre>router := Router {
+  ["/", ViewClass#index],
+  ["/comments", commentsAppTurtle],
+  ...
+}</pre>
+</div>
+<p>or you can include any turtle <em>instead</em> of route-view tuple:</p>
+<div class="highlight-python"><pre>router := Router {
+  ["/", ViewClass#index],
+  commentsAppTurtle,
+  ...
+}</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Behind the scenes, <a class="reference internal" href="#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> is a <a class="reference internal" href="turtles.html#Selector" title="Selector"><tt class="xref py py-class docutils literal"><span class="pre">Selector</span></tt></a>. It converts each tuple to <tt class="xref py py-class docutils literal"><span class="pre">UrlMatcherTurtle</span></tt> which do exactly following:</p>
+<ol class="arabic simple">
+<li>checks if current <a class="reference internal" href="Req.html#Req.pathInfo" title="Req.pathInfo"><tt class="xref py py-attr docutils literal"><span class="pre">Req.pathInfo</span></tt></a> matches specified route path;</li>
+<li>if yes, populates <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> with capture args from route path (if any), and calls view function;</li>
+<li>if no, returns <tt class="docutils literal"><span class="pre">null</span></tt>, so next route may be tested.</li>
+</ol>
+<p class="last">If there is a <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a> instead of tuple in array, it will be used as-is.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="views.html" title="Views"
+             >next</a></li>
+        <li class="right" >
+          <a href="turtles.html" title="Turtles all the way down"
+             >previous</a> |</li>
+        <li><a href="index.html">Spectre v0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, xored &amp; Nikita Prokopov.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

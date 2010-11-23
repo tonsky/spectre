@@ -3,7 +3,27 @@
 ** A unit of request processing hierarchy
 ** 
 mixin Turtle {
-  virtual Res? dispatch(Req req) { null }
+  abstract Res? dispatch(Req req)
+}
+
+**
+** Returns first not-null result obtained from children 
+** 
+class Selector : Turtle {
+  Turtle[] children := [,]
+
+  **
+  ** This class accepts Turtles only, but children may support other argument types
+  ** 
+  virtual This add(Obj obj) {
+    if (obj is Turtle)
+      children.add(obj)
+    else
+      throw ArgErr("${obj.typeof} cannot be added, Turtle required")
+    return this
+  }
+  
+  override Res? dispatch(Req req) { return children.eachWhile { it.dispatch(req) } }
 }
 
 **
@@ -11,8 +31,9 @@ mixin Turtle {
 ** and do something before and/or after child's dispatch.
 ** 
 abstract class Middleware : Turtle {
-  Turtle child
-  new make(Turtle child) { this.child = child }
+  Turtle? child
+
+  virtual This wrap(Turtle child) { this.child = child; return this }
   
   override Res? dispatch(Req req) {
     before(req)
@@ -37,9 +58,7 @@ const class Http404 : Err {
 **
 ** `Http404` error barrier, catch `Http404` and render error message to `Res`
 ** 
-class Handler404 : Turtle {
-  Turtle? child
-  
+class Handler404 : Middleware {
   override Res? dispatch(Req req) {
     try {
       return child.dispatch(req) ?: dispatchEmptyResponse(req)
@@ -68,9 +87,7 @@ class Handler404 : Turtle {
 **
 ** Top-level error barrier, catch any `Err` and render error message to `Res`
 ** 
-class Handler500 : Turtle {
-  Turtle? child
-  
+class Handler500 : Middleware {
   override Res? dispatch(Req req) {
     try {
       return child.dispatch(req)

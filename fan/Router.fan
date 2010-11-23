@@ -5,6 +5,48 @@ const class InvalidPatternErr : Err {
     : super.make("Cannot parse urlpattern '$pattern': $msg", cause) {}
 }
 
+class Router : Selector {
+  Str basepath := ""// not used yet
+
+  virtual Turtle asRoute(Obj route) { route is Str ? any(route) : route as Turtle }
+  
+  virtual Turtle? asView(Obj target) {
+    if (target is Turtle)
+      return target
+    else if (target is Func)
+      return FuncView { func = target }
+    else if (target is Method) {
+      m := target as Method
+      if (m.isStatic)
+        return FuncView { func = m.func }
+      else
+        return MethodView(m)
+    } 
+    return null
+  }
+  
+  virtual Turtle any(Str path) { UrlMatcherTurtle(UrlMatcher(path)) }
+  
+  virtual Void routes(Obj[][] arg) { arg.each { Router#bind.func.callOn(this, it) } }
+  
+  virtual Void bind(Obj route, Obj target) {
+    route = asRoute(route)
+    route->child = asView(target)
+    children.add(route)
+  }
+  
+  override This add(Obj obj) {
+    if (obj is Turtle)
+      return super.add(obj) as Router
+    else if (obj is Obj[] && obj->size >= 2)
+      bind(obj->get(0), obj->get(1))
+    else
+      throw ArgErr("${obj.typeof} cannot be added, Turtle or [path, view] required")
+    return this
+  }
+}
+
+
 const class Pathterm {
   const static Regex var := Regex <|\{([^:]*)\:?([^:]*)?\}|>
   const static Regex anystr := Regex <|[^/]+|>
@@ -119,37 +161,3 @@ class UrlMatcherTurtle : Turtle {
   }
 }
 
-class Router : Turtle {
-  Turtle[] _routes := [,]
-
-  new make(|This| f) { f.call(this) }
-
-  virtual Turtle asRoute(Obj route) { route is Str ? any(route) : route as Turtle }
-  
-  virtual Turtle? asView(Obj target) {
-    if (target is Turtle)
-      return target
-    else if (target is Func)
-      return FuncView { func = target }
-    else if (target is Method) {
-      m := target as Method
-      if (m.isStatic)
-        return FuncView { func = m.func }
-      else
-        return MethodView(m)
-    } 
-    return null
-  }
-  
-  virtual Turtle any(Str path) { UrlMatcherTurtle(UrlMatcher(path)) }
-  
-  virtual Void routes(Obj[][] arg) { arg.each { Router#bind.func.callOn(this, it) } }
-  
-  virtual Void bind(Obj route, Obj target) {
-    route = asRoute(route)
-    route->child = asView(target)
-    _routes.add(route)
-  }
-  
-  override Res? dispatch(Req req) { return _routes.eachWhile { it.dispatch(req) } }
-}

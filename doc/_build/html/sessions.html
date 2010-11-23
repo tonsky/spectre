@@ -1,0 +1,96 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Sessions &mdash; Spectre v0.9 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Spectre v0.9 documentation" href="index.html" />
+    <link rel="prev" title="Cookie" href="Cookie.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="Cookie.html" title="Cookie"
+             accesskey="P">previous</a></li>
+        <li><a href="index.html">Spectre v0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="sessions">
+<h1>Sessions<a class="headerlink" href="#sessions" title="Permalink to this headline">¶</a></h1>
+<p>Session provides a name/value map associated with a specific browser &#8220;connection&#8221; to the web server.</p>
+<p>You can inject session to your view using &#8216;Session session&#8217; view arg (recommended) or find it in <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> as <tt class="docutils literal"><span class="pre">req.context[&quot;session&quot;]</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Sessions will only be avaliable after <tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt> is executed.</p>
+</div>
+<p>To make sessions work, you should specify a session store to define a way you want your sesisons to be stored. For now, spectre offers only one type of store: <tt class="xref py py-class docutils literal"><span class="pre">InmemoreSessionStore</span></tt>.</p>
+<dl class="class">
+<dt id="Session">
+<em class="property">class </em><tt class="descname">Session</tt><a class="headerlink" href="#Session" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="function">
+<dt>
+<tt class="descname">Obj? get(Str k)</tt></dt>
+<dd><p>Return value stored in session.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">This set(Str k, Obj? v)</tt></dt>
+<dd><p>Store value in session.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Session.map">
+<tt class="descname">map</tt><a class="headerlink" href="#Session.map" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a map of values stored in the current session. Note that this field will usually be read-only, use <tt class="xref py py-func docutils literal"><span class="pre">set()</span></tt> to set/change value in session.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="Cookie.html" title="Cookie"
+             >previous</a></li>
+        <li><a href="index.html">Spectre v0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, xored &amp; Nikita Prokopov.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

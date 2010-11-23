@@ -6,15 +6,14 @@ using concurrent
 ** Descendant of this class is an entry point of web application
 ** 
 abstract class Settings {
-  new make(File appDir) { this.appDir = appDir }
+//  new make(File appDir) { this.appDir = appDir }
   
 //////////////////////////////////////////////////////////////////////////
 // Settings
 //////////////////////////////////////////////////////////////////////////
   
-  File? appDir
+//  File? appDir
   Turtle? root
-  File[] templateDirs := [,]  
   Charset charset := Charset.utf8  
   
 //////////////////////////////////////////////////////////////////////////

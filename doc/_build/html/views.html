@@ -1,0 +1,115 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Views &mdash; Spectre v0.9 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Spectre v0.9 documentation" href="index.html" />
+    <link rel="next" title="Req" href="Req.html" />
+    <link rel="prev" title="Routing" href="routing.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="Req.html" title="Req"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="routing.html" title="Routing"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Spectre v0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="views">
+<span id="id1"></span><h1>Views<a class="headerlink" href="#views" title="Permalink to this headline">¶</a></h1>
+<p>There are three kinds of views supported:</p>
+<ul class="simple">
+<li>class method;</li>
+<li>static class method;</li>
+<li><tt class="docutils literal"><span class="pre">Func</span></tt> object (closures; note that due to the <a class="reference external" href="http://fantom.org/sidewalk/topic/1308">Fantom bug #1308</a> only <a class="reference internal" href="Req.html#req"><em>Req</em></a> parameter is supported for closures).</li>
+</ul>
+<p>When called, view function args are resolved within <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> by their names. <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> contains all route capture values, session object (usually under name <tt class="docutils literal"><span class="pre">&quot;session&quot;</span></tt>; only if <tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt> was executed before). Additionaly, <a class="reference internal" href="Req.html#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> itself is also allowed as a view argument, but it will be resolved by its type.</p>
+<p>All non-default args must be resovlable, otherwise <tt class="docutils literal"><span class="pre">ArgErr</span></tt> will be thrown.</p>
+<p>When view is a class method, new class instance will be creared upon each request. Constructor args are resolved exactly in the same way as view args are.</p>
+<p class="rubric">Returning result</p>
+<p>Each view must return <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> instance or <tt class="docutils literal"><span class="pre">null</span></tt>.</p>
+<p class="rubric">Examples</p>
+<p>Having following route:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;/orders/{id}/{action}/&quot;</span>
+</pre></div>
+</div>
+<p>for request:</p>
+<div class="highlight-python"><pre>/orders/76/edit/</pre>
+</div>
+<p><a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> will contain:</p>
+<div class="highlight-python"><pre>["id"     : "76",
+ "action" : "edit",
+ "session": &lt;session obj&gt;]</pre>
+</div>
+<p>and view funcion may be defined as:</p>
+<div class="highlight-python"><pre>Res? view (Req req, Str id, Str action, Str smth := "abc") {
+  ...
+}</pre>
+</div>
+<p>or as:</p>
+<div class="highlight-python"><pre>static Res? view (Str action, Session session) {
+  ...
+}</pre>
+</div>
+<p>or even as:</p>
+<div class="highlight-python"><pre>Res? view() {
+  ...
+}</pre>
+</div>
+<p>or:</p>
+<div class="highlight-python"><pre>|Req req-&gt;Res?| { return Res(...) }</pre>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="Req.html" title="Req"
+             >next</a></li>
+        <li class="right" >
+          <a href="routing.html" title="Routing"
+             >previous</a> |</li>
+        <li><a href="index.html">Spectre v0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, xored &amp; Nikita Prokopov.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

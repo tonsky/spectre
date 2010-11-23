@@ -83,7 +83,7 @@ class Cookie {
   Str val := ""
 
   **
-  ** Defines the lifetime of the cookie, after the the max-age
+  ** Lifetime of this cookie, after max-age
   ** elapses the client should discard the cookie.  
   ** 
   ** If maxAge is null (the default) then the  cookie persists
@@ -95,7 +95,7 @@ class Cookie {
   Duration? maxAge
 
   **
-  ** Specifies the domain for which the cookie is valid.
+  ** Domain for which the cookie is valid.
   ** An explicit domain must always start with a dot.  If
   ** null (the default) then the cookie only applies to
   ** the server which set it.
@@ -103,9 +103,9 @@ class Cookie {
   Str? domain
 
   **
-  ** Specifies the subset of URLs to which the cookie applies.
+  ** Subset of URLs to which the cookie applies.
   ** If set to "/" (the default), then the cookie applies to all
-  ** paths.  If the path is null, it as assumed to be the same
+  ** paths.  If the path is null, it is assumed to be the same
   ** path as the document being described by the header which
   ** contains the cookie.
   **

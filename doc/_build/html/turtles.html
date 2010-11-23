@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Turtles all the way down &mdash; Spectre v0.9 documentation</title>
+    <title>Understanding basics &mdash; Spectre v0.8 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.9',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,9 +22,9 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Spectre v0.9 documentation" href="index.html" />
+    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
     <link rel="next" title="Routing" href="routing.html" />
-    <link rel="prev" title="Spectre web framework" href="index.html" /> 
+    <link rel="prev" title="Spectre development server" href="devserver.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,9 +34,9 @@
           <a href="routing.html" title="Routing"
              accesskey="N">next</a></li>
         <li class="right" >
-          <a href="index.html" title="Spectre web framework"
+          <a href="devserver.html" title="Spectre development server"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Spectre v0.9 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
 
@@ -44,34 +44,39 @@
       <div class="documentwrapper">
           <div class="body">
             
-  <div class="section" id="turtles-all-the-way-down">
-<h1>Turtles all the way down<a class="headerlink" href="#turtles-all-the-way-down" title="Permalink to this headline">¶</a></h1>
-<p>Turtles are unified building blocks of any spectre application. The name &#8220;Turtle&#8221; was inspired by Simon Willison&#8217;s <a class="reference external" href="http://simonwillison.net/2009/May/19/djng/">article</a>, one of the authors of Django, who originally proposed idea to unify different parts of Django under common contract.</p>
+  <div class="section" id="understanding-basics">
+<h1>Understanding basics<a class="headerlink" href="#understanding-basics" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="turtles-all-the-way-down">
+<h2>Turtles all the way down<a class="headerlink" href="#turtles-all-the-way-down" title="Permalink to this headline">¶</a></h2>
+<p>Turtles are unified building blocks of any Spectre application. The name &#8220;Turtle&#8221; was inspired by Simon Willison&#8217;s <a class="reference external" href="http://simonwillison.net/2009/May/19/djng/">article</a>, who originally proposed an idea to unify different parts of Django under common contract.</p>
 <dl class="class">
 <dt id="Turtle">
 <em class="property">class </em><tt class="descname">Turtle</tt><a class="headerlink" href="#Turtle" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="function">
 <dt>
 <tt class="descname">Res? dispatch(Req req)</tt></dt>
-<dd><p>Process request. Turtles may process request by itself, skip processing to subsequent turtles or delegate processing to inherited turtles and do some pre/post processing job. Unified contract makes application parts rearrangeble, interchangable, easy to understand and reuse.</p>
+<dd><p>Process request. Turtles may process request by themselves, skip processing to subsequent turtles or delegate processing to inherited turtles and do some pre/post processing job for them.</p>
 </dd></dl>
 
 </dd></dl>
 
-<p>For now, following parts are implemented as turtles:</p>
+<p>Unified contract makes application parts rearrangeable, interchangable, easy to understand and reuse. For now, the following parts are implemented as turtles:</p>
 <ul class="simple">
 <li>top-level error barriers (<tt class="xref py py-class docutils literal"><span class="pre">Handler500</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">Handler404</span></tt>);</li>
-<li>middlewares (e.g. <tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt>);</li>
+<li>middlewares (e.g. <a class="reference internal" href="sessions.html#SessionMiddleware" title="SessionMiddleware"><tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt></a>);</li>
 <li><a class="reference internal" href="routing.html#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a>;</li>
 <li>individual view wrappers;</li>
 <li><tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> processors (template renderers);</li>
 <li>flow control and grouping turtles (e.g. <a class="reference internal" href="#Selector" title="Selector"><tt class="xref py py-class docutils literal"><span class="pre">Selector</span></tt></a>);</li>
 <li>finally, whole application is just a <a class="reference internal" href="#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a>.</li>
 </ul>
+</div>
+<div class="section" id="basic-turtles-implementations">
+<h2>Basic turtles implementations<a class="headerlink" href="#basic-turtles-implementations" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="Selector">
 <em class="property">class </em><tt class="descname">Selector</tt><a class="headerlink" href="#Selector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Groups a bunch of turtles and choose first of them that returns not-null <em class="xref std std-ref">Res</em>:</p>
+<dd><p>Group a bunch of turtles and choose first that returns not-null <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a>:</p>
 <div class="highlight-python"><pre>Selector {
   turtle1,
   turtle2,
@@ -83,29 +88,29 @@
 <dl class="class">
 <dt id="Middleware">
 <em class="property">class </em><tt class="descname">Middleware</tt><a class="headerlink" href="#Middleware" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wraps another <em class="xref std std-ref">Turtle</em> and do pre- or post-processing work on <a class="reference internal" href="Req.html#req"><em>Req</em></a>/<em class="xref std std-ref">Res</em> objects.</p>
+<dd><p>Wrap another <a class="reference internal" href="#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a> and do pre- or post-processing work on <a class="reference internal" href="Req.html#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a>/<a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> objects.</p>
 <dl class="function">
 <dt>
 <tt class="descname">This wrap(Turtle child)</tt></dt>
-<dd><p>Wrap another turtle. Same may be done by assigning <tt class="xref py py-attr docutils literal"><span class="pre">child</span></tt> in costructor.</p>
+<dd><p>Wrap another turtle. Another way to do this is to assign value to <tt class="xref py py-attr docutils literal"><span class="pre">child</span></tt> attribute.</p>
 </dd></dl>
 
 <dl class="function">
 <dt>
 <tt class="descname">Void before(Req req)</tt></dt>
-<dd><p>Is called before invoking child&#8217;s dispatch.</p>
+<dd><p>Is called before invoking child&#8217;s <tt class="xref py py-func docutils literal"><span class="pre">dispatch()</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt>
 <tt class="descname">Res? after(Req req, Res? res)</tt></dt>
-<dd><p>Is called after child&#8217;s dispatch.</p>
+<dd><p>Is called after child&#8217;s <tt class="xref py py-func docutils literal"><span class="pre">dispatch()</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt>
 <tt class="descname">Res? safeAfter(Req req, Res res)</tt></dt>
-<dd><p>Is called when child&#8217;s dispatch returned not-null <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a>, otherwise null be returned from middleware without invoking <tt class="xref py py-func docutils literal"><span class="pre">safeAfter()</span></tt>.</p>
+<dd><p>Is called when child&#8217;s <tt class="xref py py-func docutils literal"><span class="pre">dispatch()</span></tt> has returned not-null <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a>, otherwise <tt class="docutils literal"><span class="pre">null</span></tt> will be returned from middleware without invoking <tt class="xref py py-func docutils literal"><span class="pre">safeAfter()</span></tt>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -113,6 +118,7 @@
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Usually a single instance of turtle will be constructed for each actor processing requests in web server, so you cannot rely on any local variables or actor&#8217;s locals inside turtle instances.</p>
+</div>
 </div>
 </div>
 
@@ -128,9 +134,9 @@
           <a href="routing.html" title="Routing"
              >next</a></li>
         <li class="right" >
-          <a href="index.html" title="Spectre web framework"
+          <a href="devserver.html" title="Spectre development server"
              >previous</a> |</li>
-        <li><a href="index.html">Spectre v0.9 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

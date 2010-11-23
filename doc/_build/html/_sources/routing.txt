@@ -5,7 +5,7 @@ Routing scheme of spectre app is defined as one or more :class:`Router` :class:`
 
 .. class:: Router
 
-   Takes a list of ``[<route path>, <view function>]`` tuples. All routes are matched in the order they are defined until matched route is found. On first match corresponding :doc:`view function <views>` will be invoked, and if it returns not-null value, this value is returned from :class:`Router` itself. If view returned null result, matching will be continued until next matched route is found.
+   Take a list of ``[<route path>, <view function>]`` tuples. All routes are matched in the order they are defined until matched route is found. On the first match corresponding :doc:`view function <views>` will be invoked, and if it returns not-null value, this value is returned from :class:`Router` itself. If view returned null result, matching will be continued until the next matched route is found.
 
    .. rubric:: Example
 
@@ -52,7 +52,7 @@ There are three types of matching:
 
     "/files/*"
 
-  If you specify ``/*`` at the end of url, only beginnig of url will be matched. Value of pathtail will be stored in :attr:`Req.context` under name ``"pathTail"``. ``/*`` is allowed at the end of route only.
+  If you specify ``/*`` at the end of URL, only beginnig of URL will be matched. The value of pathtail will be stored in :attr:`Req.context` under name ``"pathTail"``. ``/*`` is allowed at the end of route only.
 
 Passing views
 -------------
@@ -75,10 +75,10 @@ or you can include any turtle *instead* of route-view tuple::
 
 .. note::
 
-	Behind the scenes, :class:`Router` is a :class:`Selector`. It converts each tuple to :class:`UrlMatcherTurtle` which do exactly following:
+	Behind the scenes, :class:`Router` is a :class:`Selector`. It converts each tuple to :class:`UrlMatcherTurtle` which does exactly following:
 
 	1. checks if current :attr:`Req.pathInfo` matches specified route path;
 	2. if yes, populates :attr:`Req.context` with capture args from route path (if any), and calls view function;
 	3. if no, returns ``null``, so next route may be tested.
 	
-	If there is a :class:`Turtle` instead of tuple in array, it will be used as-is.
+	If there is a :class:`Turtle` instead of tuple in array, its :func:`~Trutle.dispatch` will be called.

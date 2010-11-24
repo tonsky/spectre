@@ -144,17 +144,67 @@ class QueryMapTest : Test {
     verifyDecode("a=b&c=d", ["a": "b", "c": "d"])
     verifyDecode("a=b;c=d", ["a": "b", "c": "d"])
 
+    //multiple values
     verifyDecode("x=1&x=2&y=9&x=3",["x": ["1", "2", "3"], "y": "9"])
     
     //escapes
     verifyDecode("a=b\\&c\\=d", ["a": "b&c=d"])
     verifyDecode(Str <|a=h2\=\=;b\\b=c&d\;e|>, ["a": "h2==", "b\\b": "c", "d;e": ""])
     verifyDecode(Str <|\\\;\&\#=\#\&\=\;\\|>, ["\\;&#":"#&=;\\"])
+    
+    verifyDecode("x=Hello%3Dworld", ["x": "Hello=world"])
+    verifyDecode("x=Hello+world", ["x": "Hello world"])
   }
 
   Void testEncode() {
     verifyEq(QueryMap.make.setList("a", ["b", "c", "d"]).set("e", "f").set("g", "").encode, "a=b&a=c&a=d&e=f&g=")
     verifyEq(QueryMap.encodeQuery(["a": ["b,c,d"]]), "a=b,c,d")
     verifyEq(QueryMap.encodeQuery(["a": ["b=c&d=e"]]), "a=b%3Dc%26d%3De")
+    
+    verifyEq(QueryMap.encodeQuery(["a": ["Hello world"]]), "a=Hello%20world")
+    verifyEq(QueryMap.encodeQuery(["a": ["Hello;world&x=y"]]), "a=Hello%3Bworld%26x%3Dy")
+    verifyEq(QueryMap.encodeQuery(["a": ["абюя"]]), "a=%D0%B0%D0%B1%D1%8E%D1%8F")
+  }
+  
+  Void testDecodeParts() {
+    verifyEq(QueryMap.nextOctet("abcdef", 0), ['a', 1])
+    verifyEq(QueryMap.nextOctet("abcdef", 2), ['c', 3])
+    verifyEq(QueryMap.nextOctet("abcdef", 5), ['f', 6])
+    
+    verifyEq(QueryMap.nextOctet("%20", 0), [' ', 3])
+    verifyEq(QueryMap.nextOctet("%20ab", 0), [' ', 3])
+    verifyEq(QueryMap.nextOctet("a%20b", 1), [' ', 4])    
+    verifyEq(QueryMap.nextOctet("ab%20", 2), [' ', 5])
+
+    verifyEq(QueryMap.nextOctet("+ab", 0), [' ', 1])
+    verifyEq(QueryMap.nextOctet("a+b", 1), [' ', 2])    
+    verifyEq(QueryMap.nextOctet("ab+", 2), [' ', 3])
+    
+    verifyErr(ParseErr#) { QueryMap.nextOctet("ab%2", 2) }
+    verifyErr(ParseErr#) { QueryMap.nextOctet("ab%0g", 2) }
+    
+    // next char
+    verifyEq(QueryMap.nextChar("abcdef", 0), ['a', 1])
+    verifyEq(QueryMap.nextChar("abcdef", 2), ['c', 3])
+    verifyEq(QueryMap.nextChar("abcdef", 5), ['f', 6])
+    
+    verifyEq(QueryMap.nextChar("%20", 0), [' ', 3])
+    verifyEq(QueryMap.nextChar("%20ab", 0), [' ', 3])
+    verifyEq(QueryMap.nextChar("a%20b", 1), [' ', 4])    
+    verifyEq(QueryMap.nextChar("ab%20", 2), [' ', 5])
+
+    verifyEq(QueryMap.nextChar("+ab", 0), [' ', 1])
+    verifyEq(QueryMap.nextChar("a+b", 1), [' ', 2])    
+    verifyEq(QueryMap.nextChar("ab+", 2), [' ', 3])
+    
+    verifyErr(ParseErr#) { QueryMap.nextChar("ab%2", 2) }
+    verifyErr(ParseErr#) { QueryMap.nextChar("ab%0g", 2) }
+    
+    verifyEq(QueryMap.nextChar("%D0%B0%D0%B1%D1%8E%D1%8F", 0), ['а', 6])
+    verifyErr(ParseErr#) { QueryMap.nextChar("%D0%B0%D0%B1%D1%8E%D1%8F", 3) }
+    verifyEq(QueryMap.nextChar("%D0%B0%D0%B1%D1%8E%D1%8F", 6), ['б', 12])
+    verifyEq(QueryMap.nextChar("%D0%B0%D0%B1%D1%8E%D1%8F", 12), ['ю', 18])
+    verifyEq(QueryMap.nextChar("%D0%B0%D0%B1%D1%8E%D1%8F", 18), ['я', 24])
+    
   }
 }

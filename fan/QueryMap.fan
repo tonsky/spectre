@@ -281,7 +281,7 @@ class QueryMap {
   ** ArgErr is the string is malformed.  See `encodeQuery`.
   **
   static QueryMap decodeQuery(Str? q) {
-    map := QueryMap.make
+    map := QueryMap()
     if (q == null)
       return map
 
@@ -290,32 +290,33 @@ class QueryMap {
       eq := 0
       len := q.size
       prev := 0
-      escaped := false
+      hasEscapes := false
       
       for (i := 0; i < len; ++i) {
         ch := q[i]
         if (prev != '\\') {
-          if (ch == '=') eq = i
+          if (ch == '=')
+            eq = i
           if (ch != '&' && ch != ';') {
             prev = ch
             continue
           }
         } else {
-          escaped = true
+          hasEscapes = true
           prev = (ch != '\\') ? ch : 0
           continue
         }
 
         if (start < i) {
-          addQueryParam(map, q, start, eq, i, escaped)
-          escaped = false
+          addQueryParam(map, q, start, eq, i, hasEscapes)
+          hasEscapes = false
         }
 
         start = eq = i+1
       }
 
       if (start < len)
-        addQueryParam(map, q, start, eq, len, escaped)
+        addQueryParam(map, q, start, eq, len, hasEscapes)
     } catch (Err e) {
       // don't let internal error bring down whole uri
       log.err("Error parsing uri", e) 
@@ -324,27 +325,30 @@ class QueryMap {
     return map
   }
   
-  private static Void addQueryParam(QueryMap map, Str q, Int start, Int eq, Int end, Bool escaped) {
+  private static Void addQueryParam(QueryMap map, Str q, Int start, Int eq, Int end, Bool hasEscapes) {
     Str? key
     Str? val
     if (start == eq && q[start] != '=') {
-      key = toQueryStr(q, start, end, escaped)
+      key = toQueryStr(q, start, end, hasEscapes)
       val = ""
     } else {
-      key = toQueryStr(q, start, eq, escaped)
-      val = toQueryStr(q, eq+1, end, escaped)
+      key = toQueryStr(q, start, eq, hasEscapes)
+      val = toQueryStr(q, eq+1, end, hasEscapes)
     }
 
     map.setList(key, map.getList(key, Str?[,]).add(val))
   }
   
-  private static Str toQueryStr(Str q, Int start, Int end, Bool escaped) {
-    if (!escaped)
-      return q[start..<end]
+  private static Str toQueryStr(Str q, Int start, Int end, Bool hasEscapes) {
+//    if (!hasEscapes)
+//      return q[start..<end]
     s := StrBuf.make(end-start)
     prev := 0
-    for (i := start; i < end; ++i) {
-      Int c := q[i]
+    for (i := start; i < end;) {
+      Obj[] res := nextChar(q, i)
+      Int c := res[0]
+      i = res[1]
+      
       if (c != '\\') {
         s.addChar(c)
         prev = c
@@ -359,4 +363,62 @@ class QueryMap {
     return s.toStr
   }
 
+  
+  internal static Int[] nextChar(Str arg, Int startPos) {
+    Int[] res := nextOctet(arg, startPos)
+    Int c := res[0]
+    Int pos := res[1]
+    
+    switch(c.shiftr(4)) {
+      case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+        /* 0xxxxxxx*/
+        return [c, pos]
+      case 12: case 13:
+        /* 110x xxxx   10xx xxxx*/
+        res = nextOctet(arg, pos)
+        Int c2 := res[0]
+        pos = res[1]
+      
+        if (c2.and(0xC0) != 0x80)
+          throw ParseErr("Invalid UTF-8 encoding at $startPos: " + arg[startPos..<pos]);
+        return [c.and(0x1F).shiftl(6).or(c2.and(0x3F)), pos]
+      case 14:
+        /* 1110 xxxx  10xx xxxx  10xx xxxx */
+        res = nextOctet(arg, pos)
+        Int c2 := res[0]
+        pos = res[1]
+      
+        res = nextOctet(arg, pos)
+        Int c3 := res[0]
+        pos = res[1]
+
+        if (c2.and(0xC0) != 0x80 || c3.and(0xC0) != 0x80)
+          throw ParseErr("Invalid UTF-8 encoding at $startPos: " + arg[startPos..<pos]);
+        return [c.and(0x0F).shiftl(12).or(c2.and(0x3F).shiftl(6)).or(c3.and(0x3F)), pos]
+      default:
+        return [c, pos]
+//        throw ParseErr("Invalid UTF-8 encoding at $startPos: " + arg[startPos..<pos]);
+    }
+  }
+  
+  internal static Int[] nextOctet(Str arg, Int pos) {
+    c := arg[pos++]
+    if (c == '%') {
+      if(arg.size < pos+2)
+        throw ParseErr("Invalid char at " + (pos-1) + ": " + arg[pos-1..-1])
+
+      d1 := arg[pos++].fromDigit(16)
+      d2 := arg[pos++].fromDigit(16)
+      if(d1 == null || d2 == null)
+        throw ParseErr("Invalid char at " + (pos-1) + ": " + arg[pos-1..-1])
+      
+      Int decodedChar := d1.shiftl(4).or(d2)
+      return [decodedChar, pos]
+    }
+    
+    if (c == '+')
+      return [' ', pos]
+    
+    return [c, pos]
+  }
 }

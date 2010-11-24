@@ -40,6 +40,10 @@ abstract class Util
     buf := StrBuf() 
     err.trace(buf.out, ["maxDepth": 1000])
     return buf.toStr
-  } 
+  }
+  
+  static Str urlencode(Str str) {
+    return str.replace(";", "\\;").replace("=", "\\=").replace("&", "\\&")
+  }
 }
 

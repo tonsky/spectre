@@ -35,7 +35,7 @@ In ``fan/`` create your root application's class::
   
 You'll need one and only one :class:`Settings` implementation in your app, it will be used as a root of your application. For application to work, you set :attr:`Settings.root` property to the root :class:`Turtle` of your application.
 
-Let's add some routes and set them as the root of our app::
+To add routes we create :class:`Router` class and pass a list of ``[route path, view method]`` tuples to it::
 
   using spectre
 
@@ -53,12 +53,12 @@ Let's add some routes and set them as the root of our app::
     }
   }
   
-Here we've added two error barriers (:class:`Handler500`, :class:`Handler404`) which will catch errors in our app and show error messages to user explaning what happened. It's recommended to set them as top-level middlewares of your app.
+Also we've added two error barriers (:class:`Handler500`, :class:`Handler404`) which will catch errors in our app and show error messages to user explaning what happened. As you can see, our router is wrapped by this barriers, so all the errors in the router will be captured and processed properly. It's recommended to set these barriers as top-level middlewares of your app.
 
-Our route still points at an unimplemented class method (view). Let's implement it::
+Our route still points at an unimplemented class method (view). To implement it, we just create a class with ``index`` method returning :class:`Res` ::
 
   class IndexView {
-    Res? index() {
+    Res index() {
       return Res("<html><body><h1>Hello from the other world!</h1><a href='/items/'>List of items</a></body></html>")
     }
   }
@@ -193,7 +193,7 @@ Last thing is missing: we should redirect back to page using GET after processin
     if (req.method == "POST") {
       item["name"] = req.post["name"]
       Str message := "Item '" + item["name"] + "' saved"
-      return ResRedirect(Uri.fromStr("/items/" + item["id"] + "/?message=$message"))
+      return ResRedirect(Uri.fromStr("/items/" + item["id"] + "/?message=" + Util.urlencode(message)))
     }
 
     Str message := req.get.get("message", "")
@@ -201,6 +201,6 @@ Last thing is missing: we should redirect back to page using GET after processin
     return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"], "message": message])
   }
   
-Here we just return :class:`ResRedirect` from view that will issue 302 FOUND http redirect.
+Here we just return :class:`ResRedirect` from view that will issue 302 FOUND http redirect. We also :func:`~Util.encode` message value: if it contains ``&, =, ;`` characters they will be backslash-escaped.
 
 Congratulations! You've just completed this tutorial and should have basic undestanding of how to build applications with Spectre. You may now continue by reading :doc:`turtles` to get a deeper understanding of how these things actually work. Wish you good luck!

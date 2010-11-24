@@ -2,7 +2,7 @@
 using web
 
 class WebletReq : Req, Weblet {
-  once override QueryMap get() { QueryMap.decodeQuery(req.uri.queryStr).ro }
+  once override QueryMap get() { return QueryMap.decodeQuery(req.uri.queryStr).ro }
   once override QueryMap post() { QueryMap.decodeQuery(form).ro }
   once override QueryMap request() { QueryMap.decodeQuery(req.uri.queryStr).setAllMap(post).ro }
 

@@ -5,7 +5,7 @@ Routing scheme of spectre app is defined as one or more :class:`Router` :class:`
 
 .. class:: Router
 
-   Take a list of ``[<route path>, <view function>]`` tuples. All routes are matched in the order they are defined until matched route is found. On the first match corresponding :doc:`view function <views>` will be invoked, and if it returns not-null value, this value is returned from :class:`Router` itself. If view returned null result, matching will be continued until the next matched route is found.
+   Take a list of ``[<route path>, <view function>]`` tuples. All routes are matched in the order they are defined until matched route is found. On the first match corresponding :doc:`view function <views>` will be invoked, and if it returns not-null value, this value is returned from :class:`Router` itself. If view returned ``null`` result, matching will be continued until the next matched route is found.
 
    .. rubric:: Example
 
@@ -22,7 +22,6 @@ Routing scheme of spectre app is defined as one or more :class:`Router` :class:`
 There are three types of matching:
 
 **Strict matching:**
-
   ::
 
     "/"
@@ -32,7 +31,6 @@ There are three types of matching:
   Number of slashed doesn't count here.
 
 **Pathterm capturing:**
-
   ::
 
     "/orders/{id}/"
@@ -47,7 +45,6 @@ There are three types of matching:
   In this case, ``"/articles-by-year/1985/"`` will match, but ``"/articles-by-year/100500/"`` will not. You can capture whole pathterm (string between two adjacent slashes) only.
 
 **Tail matching:**
-
   ::
 
     "/files/*"
@@ -81,4 +78,4 @@ or you can include any turtle *instead* of route-view tuple::
 	2. if yes, populates :attr:`Req.context` with capture args from route path (if any), and calls view function;
 	3. if no, returns ``null``, so next route may be tested.
 	
-	If there is a :class:`Turtle` instead of tuple in array, its :func:`~Trutle.dispatch` will be called.
+	If there is a :class:`Turtle` instead of tuple in array, its :func:`~Trutle.dispatch` will be called directly.

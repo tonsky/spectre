@@ -24,13 +24,29 @@ const class WispApp : WebMod {
   new make(File podDir) {
     pool := ActorPool { maxThreads = 1 }
     watchPodActor = WatchPodActor.make(pool, podDir)
+
+    // trying to load app
+    try {
+      activeApp
+    } catch(build::FatalBuildErr err) {
+      log.err("App compilation error: ${podDir}build.fan", err)
+    } catch(Err err) {
+      log.err("Error occured", err)
+    }
   }
   
   Pod? activePod { get { Actor.locals["spectre.app_pod"] } 
                    set { Actor.locals["spectre.app_pod"] = it } }
   
-  Turtle activeApp() {
-    Pod? loadedPod := watchPodActor.send(null).get
+  File podDir() { watchPodActor.podDir }
+  
+  virtual Turtle activeApp() {
+    Obj? loadedPodObj := watchPodActor.send(null).get
+    if (loadedPodObj is Err)
+      throw loadedPodObj
+
+    loadedPod := loadedPodObj as Pod
+    
     if (loadedPod !== activePod) {
       restartApp(loadedPod)
       activePod = loadedPod
@@ -38,13 +54,13 @@ const class WispApp : WebMod {
     return Settings.instance.root
   }
   
-  Void restartApp(Pod appPod) {
+  virtual Void restartApp(Pod appPod) {
     log.info("Restarting pod $appPod")
     Type? settingsType := appPod.types.find { it.fits(Settings#) }
     if (settingsType == null)
-      throw Err.make("Cannot find spectre::Settings implementation in ${watchPodActor.podDir}")
+      throw Err.make("Cannot find spectre::Settings implementation in ${podDir}")
     
-    Settings settings := settingsType.make([watchPodActor.podDir])
+    Settings settings := settingsType.make([podDir])
     Settings.setInstance(settings)
   }
   
@@ -58,6 +74,15 @@ const class WispApp : WebMod {
       else {
         throw Err("App returned empty response")
       }
+    } catch(build::FatalBuildErr err) {
+      log.err("App compilation error: ${podDir}build.fan", err)
+
+      res.statusCode = 500
+      res.headers["Content-Type"] = "text/html"
+      res.out.writeChars("<h1>App compilation error, see log for details</h1>"
+                       + "<pre>App path: ${podDir}build.fan\n\n"
+                       + "${Util.traceToStr(err)}</pre>")
+      res.done
     } catch(Err err) {
       log.err("Error occured", err)
 
@@ -69,7 +94,7 @@ const class WispApp : WebMod {
     }
   }
   
-  Void writeResponse(Res response) {
+  virtual Void writeResponse(Res response) {
     response.beforeWrite
     res.headers.addAll(response.headers)
     res.statusCode = response.statusCode

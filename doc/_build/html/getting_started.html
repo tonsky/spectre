@@ -75,7 +75,7 @@ class DemoApp : Settings {
 }</pre>
 </div>
 <p>You&#8217;ll need one and only one <tt class="xref py py-class docutils literal"><span class="pre">Settings</span></tt> implementation in your app, it will be used as a root of your application. For application to work, you set <tt class="xref py py-attr docutils literal"><span class="pre">Settings.root</span></tt> property to the root <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a> of your application.</p>
-<p>Let&#8217;s add some routes and set them as the root of our app:</p>
+<p>To add routes we create <a class="reference internal" href="routing.html#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> class and pass a list of <tt class="docutils literal"><span class="pre">[route</span> <span class="pre">path,</span> <span class="pre">view</span> <span class="pre">method]</span></tt> tuples to it:</p>
 <div class="highlight-python"><pre>using spectre
 
 class DemoApp : Settings {
@@ -92,11 +92,12 @@ class DemoApp : Settings {
   }
 }</pre>
 </div>
-<p>Here we&#8217;ve added two error barriers (<tt class="xref py py-class docutils literal"><span class="pre">Handler500</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">Handler404</span></tt>) which will catch errors in our app and show error messages to user explaning what happened. It&#8217;s recommended to set them as top-level middlewares of your app.</p>
-<p>Our route still points at an unimplemented class method (view). Let&#8217;s implement it:</p>
+<p>Also we&#8217;ve added two error barriers (<tt class="xref py py-class docutils literal"><span class="pre">Handler500</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">Handler404</span></tt>) which will catch errors in our app and show error messages to user explaning what happened. As you can see, our router is wrapped by this barriers, so all the errors in the router will be captured and processed properly. It&#8217;s recommended to set these barriers as top-level middlewares of your app.</p>
+<p>Our route still points at an unimplemented class method (view). To implement it, we just create a class with <tt class="docutils literal"><span class="pre">index</span></tt> method returning <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a>:</p>
 <div class="highlight-python"><pre>class IndexView {
-  Res? index() {
-    return Res("&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello from the other world!&lt;/h1&gt;&lt;a href='/items/'&gt;List of items&lt;/a&gt;&lt;/body&gt;&lt;/html&gt;")
+  Res index() {
+    return Res("&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello from the other world!&lt;/h1&gt;"
+    + "&lt;a href='/items/'&gt;List of items&lt;/a&gt;&lt;/body&gt;&lt;/html&gt;")
   }
 }</pre>
 </div>
@@ -108,7 +109,9 @@ class DemoApp : Settings {
 <p>What we&#8217;ve done is the simplest possible way to implement view: just return <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> instance with all the content of html page. However, we are not using any power of templates at all. Let&#8217;s fix that in <tt class="xref py py-class docutils literal"><span class="pre">ItemsView</span></tt>:</p>
 <div class="highlight-python"><pre>class ItemsView {
   [Str:Obj][] items() {
-    [["id": 1, "name": "Item 1"], ["id": 2, "name": "Item 2"], ["id": 3, "name": "Item 3"]]
+    [["id": 1, "name": "Item 1"],
+     ["id": 2, "name": "Item 2"],
+     ["id": 3, "name": "Item 3"]]
   }
 
   TemplateRes list() {
@@ -175,7 +178,8 @@ root = Handler500().wrap(
           &lt;td&gt;Id:&lt;/td&gt;&lt;td&gt;{{id}}&lt;/td&gt;
         &lt;/tr&gt;
         &lt;tr&gt;
-          &lt;td&gt;Name:&lt;/td&gt;&lt;td&gt;&lt;input type="text" name="name" value="{{name}}"/&gt;&lt;/td&gt;
+          &lt;td&gt;Name:&lt;/td&gt;
+          &lt;td&gt;&lt;input type="text" name="name" value="{{name}}"/&gt;&lt;/td&gt;
         &lt;/tr&gt;
         &lt;tr&gt;
           &lt;td&gt;&lt;/td&gt;
@@ -203,7 +207,9 @@ root = Handler500().wrap(
     message = "Item '" + item["name"] + "' saved"
   }
 
-  return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"], "message": message])
+  return TemplateRes("item_edit.html", ["id":      item["id"],
+                                        "name":    item["name"],
+                                        "message": message])
 }</pre>
 </div>
 <p>Here we detect form posting via <a class="reference internal" href="Req.html#Req.method" title="Req.method"><tt class="xref py py-attr docutils literal"><span class="pre">Req.method</span></tt></a> attribute, and then access form data through <a class="reference internal" href="Req.html#Req.post" title="Req.post"><tt class="xref py py-attr docutils literal"><span class="pre">Req.post</span></tt></a> which is a map-like object containing all POST parameters.</p>
@@ -216,7 +222,7 @@ root = Handler500().wrap(
   if (req.method == "POST") {
     item["name"] = req.post["name"]
     Str message := "Item '" + item["name"] + "' saved"
-    return ResRedirect(Uri.fromStr("/items/" + item["id"] + "/?message=$message"))
+    return ResRedirect(Uri.fromStr("/items/" + item["id"] + "/?message=" + Util.urlencode(message)))
   }
 
   Str message := req.get.get("message", "")
@@ -224,7 +230,7 @@ root = Handler500().wrap(
   return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"], "message": message])
 }</pre>
 </div>
-<p>Here we just return <a class="reference internal" href="Res.html#ResRedirect" title="ResRedirect"><tt class="xref py py-class docutils literal"><span class="pre">ResRedirect</span></tt></a> from view that will issue 302 FOUND http redirect.</p>
+<p>Here we just return <a class="reference internal" href="Res.html#ResRedirect" title="ResRedirect"><tt class="xref py py-class docutils literal"><span class="pre">ResRedirect</span></tt></a> from view that will issue 302 FOUND http redirect. We also <tt class="xref py py-func docutils literal"><span class="pre">encode()</span></tt> message value: if it contains any of <tt class="docutils literal"><span class="pre">&amp;</span></tt>, <tt class="docutils literal"><span class="pre">=</span></tt> or <tt class="docutils literal"><span class="pre">;</span></tt> characters they will be backslash-escaped.</p>
 <p>Congratulations! You&#8217;ve just completed this tutorial and should have basic undestanding of how to build applications with Spectre. You may now continue by reading <a class="reference internal" href="turtles.html"><em>Understanding basics</em></a> to get a deeper understanding of how these things actually work. Wish you good luck!</p>
 </div>
 

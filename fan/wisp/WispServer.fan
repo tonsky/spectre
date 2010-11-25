@@ -79,7 +79,7 @@ const class WispApp : WebMod {
 
       res.statusCode = 500
       res.headers["Content-Type"] = "text/html"
-      res.out.writeChars("<h1>App compilation error, see log for details</h1>"
+      res.out.writeChars("<h1>500 App compilation error</h1>"
                        + "<pre>App path: ${podDir}build.fan\n\n"
                        + "${Util.traceToStr(err)}</pre>")
       res.done

@@ -59,20 +59,27 @@ const class WatchPodActor : Actor {
     // customizing temporary build
     buildPod.outDir = Env.cur.tempDir.uri
     buildPod.podName = tmpPodName(buildPod)
-    buildPod.log.level = LogLevel.err
+    buf := StrBuf().add("\n")
+    buildPod.log = BuildLog(buf.out)
+    buildPod.log.indent
+    buildPod.log.level = LogLevel.info
     
-    // building and loading rebuilded pod
-    buildPod.compile()
-    File f := buildPod.outDir.toFile + Uri.fromStr(buildPod.podName + ".pod")
-    log.info("Rebuildind pod $podDir.name as $f")
-    loadedPod := Pod.load(f.in)
-    if (log.isDebug)
-      log.debug("Pod loaded: $f")
-    f.delete
-    if (log.isDebug)
-      log.debug("[Temporary file removed] $f")
-    
-    return loadedPod
+    try {
+      // building and loading rebuilded pod
+      buildPod.compile()
+      File f := buildPod.outDir.toFile + Uri.fromStr(buildPod.podName + ".pod")
+      log.info("Rebuildind pod $podDir.name as $f")
+      loadedPod := Pod.load(f.in)
+      if (log.isDebug)
+        log.debug("Pod loaded: $f")
+      f.delete
+      if (log.isDebug)
+        log.debug("[Temporary file removed] $f")
+      
+      return loadedPod
+    } catch (FatalBuildErr err) {
+      throw FatalBuildErr(buf.toStr)
+    }    
   }
   
   Str tmpPodName(BuildPod buildPod) {

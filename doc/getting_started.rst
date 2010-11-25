@@ -55,11 +55,12 @@ To add routes we create :class:`Router` class and pass a list of ``[route path, 
   
 Also we've added two error barriers (:class:`Handler500`, :class:`Handler404`) which will catch errors in our app and show error messages to user explaning what happened. As you can see, our router is wrapped by this barriers, so all the errors in the router will be captured and processed properly. It's recommended to set these barriers as top-level middlewares of your app.
 
-Our route still points at an unimplemented class method (view). To implement it, we just create a class with ``index`` method returning :class:`Res` ::
+Our route still points at an unimplemented class method (view). To implement it, we just create a class with ``index`` method returning :class:`Res`::
 
   class IndexView {
     Res index() {
-      return Res("<html><body><h1>Hello from the other world!</h1><a href='/items/'>List of items</a></body></html>")
+      return Res("<html><body><h1>Hello from the other world!</h1>"
+      + "<a href='/items/'>List of items</a></body></html>")
     }
   }
 
@@ -73,7 +74,9 @@ What we've done is the simplest possible way to implement view: just return :cla
 
   class ItemsView {
     [Str:Obj][] items() {
-      [["id": 1, "name": "Item 1"], ["id": 2, "name": "Item 2"], ["id": 3, "name": "Item 3"]]
+      [["id": 1, "name": "Item 1"],
+       ["id": 2, "name": "Item 2"],
+       ["id": 3, "name": "Item 3"]]
     }
   
     TemplateRes list() {
@@ -148,7 +151,8 @@ now add a route::
             <td>Id:</td><td>{{id}}</td>
           </tr>
           <tr>
-            <td>Name:</td><td><input type="text" name="name" value="{{name}}"/></td>
+            <td>Name:</td>
+            <td><input type="text" name="name" value="{{name}}"/></td>
           </tr>
           <tr>
             <td></td>
@@ -177,7 +181,9 @@ Now on `<http://localhost:8080/items/1/>`_ you should see a form, but the button
       message = "Item '" + item["name"] + "' saved"
     }
 
-    return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"], "message": message])
+    return TemplateRes("item_edit.html", ["id":      item["id"], 
+                                          "name":    item["name"],
+                                          "message": message])
   }
 
 Here we detect form posting via :attr:`Req.method` attribute, and then access form data through :attr:`Req.post` which is a map-like object containing all POST parameters.
@@ -201,6 +207,6 @@ Last thing is missing: we should redirect back to page using GET after processin
     return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"], "message": message])
   }
   
-Here we just return :class:`ResRedirect` from view that will issue 302 FOUND http redirect. We also :func:`~Util.encode` message value: if it contains ``&, =, ;`` characters they will be backslash-escaped.
+Here we just return :class:`ResRedirect` from view that will issue 302 FOUND http redirect. We also :func:`~Util.encode` message value: if it contains any of ``&``, ``=`` or ``;`` characters they will be backslash-escaped.
 
 Congratulations! You've just completed this tutorial and should have basic undestanding of how to build applications with Spectre. You may now continue by reading :doc:`turtles` to get a deeper understanding of how these things actually work. Wish you good luck!

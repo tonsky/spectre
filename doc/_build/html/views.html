@@ -8,7 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>Views &mdash; Spectre v0.8 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -45,12 +45,12 @@
           <div class="body">
             
   <div class="section" id="views">
-<span id="id1"></span><h1>Views<a class="headerlink" href="#views" title="Permalink to this headline">¶</a></h1>
+<h1>Views<a class="headerlink" href="#views" title="Permalink to this headline">¶</a></h1>
 <p>There are three kinds of views supported:</p>
 <ul class="simple">
 <li>class method;</li>
 <li>static class method;</li>
-<li><tt class="docutils literal"><span class="pre">Func</span></tt> object (including closures; note that due to the <a class="reference external" href="http://fantom.org/sidewalk/topic/1308">Fantom bug #1308</a> only <a class="reference internal" href="Req.html#req"><em>Req</em></a> parameter is now supported for closures).</li>
+<li><tt class="docutils literal"><span class="pre">Func</span></tt> object (including closures; note that due to the <a class="reference external" href="http://fantom.org/sidewalk/topic/1308">Fantom bug #1308</a> only <a class="reference internal" href="Req.html#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> parameter is now supported for closures).</li>
 </ul>
 <p>When called, view function args are resolved within <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> by their names. <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> contains all url path capture values, session object (usually under name <tt class="docutils literal"><span class="pre">&quot;session&quot;</span></tt>; only if <a class="reference internal" href="sessions.html#SessionMiddleware" title="SessionMiddleware"><tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt></a> was executed before). Additionaly, <a class="reference internal" href="Req.html#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> itself is also allowed as a view argument, but it will be resolved by its type.</p>
 <p>All non-default args of view function must be resovlable, otherwise <tt class="xref py py-class docutils literal"><span class="pre">ArgErr</span></tt> will be thrown.</p>
@@ -112,7 +112,7 @@
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010, xored &amp; Nikita Prokopov.
+        &copy; Copyright 2010, Nikita Prokopov (xored.com).
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
     </div>
   </body>

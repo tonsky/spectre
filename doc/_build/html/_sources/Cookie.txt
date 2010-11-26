@@ -6,9 +6,9 @@ Cookie models an HTTP cookie used to pass data between the server and brower as 
 
 Since only strict subset of ASCII is allowed in http headers, spectre encodes/decodes cookie values automatically using following scheme:
 
-* ``0x00..0x20``, ``0x7e..0xff``, ``';'`` and ``','`` are encoded as ``\xff``, where ``ff`` stands for two-digit character's hex code;
-* ``0x0100..0xffff`` are encoded as ``\uffff``, where ``ffff`` stands for four-digit character's hex code;
-* ``"`` and ``\`` are encoded as ``\"`` and ``\\``, respectively.
+* chars ``0x00..0x20``, ``0x7e..0xff``, ``';'`` and ``','`` are encoded as ``\xff``, where ``ff`` stands for two-digit character's hex code;
+* chars ``0x0100..0xffff`` are encoded as ``\uffff``, where ``ffff`` stands for four-digit character's hex code;
+* ``"`` and ``\`` are backslash-escaped as ``\"`` and ``\\``, respectively.
 
 This encoding will be absolutely transparent for you on server side, but you'll have to deal with it by yourself on the client.
 

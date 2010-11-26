@@ -8,7 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>Sessions &mdash; Spectre v0.8 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -46,7 +46,11 @@
             
   <div class="section" id="sessions">
 <h1>Sessions<a class="headerlink" href="#sessions" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference internal" href="#Session" title="Session"><tt class="xref py py-class docutils literal"><span class="pre">Session</span></tt></a> provides a name/value map associated with a specific browser &#8220;connection&#8221; to the web server. You can inject session to your view using &#8216;Session session&#8217; view arg (recommended) or access it as <tt class="docutils literal"><span class="pre">req.context[&quot;session&quot;]</span></tt>.</p>
+<p><a class="reference internal" href="#Session" title="Session"><tt class="xref py py-class docutils literal"><span class="pre">Session</span></tt></a> provides a name/value map associated with a specific browser &#8220;connection&#8221; to the web server. You can inject session to your view using <tt class="docutils literal"><span class="pre">Session</span> <span class="pre">session</span></tt> view arg (recommended) or access it as <tt class="docutils literal"><span class="pre">req.context[&quot;session&quot;]</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Sessions will only be avaliable after <a class="reference internal" href="#SessionMiddleware" title="SessionMiddleware"><tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt></a> was executed (see below).</p>
+</div>
 <dl class="class">
 <dt id="Session">
 <em class="property">class </em><tt class="descname">Session</tt><a class="headerlink" href="#Session" title="Permalink to this definition">¶</a></dt>
@@ -71,10 +75,6 @@
 
 </dd></dl>
 
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Sessions will only be avaliable after <a class="reference internal" href="#SessionMiddleware" title="SessionMiddleware"><tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt></a> was executed (see below).</p>
-</div>
 <div class="section" id="setting-up">
 <h2>Setting up<a class="headerlink" href="#setting-up" title="Permalink to this headline">¶</a></h2>
 <p>To set up sessions, wrap your app with <a class="reference internal" href="#SessionMiddleware" title="SessionMiddleware"><tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt></a> and specify <a class="reference internal" href="#SessionMiddleware.sessionStore" title="SessionMiddleware.sessionStore"><tt class="xref py py-attr docutils literal"><span class="pre">sessionStore</span></tt></a> attribute. For now, spectre offers only one type of store: <a class="reference internal" href="#InmemorySessionStore" title="InmemorySessionStore"><tt class="xref py py-class docutils literal"><span class="pre">InmemorySessionStore</span></tt></a>.</p>
@@ -174,7 +174,7 @@ sessionMiddlware.wrap(router)</pre>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010, xored &amp; Nikita Prokopov.
+        &copy; Copyright 2010, Nikita Prokopov (xored.com).
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
     </div>
   </body>

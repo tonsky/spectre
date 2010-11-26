@@ -104,7 +104,9 @@ Syntax used here is the "mustache" template language. You can find a really shor
 
 For this template to work, we should wrap routes with :class:`MustacheRenderer`. :class:`TemplateRes` will then be properly intercepted and rendered. Add this to :class:`DemoApp` constructor::
 
-  tempalteRenderer := MustacheRenderer { templateDirs = [appDir + `templates/`] }
+  tempalteRenderer := MustacheRenderer { 
+    templateDirs = [appDir + `templates/`]
+  }
 
   root = Handler500().wrap(
            Handler404().wrap(
@@ -129,7 +131,8 @@ But we're not using any request parameters yet. Let's fix it by creating a page 
     Int _itemId := Int.fromStr(itemId)
     item := items.find { it["id"] as Int == _itemId }
   
-    return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"]])
+    return TemplateRes("item_edit.html", ["id":   item["id"],
+                                          "name": item["name"]])
   }
 
 now add a route::
@@ -199,12 +202,15 @@ Last thing is missing: we should redirect back to page using GET after processin
     if (req.method == "POST") {
       item["name"] = req.post["name"]
       Str message := "Item '" + item["name"] + "' saved"
-      return ResRedirect(Uri.fromStr("/items/" + item["id"] + "/?message=" + Util.urlencode(message)))
+      return ResRedirect(Uri.fromStr("/items/" + item["id"]
+                                   + "/?message=" + Util.urlencode(message)))
     }
 
     Str message := req.get.get("message", "")
 
-    return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"], "message": message])
+    return TemplateRes("item_edit.html", ["id":      item["id"],
+                                          "name":    item["name"],
+                                          "message": message])
   }
   
 Here we just return :class:`ResRedirect` from view that will issue 302 FOUND http redirect. We also :func:`~Util.encode` message value: if it contains any of ``&``, ``=`` or ``;`` characters they will be backslash-escaped.

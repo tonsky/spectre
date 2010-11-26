@@ -1,0 +1,5 @@
+doc/_build/doctrees
+.buildpath
+.classpath
+.project
+bin

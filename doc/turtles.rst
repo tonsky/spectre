@@ -15,12 +15,19 @@ Turtles are unified building blocks of any Spectre application. The name "Turtle
 Unified contract makes application parts rearrangeable, interchangable, easy to understand and reuse. For now, the following parts are implemented as turtles:
 
 + top-level error barriers (:class:`Handler500`, :class:`Handler404`);
+
 + middlewares (e.g. :class:`SessionMiddleware`);
+
 + :class:`Router`;
+
 + individual view wrappers;
+
 + :class:`TemplateRes` processors (template renderers);
+
 + flow control and grouping turtles (e.g. :class:`Selector`);
+
 + finally, whole application is just a :class:`Turtle`.
+
 
 Basic turtles implementations
 -----------------------------

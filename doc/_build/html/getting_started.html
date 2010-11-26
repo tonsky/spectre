@@ -8,7 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>Getting started &mdash; Spectre v0.8 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -136,7 +136,9 @@ class DemoApp : Settings {
 </div>
 <p>Syntax used here is the &#8220;mustache&#8221; template language. You can find a really short introduction to musatche syntax <a class="reference external" href="http://mustache.github.com/mustache.5.html">on their website</a>.</p>
 <p>For this template to work, we should wrap routes with <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt>. <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will then be properly intercepted and rendered. Add this to <tt class="xref py py-class docutils literal"><span class="pre">DemoApp</span></tt> constructor:</p>
-<div class="highlight-python"><pre>tempalteRenderer := MustacheRenderer { templateDirs = [appDir + `templates/`] }
+<div class="highlight-python"><pre>tempalteRenderer := MustacheRenderer {
+  templateDirs = [appDir + `templates/`]
+}
 
 root = Handler500().wrap(
          Handler404().wrap(
@@ -158,7 +160,8 @@ root = Handler500().wrap(
   Int _itemId := Int.fromStr(itemId)
   item := items.find { it["id"] as Int == _itemId }
 
-  return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"]])
+  return TemplateRes("item_edit.html", ["id":   item["id"],
+                                        "name": item["name"]])
 }</pre>
 </div>
 <p>now add a route:</p>
@@ -222,12 +225,15 @@ root = Handler500().wrap(
   if (req.method == "POST") {
     item["name"] = req.post["name"]
     Str message := "Item '" + item["name"] + "' saved"
-    return ResRedirect(Uri.fromStr("/items/" + item["id"] + "/?message=" + Util.urlencode(message)))
+    return ResRedirect(Uri.fromStr("/items/" + item["id"]
+                                 + "/?message=" + Util.urlencode(message)))
   }
 
   Str message := req.get.get("message", "")
 
-  return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"], "message": message])
+  return TemplateRes("item_edit.html", ["id":      item["id"],
+                                        "name":    item["name"],
+                                        "message": message])
 }</pre>
 </div>
 <p>Here we just return <a class="reference internal" href="Res.html#ResRedirect" title="ResRedirect"><tt class="xref py py-class docutils literal"><span class="pre">ResRedirect</span></tt></a> from view that will issue 302 FOUND http redirect. We also <tt class="xref py py-func docutils literal"><span class="pre">encode()</span></tt> message value: if it contains any of <tt class="docutils literal"><span class="pre">&amp;</span></tt>, <tt class="docutils literal"><span class="pre">=</span></tt> or <tt class="docutils literal"><span class="pre">;</span></tt> characters they will be backslash-escaped.</p>
@@ -252,7 +258,7 @@ root = Handler500().wrap(
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010, xored &amp; Nikita Prokopov.
+        &copy; Copyright 2010, Nikita Prokopov (xored.com).
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
     </div>
   </body>

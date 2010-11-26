@@ -1,12 +1,10 @@
-.. _Views:
-
 Views 
 =====
 There are three kinds of views supported:
 
 + class method;
 + static class method;
-+ ``Func`` object (including closures; note that due to the `Fantom bug #1308 <http://fantom.org/sidewalk/topic/1308>`_ only :ref:`Req` parameter is now supported for closures).
++ ``Func`` object (including closures; note that due to the `Fantom bug #1308 <http://fantom.org/sidewalk/topic/1308>`_ only :class:`Req` parameter is now supported for closures).
 
 When called, view function args are resolved within :attr:`Req.context` by their names. :attr:`Req.context` contains all url path capture values, session object (usually under name ``"session"``; only if :class:`SessionMiddleware` was executed before). Additionaly, :class:`Req` itself is also allowed as a view argument, but it will be resolved by its type.
 

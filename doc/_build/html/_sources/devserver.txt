@@ -11,6 +11,8 @@ To run development server, you'll need both Fantom 1.0.56 and Spectre installed 
 
   >>> fan spectre::WispServer <path_to_your_app_folder>
   [20:09:47 23-Nov-10] [info] [spectre] Watching <path_to_your_app_folder>/ for modifications
+  [20:09:47 23-Nov-10] [info] [spectre] Rebuildind pod spectre_demo_app as file:<...>
+  [20:09:47 23-Nov-10] [info] [spectre] Restarting pod <...>_reloaded_1
   [20:09:47 23-Nov-10] [info] [web] WispService started on port 8080
   
 To bind on specific port use::

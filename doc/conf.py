@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Spectre'
-copyright = u'2010, xored & Nikita Prokopov'
+copyright = u'2010, Nikita Prokopov (xored.com)'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -81,7 +81,7 @@ exclude_patterns = ['_build']
 #show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+#pygments_style = 'sphinx'
 
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
@@ -91,7 +91,8 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'sphinxdoc'
+html_theme = 'spectre'
+html_theme_path = ["."]
 
 html_theme_options = {"nosidebar": True}
 

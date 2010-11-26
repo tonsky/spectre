@@ -2,7 +2,10 @@
  Sessions
 ==========
 
-:class:`Session` provides a name/value map associated with a specific browser "connection" to the web server. You can inject session to your view using 'Session session' view arg (recommended) or access it as ``req.context["session"]``.
+:class:`Session` provides a name/value map associated with a specific browser "connection" to the web server. You can inject session to your view using ``Session session`` view arg (recommended) or access it as ``req.context["session"]``.
+
+.. note::
+   Sessions will only be avaliable after :class:`SessionMiddleware` was executed (see below).
 
 .. class:: Session
 
@@ -20,9 +23,6 @@
    
       ``[Str:Obj?]`` of values stored in the current session. Note that this field will usually be read-only, use :func:`set` method to set/change value in current session.
    
-.. note::
-   Sessions will only be avaliable after :class:`SessionMiddleware` was executed (see below).
-
 Setting up
 ----------
 

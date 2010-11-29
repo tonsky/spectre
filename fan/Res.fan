@@ -16,7 +16,7 @@ using web
 ** 
 
 class Res {
-  virtual Str:Str headers := [:]
+  virtual QueryMap headers := QueryMap()
   virtual Int statusCode
   virtual Obj? content
   virtual Charset charset := Settings.instance.charset
@@ -39,10 +39,7 @@ class Res {
   ** in current `Req`.
   **   
   virtual This setCookie(spectre::Cookie cookie) {
-    if (headers["Set-Cookie"] == null)
-      headers["Set-Cookie"] = cookie.toStr
-    else
-      headers["Set-Cookie"] = headers["Set-Cookie"] + "," + cookie.toStr
+    headers.add("Set-Cookie", cookie.toStr)
     return this
   }
   

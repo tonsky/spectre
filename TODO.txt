@@ -10,7 +10,7 @@ raw in stream
 Conditional responses
 File uploading
 
-Investigate multiple cookies bug
+(v) Investigate multiple cookies bug
 
 Templates
 ---------

@@ -65,11 +65,13 @@ class SessionMiddleware : Middleware {
     Res? res := child.dispatch(req)
     if (res != null) {
       Str? updatedCookieData := sessionStore.save(session, cookieData, saveEveryRequest)
-      if (null == updatedCookieData)
-        res.deleteCookie(cookieName)
-      else
+      if (null == updatedCookieData) {
+        if (cookieData != null)
+          res.deleteCookie(cookieName)
+      } else {
         if (cookieData != updatedCookieData || saveEveryRequest)
           saveCookie(updatedCookieData, res)
+      }
     }
 
     return res

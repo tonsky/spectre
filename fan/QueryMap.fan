@@ -3,9 +3,28 @@
 ** 
 class QueryMap {
   const static Log log := WatchPodActor#.pod.log
-  
   internal [Str:Str[]] impl
 
+//////////////////////////////////////////////////////////////////////////
+// Adapters
+//////////////////////////////////////////////////////////////////////////
+  
+  **
+  ** Return read-only view of this as Map
+  ** 
+  Str:Str asMap() { impl.map { chooseVal(it) }.ro }
+  
+  **
+  ** Return read-only view of this as a [Str:Str[]] Map
+  ** 
+  [Str:Str[]] asMultimap() { impl.ro }
+
+
+//////////////////////////////////////////////////////////////////////////
+// Constructors
+//////////////////////////////////////////////////////////////////////////
+
+  
   **
   ** Create an instance from map with Str or Str[] values
   **   
@@ -21,12 +40,8 @@ class QueryMap {
     }
   }
 
-  private new makeWith([Str:Str[]] impl) {
-    this.impl = impl
-  }
-
+  private new makeWith([Str:Str[]] impl) { this.impl = impl }
   private Str[] wrapToList(List l) { Str[,].addAll(l) }
-
   private Str? chooseVal(Str[]? valList, Str? _def := "") { valList == null ? null : valList.getSafe(-1, _def) }
   
 //////////////////////////////////////////////////////////////////////////
@@ -64,7 +79,7 @@ class QueryMap {
   ** "local_def"
   **
   @Operator
-  Str? get(Str key, Str? _def := def) {
+  Str? get(Str key, Str? _def := null) {
     Str[]? res := impl.get(key)
     return res == null ? _def : chooseVal(res)
   }
@@ -80,36 +95,9 @@ class QueryMap {
   ** >>> qm.getList("x")
   ** null
   **
-  Str[]? getList(Str key, Str[]? _def := defList) { impl.get(key, _def) }
+  Str[]? getList(Str key, Str[]? _def := null) { impl.get(key, _def) }
 
   Bool containsKey(Str key) { impl.containsKey(key) }
-
-  Str[] keys() { impl.keys }
-
-  **
-  ** Get a list of all the mapped values, using same last-value logic as get()
-  ** for lists of values.
-  ** >>> qm := QueryMap.make(["a": ["b", "c", "d"], "e": "f"])
-  ** >>> qm.vals
-  ** ["d", "f"]
-  **
-  Str[] vals() { impl.vals.map |Str[] v -> Str| { chooseVal(v) }  }
-
-  **
-  ** Get a list of all the mapped values as lists.
-  ** >>> qm := QueryMap.make(["a": ["b", "c", "d"], "e": "f"])
-  ** >>> qm.valsLists
-  ** [["b", "c", "d"], ["f"]]
-  **
-  Str[][] valsLists() { impl.vals }
-  
-  **
-  ** Get a list of all the mapped values as a flat list. 
-  ** >>> qm := QueryMap.make(["a": ["b", "c", "d"], "e": "f"])
-  ** >>> qm.valsListsFlat
-  ** ["b", "c", "d", "f"]
-  ** 
-  Str[] valsListsFlat() { result := Str[,]; impl.vals.each { result.addAll(it) }; return result }
   
   **
   ** Create a shallow duplicate copy of this QueryMap. The keys and
@@ -135,16 +123,28 @@ class QueryMap {
 
   **
   ** Add the specified key/value pair to the map.  If the key is
-  ** already mapped, then throw the ArgErr.  Return this.  If key
+  ** already mapped, new values are added to the end.  Return this.  If key
   ** does not return true for Obj.isImmutable, then throw NotImmutableErr.
   ** If key is null throw NullErr.  Throw ReadonlyErr if readonly.
   **
-  This add(Str key, Str val) { impl.add(key, Str[val]); return this }
+  This add(Str key, Str val) {
+    if (impl.containsKey(key))
+      impl[key].add(val)
+    else
+      set(key, val)
+    return this    
+  }
 
   **
   ** Same as `add`, but maps list of values to a single key.
   ** 
-  This addList(Str key, Str[] val) { impl.add(key, wrapToList(val)); return this }
+  This addList(Str key, Str[] val) {
+    if (impl.containsKey(key))
+      impl[key].addAll(val)
+    else
+      setList(key, val)
+    return this
+  }
 
   **
   ** Append the specified map to this map by setting every key/value in
@@ -201,21 +201,6 @@ class QueryMap {
   **
   This clear() { impl.clear; return this }
 
-  **
-  ** The default value to use for `get` or `getList` when a key isn't mapped.
-  ** For `getList` returns defList as default, for `get` returns defList[-1] (== def).  
-  ** This field defaults to null.  The value of 'def' must be immutable
-  ** or NotImmutableErr is thrown.  Getting this field is readonly safe.
-  ** Throw ReadonlyErr if set when readonly.
-  **
-  Str[]? defList
-  
-  **
-  ** An accessor to defList. Reading from this field returns defList[-1]
-  ** (a default value for `get`). Writing to this field overwrites defList to [def]
-  **
-  Str? def { get {chooseVal(defList)} set { defList = (it == null ? null : Str[it].toImmutable)} }
-
 //////////////////////////////////////////////////////////////////////////
 // Str
 //////////////////////////////////////////////////////////////////////////
@@ -237,23 +222,13 @@ class QueryMap {
 
   This rw() { isRW ? this : QueryMap.makeWith(this.impl.rw) }
 
-//////////////////////////////////////////////////////////////////////////
-// Adapters
-//////////////////////////////////////////////////////////////////////////
-  
-  **
-  ** Return read-only view of this as Map
-  ** 
-  Str:Str asMap() { impl.map { chooseVal(it) }.ro }
-  
-  **
-  ** Return read-only view of this as a [Str:Str[]] Map
-  ** 
-  [Str:Str[]] asMultimap() { impl.ro }
   
 //////////////////////////////////////////////////////////////////////////
 // URI
 //////////////////////////////////////////////////////////////////////////
+
+  //FIXME does it really belongs here?
+  
   **
   ** Translate this into percent encoded form
   **   

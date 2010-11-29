@@ -4,6 +4,11 @@ class QueryMapTest : Test {
     verifyEq(qm, QueryMap.make(expected))
   }
   
+  private Void verifySetEq(Obj o1, Obj o2) {
+    o1->each { verify(o2->contains(it)) }
+    o2->each { verify(o1->contains(it)) }
+  }
+  
   Void testIdentity() {
     qm1 := QueryMap.make().set("a", "b").set("c", "d")
     qm2 := QueryMap.make().setList("a", ["b"]).setList("c", ["d"])
@@ -22,12 +27,14 @@ class QueryMapTest : Test {
 
     qm1.add("g", "h")
     verifyQueryMap(qm1, ["a": "b", "c": "d", "e": "f", "g": "h"])
-    verifyErr(ArgErr#) { qm1.add("g", "i") }
+    qm1.add("g", "i")
+    verifyEq(qm1.getList("g"), ["h", "i"])
     
     qm1.setList("j", ["k", "l"])
-    verifyQueryMap(qm1, ["a": "b", "c": "d", "e": "f", "g": "h", "j": ["k", "l"]])
+    verifyQueryMap(qm1, ["a": "b", "c": "d", "e": "f", "g": ["h", "i"], "j": ["k", "l"]])
     
-    verifyErr(ArgErr#) { qm1.addList("a", ["i", "k"]) }
+    qm1.addList("a", ["i", "k"])
+    verifyEq(qm1.getList("a"), ["b", "i", "k"])
   }
   
   Void testRoRw() {
@@ -49,10 +56,10 @@ class QueryMapTest : Test {
     qm1.setList("j", ["k", "l"])
     
     verifyEq(qm1.size, 5)
-    verifyEq(qm1.keys, Str["a", "c", "e", "g", "j"])
-    verifyEq(qm1.vals, Str["b", "d", "f", "h", "l"])
-    verifyEq(qm1.valsLists, Str[][["b"], ["d"], ["f"], ["h"], ["k", "l"]])
-    verifyEq(qm1.valsListsFlat, Str["b", "d", "f", "h", "k", "l"])
+    verifySetEq(qm1.asMap.keys, Str["a", "c", "e", "g", "j"])
+    verifySetEq(qm1.asMap.vals, Str["b", "d", "f", "h", "l"])
+    verifyEq(qm1.asMultimap.vals, Str[][["b"], ["d"], ["f"], ["h"], ["k", "l"]])
+//    verifyEq(qm1.asMultimap.valsListsFlat, Str["b", "d", "f", "h", "k", "l"])
     
     verifyQueryMap(qm1.dup, ["a": "b", "c": "d", "e": "f", "g": "h", "j": ["k", "l"]])
   }
@@ -80,35 +87,35 @@ class QueryMapTest : Test {
     verifyEq(qm2.removeList("f"), null)
   }
   
-  Void testDefaults() {
-    qm3 := QueryMap.make(["a": ["b","c","d"], "b": ["e", "f", "g"], "c": ["i"], "d": "", "e": Str[,]])
-    
-    qm3.def = "abc"
-    verifyEq(qm3.getList("a"), ["b", "c", "d"])
-    verifyEq(qm3.get("x"), "abc")
-    verifyEq(qm3.getList("x"), ["abc"])
-    
-    verifyEq(qm3.getList("a", ["def"]), ["b", "c", "d"])
-    verifyEq(qm3.get("x", "def"), "def")
-    verifyEq(qm3.getList("x", ["def", "def2"]), ["def", "def2"])
-    
-    qm3.defList = ["abc", "xyz"]
-    verifyEq(qm3.getList("a"), ["b", "c", "d"])
-    verifyEq(qm3.get("x"), "xyz")
-    verifyEq(qm3.getList("x"), ["abc", "xyz"])
-
-    qm3.defList = null
-    verifyEq(qm3.get("x"), null)
-    verifyEq(qm3.getList("x"), null)
-    
-    qm3.def = null
-    verifyEq(qm3.get("x"), null)
-    verifyEq(qm3.getList("x"), null)
-  }
+//  Void testDefaults() {
+//    qm3 := QueryMap.make(["a": ["b","c","d"], "b": ["e", "f", "g"], "c": ["i"], "d": "", "e": Str[,]])
+//    
+//    qm3.def = "abc"
+//    verifyEq(qm3.getList("a"), ["b", "c", "d"])
+//    verifyEq(qm3.get("x"), "abc")
+//    verifyEq(qm3.getList("x"), ["abc"])
+//    
+//    verifyEq(qm3.getList("a", ["def"]), ["b", "c", "d"])
+//    verifyEq(qm3.get("x", "def"), "def")
+//    verifyEq(qm3.getList("x", ["def", "def2"]), ["def", "def2"])
+//    
+//    qm3.defList = ["abc", "xyz"]
+//    verifyEq(qm3.getList("a"), ["b", "c", "d"])
+//    verifyEq(qm3.get("x"), "xyz")
+//    verifyEq(qm3.getList("x"), ["abc", "xyz"])
+//
+//    qm3.defList = null
+//    verifyEq(qm3.get("x"), null)
+//    verifyEq(qm3.getList("x"), null)
+//    
+//    qm3.def = null
+//    verifyEq(qm3.get("x"), null)
+//    verifyEq(qm3.getList("x"), null)
+//  }
   
   Void testKeysWithoutValues() {
     qm3 := QueryMap.make(["a": ["b","c","d"], "b": ["e", "f", "g"], "c": ["i"], "d": "", "e": Str[,]])
-    qm3.def = "abc"
+//    qm3.def = "abc"
     
     qm3["y"] = ""
     qm3.setList("z", Str[,])
@@ -201,10 +208,14 @@ class QueryMapTest : Test {
     verifyErr(ParseErr#) { QueryMap.nextChar("ab%0g", 2) }
     
     verifyEq(QueryMap.nextChar("%D0%B0%D0%B1%D1%8E%D1%8F", 0), ['а', 6])
-    verifyErr(ParseErr#) { QueryMap.nextChar("%D0%B0%D0%B1%D1%8E%D1%8F", 3) }
+//    verifyErr(ParseErr#) { QueryMap.nextChar("%D0%B0%D0%B1%D1%8E%D1%8F", 3) }
+    verifyEq(QueryMap.nextChar("%D0%B0%D0%B1%D1%8E%D1%8F", 3), ['\u00b0', 6])
     verifyEq(QueryMap.nextChar("%D0%B0%D0%B1%D1%8E%D1%8F", 6), ['б', 12])
     verifyEq(QueryMap.nextChar("%D0%B0%D0%B1%D1%8E%D1%8F", 12), ['ю', 18])
     verifyEq(QueryMap.nextChar("%D0%B0%D0%B1%D1%8E%D1%8F", 18), ['я', 24])
     
+    verifyEq(QueryMap.nextOctet("абв", 0), ['а', 1])
+    verifyEq(QueryMap.nextOctet("абв", 1), ['б', 2])    
+    verifyEq(QueryMap.nextOctet("абв", 2), ['в', 3])
   }
 }

@@ -18,7 +18,7 @@ body {
     margin: 0 auto;
 }
 
-body, tt { font: 20px/1.45em 'Minion Pro', 'Palatino Linotype', 'Book Antiqua', Palatino, serif; }
+body, tt { font: 20px/1.45em 'Palatino Linotype', 'Book Antiqua', Palatino, serif; }
 
 h1, h2, h3 { font-family: 'Helvetica Neue', Helvetica, Arial, 'sans serif'; }
 

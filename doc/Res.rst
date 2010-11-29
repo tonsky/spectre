@@ -20,7 +20,7 @@ You can also pass :class:`InStream`, :class:`File` or :class:`List` (merged cont
 
    .. attribute:: headers
    
-      ``[Str:Str]`` of http headers that should be sent to client in http response.
+      :class:`QueryMap` of http headers that should be sent to client in http response. Allows multiple values for single key (use :func:`~QueryMap.add` or :func:`~QueryMap.setList` to add, :func:`~QueryMap.set` to override).
    
    .. attribute:: statusCode
       

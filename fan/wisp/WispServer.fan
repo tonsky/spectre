@@ -96,7 +96,7 @@ const class WispApp : WebMod {
   
   virtual Void writeResponse(Res response) {
     response.beforeWrite
-    res.headers.addAll(response.headers)
+    res.headers.addAll(response.headers.asMultimap.map |v,k| { v.join("\r\n$k: ") })
     res.statusCode = response.statusCode
     res.out.charset = response.charset
     response.writeBody(res.out)

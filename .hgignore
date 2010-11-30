@@ -3,3 +3,4 @@ doc/_build/doctrees
 .classpath
 .project
 bin
+doc/_build/html/_sources

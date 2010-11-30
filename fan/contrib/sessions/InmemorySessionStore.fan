@@ -93,7 +93,6 @@ internal const class InmemorySessionActor : DynActor {
   }
   
   protected Void _cleanup(Duration maxSessionAge, Duration cleanupPeriod) {
-//    echo("Clearing")
     oldestAge := DateTime.now.minus(maxSessionAge)
     sessions.each |v, k| {
       if (v.lastModified < oldestAge)

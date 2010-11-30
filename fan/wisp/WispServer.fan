@@ -66,14 +66,15 @@ const class WispApp : WebMod {
   
   override Void onService() {
     try {
+
       Req req := WebletReq()
-      
       Res? response := activeApp.dispatch(req)
+      
       if(response != null)
         writeResponse(response)
-      else {
+      else
         throw Err("App returned empty response")
-      }
+      
     } catch(build::FatalBuildErr err) {
       log.err("App compilation error: ${podDir}build.fan", err)
 
@@ -95,11 +96,19 @@ const class WispApp : WebMod {
   }
   
   virtual Void writeResponse(Res response) {
-    response.beforeWrite
+    needOut := response.beforeWrite
     res.headers.addAll(response.headers.asMultimap.map |v,k| { v.join("\r\n$k: ") })
     res.statusCode = response.statusCode
-    res.out.charset = response.charset
-    response.writeBody(res.out)
+    
+    // we shouldn't ever touch res.out if we don't want to write to it
+    if (needOut) {
+      
+      if(!res.headers.containsKey("Content-Type") && !res.headers.containsKey("Content-Length"))
+        res.headers["Content-Type"] = "text/html" //otherwise Wisp will be mad at us
+      
+      res.out.charset = response.charset
+      response.writeBody(res.out)
+    }
     res.done
   }
 }

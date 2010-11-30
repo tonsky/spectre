@@ -42,6 +42,12 @@ abstract class Util
     return buf.toStr
   }
   
+  static Str captureStr(InStream in) {
+    buf := StrBuf()
+    in.pipe(buf.out)
+    return buf.toStr
+  }
+  
   static Str urlencode(Str str) {
     return str.replace(";", "\\;").replace("=", "\\=").replace("&", "\\&")
   }

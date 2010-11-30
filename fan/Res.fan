@@ -29,8 +29,12 @@ class Res {
   new make(Obj? content, Str:Obj options := [:]) {
     this.content = content
     this.statusCode = options.get("statusCode", 200)
-    contentType := options.get("contentType", "text/html")
-    this.headers["Content-Type"] = "$contentType; charset=$this.charset"
+    if (options.containsKey("contentType")) {
+      Str ct := options["contentType"]
+      if (!ct.contains("charset"))
+        ct = "$ct; charset=$charset"
+      this.headers["Content-Type"] = ct
+    }
   }
   
   **
@@ -51,22 +55,29 @@ class Res {
   }
 
   // FIXME hmm
-  virtual Void beforeWrite() {
+  **
+  ** Return 'true' if there is something to write to output stream, 'false' otherwise
+  ** 
+  virtual Bool beforeWrite() {
+    if (content == null)
+      return false
+    
     if (content is File)
       headers["Content-Length"] = (content as File).size.toStr
+    return true
   }
   
   virtual Void writeBody(OutStream out) {
     if (content == null)
-      out.writeChars("No content")
+      return
     else if (content is InStream)
       (content as InStream).pipe(out)
-    else if (content is File) {
+    else if (content is File)
       (content as File).in.pipe(out, (content as File).size)
-    } else if (content is List)
+    else if (content is List)
       (content as List).each { out.writeChars(it == null ? "null" : it.toStr) }
     else
-      out.writeChars(content.toStr)
+      out.print(content)
   }
 }
 
@@ -92,8 +103,10 @@ class ResPermanentRedirect : Res {
 ** Issues a 304 Not Modified response. Use this if page was not modified since 
 ** last client's request and can be loaded from browser's cache.
 ** 
+** 304 response SHOULD NOT contain message body. See `http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html`.
+** 
 class ResNotModified : Res {
-  new make() : super("", ["statusCode": 304]) {}
+  new make() : super(null, ["statusCode": 304]) {}
 }
 
 **
@@ -101,7 +114,7 @@ class ResNotModified : Res {
 ** on your server.
 ** 
 class ResNotFound : Res {
-  new make(Obj content := "") : super(content, ["statusCode": 404]) {}
+  new make(Obj content := "Page not found") : super(content, ["statusCode": 404]) {}
 }
 
 **
@@ -109,7 +122,7 @@ class ResNotFound : Res {
 ** requested page/run requested operaion.
 ** 
 class ResForbidden : Res {
-  new make() : super("", ["statusCode": 403]) {}
+  new make(Obj? content := null) : super(content, ["statusCode": 403]) {}
 }
 
 **
@@ -117,7 +130,7 @@ class ResForbidden : Res {
 ** unexpected condition which prevented it from fulfilling the request.
 ** 
 class ResServerError : Res {
-  new make(Obj content := "", Str:Obj options := [:]) : super(content, options) {
+  new make(Obj content := "Internal server error", Str:Obj options := [:]) : super(content, options) {
     if (!options.containsKey("statusCode"))
       this.statusCode = 500
   }
@@ -128,7 +141,7 @@ class ResServerError : Res {
 ** the server due to malformed syntax.
 ** 
 class ResBadRequest : Res {
-  new make() : super("", ["statusCode": 400]) {}
+  new make(Obj? content := "") : super(content, ["statusCode": 400]) {}
 }
 
 **
@@ -147,7 +160,7 @@ class ResMethodNotAllowed : Res {
 ** at the server and no forwarding address is known.
 ** 
 class ResGone : Res {
-  new make(Obj content := "", Str:Obj options := [:]) : super(content, options) {
+  new make(Obj content := "Resource is no longer available", Str:Obj options := [:]) : super(content, options) {
     if (!options.containsKey("statusCode"))
       this.statusCode = 410
   }

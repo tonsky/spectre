@@ -22,16 +22,17 @@ class StaticView : Turtle {
       return Res("File not found: $file", ["statusCode" : 404])
     }
 
-    //FIXME investigate this bug in safari
-//    if (checkNotModified(req, file))
-//      return Res("", 304)
+    if (checkNotModified(req, file))
+      return ResNotModified()
     
-    response := Res(file, ["contentType" : file.mimeType?.toStr ?: ""])
-    
+    response := Res(file)
+    response.headers["Content-Length"] = file.size.toStr
+    if (file.mimeType != null)
+      response.headers["Content-Type"] = file.mimeType.toStr
+
     // set identity headers
     response.headers["ETag"] = etag(file)
-    response.headers["Last-Modified"] = modified(file).toHttpStr
-    response.headers["Content-Length"] = file.size.toStr
+    response.headers["Last-Modified"] = modified(file).toHttpStr    
     
     return response
   }

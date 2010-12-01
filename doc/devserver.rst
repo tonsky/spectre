@@ -28,6 +28,7 @@ When developing app, you'll probably want to serve static files from the same de
     ...
     
     ["/css/*", StaticView(appDir + `static/styles/`)],
-    ["/js/*", StaticView(appDir + `static/scripts/`)]
+    ["/js/*", StaticView(appDir + `static/scripts/`)],
+    ["/favicon.ico", StaticView(appDir + `static/img/favicon.ico`)]
   }
   

@@ -19,7 +19,7 @@ Templates
 
 Response
 --------
-investigate Safari refresh/304 bug
+(v) investigate Safari refresh/304 bug
 
 
 Router
@@ -43,4 +43,4 @@ APPEND_SLASH
 PREPEND_WWW
 
 
-StaticView: serve single files like favicon.ico, not "pathTail" only.
+(v) StaticView: serve single files like favicon.ico, not "pathTail" only.

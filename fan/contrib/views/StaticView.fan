@@ -1,8 +1,9 @@
 
 class StaticView : Turtle {
-  File staticDir
-  new make(File staticDir) {
-    this.staticDir = staticDir
+  File path
+  new make(File path, |This|? f := null) { 
+    this.path = path
+    f?.call(this)
   }
   
   virtual DateTime modified(File file) {
@@ -14,8 +15,11 @@ class StaticView : Turtle {
   }
 
   override Res? dispatch(Req req) {
-    pathRest := req.context[UrlMatcher.PATH_TAIL_PARAM]
-    file := staticDir + Uri.fromStr(pathRest)
+    File file := path
+    if (path.isDir) {
+      pathRest := req.context[UrlMatcher.PATH_TAIL_PARAM]
+      file = path + Uri.fromStr(pathRest)
+    }
     
     // if file doesn't exist
     if (!file.exists) {

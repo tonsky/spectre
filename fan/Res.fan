@@ -54,7 +54,6 @@ class Res {
     setCookie(spectre::Cookie {name=cookieName; maxAge = Duration(-1)})
   }
 
-  // FIXME hmm
   **
   ** Return 'true' if there is something to write to output stream, 'false' otherwise
   ** 
@@ -62,8 +61,13 @@ class Res {
     if (content == null)
       return false
     
-    if (content is File)
-      headers["Content-Length"] = (content as File).size.toStr
+    //TODO take a look at performance
+    if (content is Str)
+      content = (content as Str).toBuf(this.charset)
+    
+    if (content is File || content is Buf)
+      headers["Content-Length"] = content->size.toStr
+
     return true
   }
   
@@ -76,6 +80,8 @@ class Res {
       (content as File).in.pipe(out, (content as File).size)
     else if (content is List)
       (content as List).each { out.writeChars(it == null ? "null" : it.toStr) }
+    else if (content is Buf)
+      out.writeBuf(content)
     else
       out.print(content)
   }
@@ -114,7 +120,7 @@ class ResNotModified : Res {
 ** on your server.
 ** 
 class ResNotFound : Res {
-  new make(Obj content := "Page not found") : super(content, ["statusCode": 404]) {}
+  new make(Obj content := "Page not found") : super(content, ["statusCode": 404, "contentType": "text/html"]) {}
 }
 
 **
@@ -133,6 +139,8 @@ class ResServerError : Res {
   new make(Obj content := "Internal server error", Str:Obj options := [:]) : super(content, options) {
     if (!options.containsKey("statusCode"))
       this.statusCode = 500
+    if (!options.containsKey("contentType"))
+      this.headers["Content-Type"] = "text/html; charset=$charset"
   }
 }
 

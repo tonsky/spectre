@@ -1,3 +1,7 @@
+.. image:: _images/installation.png
+   :class: article_cover cover_installation
+
+==================
 Installing Spectre
 ==================
 

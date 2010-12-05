@@ -44,7 +44,8 @@
       <div class="documentwrapper">
           <div class="body">
             
-  <div class="section" id="routing">
+  <img alt="_images/routing.png" class="article-cover cover-routing" src="_images/routing.png" />
+<div class="section" id="routing">
 <h1>Routing<a class="headerlink" href="#routing" title="Permalink to this headline">¶</a></h1>
 <p>Routing scheme of spectre app is defined as one or more <a class="reference internal" href="#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">turtles</span></tt></a>.</p>
 <dl class="class">
@@ -91,8 +92,8 @@
 <p class="last">If you specify <tt class="docutils literal"><span class="pre">/*</span></tt> at the end of URL, only beginnig of URL will be matched. The value of pathtail will be stored in <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> under the name <tt class="docutils literal"><span class="pre">&quot;pathTail&quot;</span></tt>. <tt class="docutils literal"><span class="pre">/*</span></tt> is allowed at the end of route only.</p>
 </dd>
 </dl>
-<div class="section" id="passing-views">
-<h2>Passing views<a class="headerlink" href="#passing-views" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="where-to-route">
+<h2>Where to route?<a class="headerlink" href="#where-to-route" title="Permalink to this headline">¶</a></h2>
 <p>You can pass any <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a> instead of view function:</p>
 <div class="highlight-python"><pre>router := Router {
   ["/", ViewClass#index],

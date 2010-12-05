@@ -1,5 +1,9 @@
-Res
-===
+.. image:: _images/response.png
+   :class: article_cover cover_response
+
+=====
+ Res
+=====
 
 :class:`Res` is your way to tell spectre what it should send to the client in response to his request. :class:`Res` may be returned by view or any middleware. Moreover, middlewares are allowed to change returned :class:`Res` as they need, or return their own instead.
 

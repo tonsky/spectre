@@ -1,5 +1,10 @@
-Views 
-=====
+.. image:: _images/views.png
+   :class: article_cover cover_views
+
+=======
+ Views 
+=======
+
 There are three kinds of views supported:
 
 + class method;

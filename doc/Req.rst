@@ -1,5 +1,9 @@
-Req
-===
+.. image:: _images/request.png
+   :class: article_cover cover_request
+
+=====
+ Req
+=====
 
 Represents incoming http request. A new instance of :ref:`Req` will be created for each incoming request. :ref:`Req` instance is read-only except for :ref:`req.context <ref_context>`.
 

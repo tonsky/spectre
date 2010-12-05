@@ -6,7 +6,7 @@ class Build : build::BuildPod
     version = Version.fromStr("0.8")
     podName = "spectre"
     summary = ""
-    srcDirs = [`test/`, `fan/`, `fan/wisp/`, `fan/util/`, `fan/contrib/`, `fan/contrib/views/`, `fan/contrib/template/`, `fan/contrib/sessions/`]
+    srcDirs = [`test/`, `test/forms/`, `fan/`, `fan/wisp/`, `fan/util/`, `fan/forms/`, `fan/contrib/`, `fan/contrib/views/`, `fan/contrib/template/`, `fan/contrib/sessions/`]
     depends = ["sys 1.0",
                "build 1.0",
                "compiler 1.0",
@@ -15,6 +15,8 @@ class Build : build::BuildPod
                "webmod 1.0",
                "wisp 1.0",
                "concurrent 1.0",
-               "mustache 1.0"]
+      
+               "mustache 1.0",
+               "printf 1.0"]
   }
 }

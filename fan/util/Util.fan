@@ -51,5 +51,9 @@ abstract class Util
   static Str urlencode(Str str) {
     return str.replace(";", "\\;").replace("=", "\\=").replace("&", "\\&")
   }
+  
+  static Bool supports(Obj obj, Str slot) {
+    return obj.typeof.slots.find { it.name == slot } != null
+  }
 }
 

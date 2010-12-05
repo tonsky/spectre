@@ -138,3 +138,23 @@ tt { font-style: italic; }
 .related li.right {
     float: right;    
 }
+
+/* images */
+.article-cover { float: right; }
+
+.turtles { padding: 1em 0 0 0; }
+.cover-turtles-wo-border { padding: 2em 0 0 2em; background-color: white;}
+
+.cover-cookies { padding: 2em 0 1em 1em; background-color: white;}
+.cover-installation {padding: 0; background-color: white; }
+
+.cover-request { padding: 0em 0 1em 2em; margin-right: 0em; background-color: white;}
+.cover-response { padding: 1em 0 0em 2em; margin-right: -1em; background-color: white;}
+
+.cover-getting-started {padding: 0 0 0 0; margin: -1em -1em 0 -1em; background-color: white; }
+
+.cover-devserver { padding: 0 0 0 0; margin: 0em; background-color: white; }
+.cover-routing { padding: 0 0 0 0; margin: 0em -1em 0 1em; background-color: white; }
+.cover-views { padding: 0 0 0 0; margin: 1.5em -0.5em 0.5em 1em; background-color: white; }
+
+.cover-mustache { display: block; margin: 1em auto; background-color: white; }

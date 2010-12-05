@@ -1,3 +1,7 @@
+.. image:: _images/turtles.png
+   :class: article_cover cover_turtles_wo_border
+
+====================
 Understanding basics
 ====================
 

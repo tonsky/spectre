@@ -1,5 +1,9 @@
-Getting started
-===============
+.. image:: _images/getting_started.png
+   :class: article_cover cover_getting_started
+
+=================
+ Getting started
+=================
 
 Let's create your first Spectre application. Create a folder where you'll keep all your app files::
 

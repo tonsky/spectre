@@ -1,3 +1,6 @@
+.. image:: _images/devserver.png
+   :class: article_cover cover_devserver
+
 ============================
  Spectre development server
 ============================

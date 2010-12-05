@@ -1,5 +1,9 @@
-Routing
-=======
+.. image:: _images/routing.png
+   :class: article_cover cover_routing
+
+=========
+ Routing
+=========
 
 Routing scheme of spectre app is defined as one or more :class:`Router` :class:`turtles <Turtle>`.
 
@@ -51,8 +55,8 @@ There are three types of matching:
 
   If you specify ``/*`` at the end of URL, only beginnig of URL will be matched. The value of pathtail will be stored in :attr:`Req.context` under the name ``"pathTail"``. ``/*`` is allowed at the end of route only.
 
-Passing views
--------------
+Where to route?
+---------------
 
 You can pass any :class:`Turtle` instead of view function::
 

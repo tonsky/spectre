@@ -1,3 +1,6 @@
+.. image:: _images/cookies.png
+   :class: article_cover cover_cookies
+
 ========
  Cookie
 ========

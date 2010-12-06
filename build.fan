@@ -3,7 +3,7 @@ class Build : build::BuildPod
 {
   new make()
   {
-    version = Version.fromStr("0.8")
+    version = Version.fromStr("1.0")
     podName = "spectre"
     summary = ""
     srcDirs = [`test/`, `test/forms/`, `fan/`, `fan/wisp/`, `fan/util/`, `fan/forms/`, `fan/contrib/`, `fan/contrib/views/`, `fan/contrib/template/`, `fan/contrib/sessions/`]

@@ -72,7 +72,11 @@ const class WatchPodActor : Actor {
       loadedPod := Pod.load(f.in)
       if (log.isDebug)
         log.debug("Pod loaded: $f")
-      f.delete
+      try {
+        f.delete
+      }catch(IOErr err) {
+        f.deleteOnExit
+      }
       if (log.isDebug)
         log.debug("[Temporary file removed] $f")
       

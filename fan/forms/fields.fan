@@ -40,6 +40,8 @@ abstract class Field {
       """<ul class="errorlist"><li>""" + errors.join("</li><li>") + """</li></ul>"""
   } 
   
+  protected Str esc(Str? str) { str == null ? "" : Util.xmlEscape(str) }
+  
   new make(Str name, Str? label := name, Validator[] validators := [,], |This|? f := null) {
     this.name = name
     this.label = label
@@ -49,8 +51,9 @@ abstract class Field {
 }
 
 mixin TextInputWidget {
-  Str renderWidget(Str name, Obj? rawData) {
-    """<input type="text" name="$name" """ + (rawData != null ? """value="$rawData" """ : "") + "/>"
+  abstract Str esc(Str? str)
+  Str renderWidget(Str name, Obj? data) {
+    "<input type=\"text\" name=\"${esc(name)}\"" + (data != null ? " value=\"" + esc(data) +"\"" : "") + " />"
   }
 }
 
@@ -58,6 +61,16 @@ class StrField: spectre::Field, TextInputWidget {
   override Obj? parseData(Obj dataMap) { Str? res := dataMap->get(name, null)?->trim; return res == "" ? null : res }
   override Str toHtml(Obj? data) { renderWidget(name, data) }
   
+  new make(Str name, Str? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
+}
+
+class TextareaField: spectre::StrField {
+  override Str toHtml(Obj? data) { "<textarea name=\"${esc(name)}\">" + (data != null ? esc(data) : "") + "</textarea>" }
+  new make(Str name, Str? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
+}
+
+class HiddenField: spectre::StrField {
+  override Str toHtml(Obj? data) { "<input type=\"hidden\" name=\"${esc(name)}\"" + (data != null ? " value=\"" + esc(data) + "\"" : "") + " />" }
   new make(Str name, Str? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
@@ -118,7 +131,7 @@ class BoolField: spectre::Field {
   Str checkboxLabel
   override Obj? parseData(Obj dataMap) { dataMap->get(name, null) != null ? true : false }
   override Str toHtml(Obj? data) { 
-    """<label><input type="checkbox" name="$name" """ + (data == true ? "checked=\"checked\"" : "") + "/>$checkboxLabel</label>"
+    "<label><input type=\"checkbox\" name=\"${esc(name)}\"" + (data == true ? " checked=\"checked\"" : "") + " />${esc(checkboxLabel)}</label>"
   }
   
   new make(Str name, Str? label, Validator[] validators := [,], |This|? f := null): super(name, "", validators, f) {
@@ -169,10 +182,10 @@ class SelectField: spectre::Field {
   
   override Str toHtml(Obj? data) {
     selectedKey := _selectedKey(data)
-    return "<select name=\"$name\">"
-         + choices.map { "<option value=\"" + _key(it) + "\""
+    return "<select name=\"${esc(name)}\">"
+         + choices.map { "<option value=\"" + esc(_key(it)) + "\""
                         + (_key(it)==selectedKey ? " selected=\"selected\"" : "") + ">"
-                        + _label(it)
+                        + esc(_label(it))
                         + "</option>" }.join("\n")
          + "</select>"
   }
@@ -187,9 +200,9 @@ class SelectRadioField: spectre::SelectField {
   
   override Str toHtml(Obj? data) {
     selectedKey := _selectedKey(data)    
-    return choices.map { "<label><input type=\"radio\" name=\"$name\" value=\"" + _key(it) + "\""
+    return choices.map { "<label><input type=\"radio\" name=\"${esc(name)}\" value=\"" + esc(_key(it)) + "\""
                         + (_key(it)==selectedKey ? " checked=\"checked\"" : "") + ">"
-                        + _label(it)
+                        + esc(_label(it))
                         + "</label>" }.join(separator)
   }
   new make(Str name, Str? label, Obj[] choices, Validator[] validators := [,], |This|? f := null): super(name, label, choices, validators, f) {
@@ -231,9 +244,9 @@ class MultiCheckboxField: spectre::SelectField {
   
   override Str toHtml(Obj? data) {
    selectedKeys := _selectedKeys(data)
-   return  choices.map { "<label><input type=\"checkbox\" name=\"$name\" value=\"" + _key(it) + "\""
+   return  choices.map { "<label><input type=\"checkbox\" name=\"${esc(name)}\" value=\"" + esc(_key(it)) + "\""
                         + (selectedKeys.contains(_key(it)) ? " checked=\"checked\"" : "") + ">"
-                        + _label(it)
+                        + esc(_label(it))
                         + "</label>" }.join(separator)
   }
   
@@ -243,10 +256,10 @@ class MultiCheckboxField: spectre::SelectField {
 class MultiSelectField: MultiCheckboxField {
   override Str toHtml(Obj? data) {
     selectedKeys := _selectedKeys(data)
-    return "<select name=\"$name\" multiple=\"multiple\">"
-          + choices.map { "<option value=\"" + _key(it) + "\""
+    return "<select name=\"${esc(name)}\" multiple=\"multiple\">"
+          + choices.map { "<option value=\"" + esc(_key(it)) + "\""
                          + (selectedKeys.contains(_key(it)) ? " selected=\"selected\"" : "") + ">"
-                         + _label(it)
+                         + esc(_label(it))
                          + "</option>" }.join("\n")
     + "</select>"
   }
@@ -257,7 +270,7 @@ class MultiSelectField: MultiCheckboxField {
 class DateField: spectre::Field, TextInputWidget {
   virtual Str parseErrMsg := "Date is required in format \"%s\""
   virtual Str[] parseFormats := ["D.M.YYYY", "M/D/YYYY", "YYYY-M-D"]
-  virtual Str printFormat { get { parseFormats[0] } set { parseFormats.insert(0, it) } } 
+  virtual Str printFormat := "D.MM.YYYY" 
   
   override Obj? parseData(Obj dataMap) {
     rawData := dataMap->get(name, null)?->trim
@@ -318,6 +331,67 @@ class DateSelectField: spectre::Field {
     monthes := "<select name=\"$name[m]\">"+monthes.map { "<option value=\"${it[0]}\""+(it[0]==m?" selected=\"selected\"":"")+">${it[1]}</option>" }.join+"</select>"
     years := "<select name=\"$name[y]\">"+years.map { "<option value=\"$it\""+(it.toStr==y?" selected=\"selected\"":"")+">$it</option>" }.join+"</select>"
     return days + monthes + years
+  }
+  
+  new make(Str name, Str? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
+}
+
+class TimeField: spectre::Field, TextInputWidget {
+  virtual Str parseErrMsg := "Time is required in format \"%s\""
+  virtual Str[] parseFormats := ["k:m a", "k:m:SS a", "h:m", "h:m:SS"]
+  virtual Str printFormat := "hh:mm"
+  
+  override Obj? parseData(Obj dataMap) {
+    rawData := dataMap->get(name, null)?->trim
+    if (rawData == null || rawData == "")
+      return null
+    
+    normalized := (rawData as Str).lower
+    Time? parsed := parseFormats.eachWhile { Time.fromLocale(normalized, it, false) }
+    if (parsed != null)
+      return parsed
+    
+    errors.add(Format.printf(parseErrMsg, [printFormat]))
+    return rawData
+  }
+
+  override Str toHtml(Obj? data) {
+    if (data == null)
+      data = ""
+    else if (data is Time)
+      data = (data as Time).toLocale(printFormat)
+    return renderWidget(name, data)
+  }
+  
+  new make(Str name, Str? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
+}
+
+class DateTimeField: spectre::Field, TextInputWidget {
+  virtual Str parseErrMsg := "Time is required in format \"%s\""
+  virtual Str[] parseFormats :=  ["k:m a D.M.YYYY", "k:m aa D.M.YYYY", "h:m D.M.YYYY", "k:m a M/D/YYYY", "k:m aa M/D/YYYY", "h:m M/D/YYYY"]
+  virtual Str printFormat := "hh:mm D.MM.YYYY"
+  virtual TimeZone timezone := TimeZone.cur
+  
+  override Obj? parseData(Obj dataMap) {
+    rawData := dataMap->get(name, null)?->trim
+    if (rawData == null || rawData == "")
+      return null
+    
+    normalized := (rawData as Str).lower
+    DateTime? parsed := parseFormats.eachWhile { DateTime.fromLocale(normalized, it, timezone, false) }
+    if (parsed != null)
+      return parsed
+    
+    errors.add(Format.printf(parseErrMsg, [printFormat]))
+    return rawData
+  }
+
+  override Str toHtml(Obj? data) {
+    if (data == null)
+      data = ""
+    else if (data is DateTime)
+      data = (data as DateTime).toTimeZone(timezone).toLocale(printFormat)
+    return renderWidget(name, data)
   }
   
   new make(Str name, Str? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}

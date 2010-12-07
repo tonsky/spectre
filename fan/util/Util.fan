@@ -52,6 +52,10 @@ abstract class Util
     return str.replace(";", "\\;").replace("=", "\\=").replace("&", "\\&")
   }
   
+  static Str xmlEscape(Str str) {
+    return str.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;")
+  }
+  
   static Bool supports(Obj obj, Str slot) {
     return obj.typeof.slots.find { it.name == slot } != null
   }

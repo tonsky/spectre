@@ -40,6 +40,11 @@ class FieldsTest: Test, FieldTestMixin {
                 false, null, "val") // "val" should be rendered back
   }
   
+  Void testEscaping() {
+    verifyInputField(StrField("name"), ["name": "d&d\" /><h1></h1>"], true, "d&d\" /><h1></h1>", "d&amp;d&quot; />&lt;h1>&lt;/h1>")
+    verifyInputField(IntField("name"), ["name": "d&d\" /><h1></h1>"], false, null, "d&amp;d&quot; />&lt;h1>&lt;/h1>")
+  }
+  
   Void testInitialsLogic() {
     // initial
     f := IntField("name") { data=25 }
@@ -174,7 +179,7 @@ class FieldsTest: Test, FieldTestMixin {
   }
   
   Void testDateField() {
-    verifyInputField(DateField("f", "label"), ["f": "01.01.2001"], true, Date.fromIso("2001-01-01"), "1.1.2001")
+    verifyInputField(DateField("f", "label"), ["f": "01.01.2001"], true, Date.fromIso("2001-01-01"), "1.01.2001")
     verifyInputField(DateField("f", "label"), ["f": "12/31/2001"], true, Date.fromIso("2001-12-31"), "31.12.2001")
     verifyInputField(DateField("f", "label"), ["f": ""],           true, null, "")
     verifyInputField(DateField("f", "label"), ["f": "12/32/2001"], false, null, "12/32/2001")
@@ -197,5 +202,53 @@ class FieldsTest: Test, FieldTestMixin {
   Void testDateSelectField() {
     verifyDateSelect(DateSelectField("f", "label"), ["f[d]": "1" ,"f[m]": "1", "f[y]": "2001"], true, Date.fromIso("2001-01-01"), ["1", "1", "2001"])
     verifyDateSelect(DateSelectField("f", "label"), ["f[d]": "31" ,"f[m]": "2", "f[y]": "2001"], false, null, ["31", "2", "2001"])
+  }
+  
+  Void testTimeField() {
+    verifyInputField(TimeField("f", "label"), ["f": "11:30"], true, Time.fromIso("11:30:00.000000000"), "11:30")
+    verifyInputField(TimeField("f", "label"), ["f": "23:30"], true, Time.fromIso("23:30:00.000000000"), "23:30")
+    verifyInputField(TimeField("f", "label"), ["f": "11:30:15"], true, Time.fromIso("11:30:00.000000000"), "11:30")
+    
+    verifyInputField(TimeField("f", "label"), ["f": "11:30 pm"], true, Time.fromIso("23:30:00.000000000"), "23:30")
+    verifyInputField(TimeField("f", "label"), ["f": "11:30 PM"], true, Time.fromIso("23:30:00.000000000"), "23:30")
+    verifyInputField(TimeField("f", "label"), ["f": "11:30 p"], true, Time.fromIso("23:30:00.000000000"), "23:30")
+    verifyInputField(TimeField("f", "label"), ["f": "11:30 P"], true, Time.fromIso("23:30:00.000000000"), "23:30")
+    
+    verifyInputField(TimeField("f", "label"), ["f": "11:30:15 pm"], true, Time.fromIso("23:30:15.000000000"), "23:30")
+    verifyInputField(TimeField("f", "label"), ["f": "11:30:15 PM"], true, Time.fromIso("23:30:15.000000000"), "23:30")
+    verifyInputField(TimeField("f", "label"), ["f": "11:30:15 p"], true, Time.fromIso("23:30:15.000000000"), "23:30")
+    verifyInputField(TimeField("f", "label"), ["f": "11:30:15 P"], true, Time.fromIso("23:30:15.000000000"), "23:30")
+    
+    verifyInputField(TimeField("f", "label"), ["f": ""],           true, null, "")
+    verifyInputField(TimeField("f", "label"), ["f": "12/32/2001"], false, null, "12/32/2001")
+    verifyInputField(TimeField("f", "label"), [:],                 true,  null, "")
+  }
+
+  Void testDateTimeField() {
+    [[TimeZone.fromStr("Etc/GMT+5"), "-05:00"], [TimeZone.fromStr("Etc/GMT-2"), "+02:00"]].each {
+      tz := it[0]
+      off := it[1]
+      
+      verifyInputField(DateTimeField("f", "label") { timezone = tz }, ["f": "11:30 31.12.2001"], true, 
+        DateTime.fromIso("2001-12-31T11:30:00.000$off"), "11:30 31.12.2001")
+      
+      verifyInputField(DateTimeField("f", "label") { timezone = tz }, ["f": "23:30 31.12.2001"], true, 
+        DateTime.fromIso("2001-12-31T23:30:00.000$off"), "23:30 31.12.2001")
+      
+      verifyInputField(DateTimeField("f", "label") { timezone = tz }, ["f": "11:30 pm 31.12.2001"], true, 
+          DateTime.fromIso("2001-12-31T23:30:00.000$off"), "23:30 31.12.2001")
+      
+      verifyInputField(DateTimeField("f", "label") { timezone = tz }, ["f": "11:30 PM 31.12.2001"], true, 
+          DateTime.fromIso("2001-12-31T23:30:00.000$off"), "23:30 31.12.2001")
+      
+      verifyInputField(DateTimeField("f", "label") { timezone = tz }, ["f": "11:30 p 31.12.2001"], true, 
+          DateTime.fromIso("2001-12-31T23:30:00.000$off"), "23:30 31.12.2001")
+      
+      verifyInputField(DateTimeField("f", "label") { timezone = tz }, ["f": "11:30 P 31.12.2001"], true, 
+          DateTime.fromIso("2001-12-31T23:30:00.000$off"), "23:30 31.12.2001")
+    }
+    verifyInputField(DateTimeField("f", "label"), ["f": ""],           true, null, "")
+    verifyInputField(DateTimeField("f", "label"), ["f": "12/32/2001"], false, null, "12/32/2001")
+    verifyInputField(DateTimeField("f", "label"), [:],                 true,  null, "")
   }
 }

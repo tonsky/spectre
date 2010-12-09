@@ -14,9 +14,9 @@ mixin FieldTestMixin {
   Void verifyInputField(spectre::Field f, [Str:Str] data, Bool isValid, Obj? cleanedVal, Str? renderedVal) {
     verifyField(f, data, isValid, cleanedVal)
     if(renderedVal == null)
-      verify(!f.renderHtml.contains("value=\""), f.renderHtml)
+      verify(!f.renderHtml.toStr.contains("value=\""), f.renderHtml.toStr)
     else
-      verify(f.renderHtml.contains("value=\"$renderedVal\""), f.renderHtml)
+      verify(f.renderHtml.toStr.contains("value=\"$renderedVal\""), f.renderHtml.toStr)
   }
 }
 
@@ -48,7 +48,7 @@ class FieldsTest: Test, FieldTestMixin {
   Void testInitialsLogic() {
     // initial
     f := IntField("name") { data=25 }
-    verify(f.renderHtml.contains("value=\"25\""), f.renderHtml)
+    verify(f.renderHtml.toStr.contains("value=\"25\""), f.renderHtml.toStr)
 
     verifyInputField(f, ["x": "y", "name": "21", "z": "t"],
                 true, 21, "21")
@@ -105,7 +105,7 @@ class FieldsTest: Test, FieldTestMixin {
   
   Void verifyCheckedField(spectre::Field f, [Str:Str] data, Bool isValid, Obj? cleanedVal, Bool checked) {
     verifyField(f, data, isValid, cleanedVal)
-    verify(f.renderHtml.contains("checked=\"checked\"") == checked, f.renderHtml)
+    verify(f.renderHtml.toStr.contains("checked=\"checked\"") == checked, f.renderHtml.toStr)
   }
 
   
@@ -120,9 +120,9 @@ class FieldsTest: Test, FieldTestMixin {
   Void verifySelectField(spectre::Field f, [Str:Str] data, Bool isValid, Obj? cleanedVal, Str? selectedKey) {
     verifyField(f, data, isValid, cleanedVal)
     if(selectedKey != null)
-      verify(f.renderHtml.contains("<option value=\"$selectedKey\" selected=\"selected\""), f.renderHtml)
+      verify(f.renderHtml.toStr.contains("<option value=\"$selectedKey\" selected=\"selected\""), f.renderHtml.toStr)
     else
-      verify(!f.renderHtml.contains("selected=\"selected\""), f.renderHtml)
+      verify(!f.renderHtml.toStr.contains("selected=\"selected\""), f.renderHtml.toStr)
   }
   
   Void testSelectField() {
@@ -156,13 +156,13 @@ class FieldsTest: Test, FieldTestMixin {
   Void verifyMultiselect(spectre::Field f, [Str:Str[]] data, Bool isValid, Obj? cleanedVal, Str?[] selectedKeys) {
     verifyField(f, data, isValid, cleanedVal)
     selected := Regex <|value="([^>]*)" checked="checked"|>
-    m := selected.matcher(f.renderHtml)
+    m := selected.matcher(f.renderHtml.toStr)
     matches := 0
     while(m.find) {
       verify(selectedKeys.contains(m.group(1)), "${m.group(1)} not expected: " + f.renderHtml)
       matches += 1
     }
-    verifyEq(selectedKeys.size, matches, f.renderHtml)
+    verifyEq(selectedKeys.size, matches, f.renderHtml.toStr)
   }
   
   Void testMultiselectField() {
@@ -189,14 +189,14 @@ class FieldsTest: Test, FieldTestMixin {
   Void verifyDateSelect(spectre::Field f, [Str:Str] data, Bool isValid, Obj? cleanedVal, Str?[] selectedKeys) {
     verifyField(f, data, isValid, cleanedVal)
     regex := Regex <|<select(.*)</select><select(.*)</select><select(.*)</select>|>
-    m := regex.matcher(f.renderHtml)
+    m := regex.matcher(f.renderHtml.toStr)
     m.find
     days := m.group(1)
     months := m.group(2)
     years := m.group(3)
-    verify(days.contains("<option value=\"${selectedKeys[0]}\" selected=\"selected\">"), f.renderHtml)
-    verify(months.contains("<option value=\"${selectedKeys[1]}\" selected=\"selected\">"), f.renderHtml)
-    verify(years.contains("<option value=\"${selectedKeys[2]}\" selected=\"selected\">"), f.renderHtml)
+    verify(days.contains("<option value=\"${selectedKeys[0]}\" selected=\"selected\">"), f.renderHtml.toStr)
+    verify(months.contains("<option value=\"${selectedKeys[1]}\" selected=\"selected\">"), f.renderHtml.toStr)
+    verify(years.contains("<option value=\"${selectedKeys[2]}\" selected=\"selected\">"), f.renderHtml.toStr)
   }
   
   Void testDateSelectField() {

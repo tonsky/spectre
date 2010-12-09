@@ -79,6 +79,8 @@ internal const class EscapedToken : MustacheToken {
         case '<': output.add("&lt;")
         case '>': output.add("&gt;")
         case '&': output.add("&amp;")
+        case '"': output.add("&quot;")
+        case ''': output.add("&#39;")
         default: output.addChar(it)
       }
     }

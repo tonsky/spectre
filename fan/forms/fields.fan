@@ -15,14 +15,25 @@ abstract class Field: SafeStrUtil {
   virtual Void validate(Obj? cleanedData) {}
   
   virtual Obj? data
-  readonly Obj? cleanedData { get { if (isValid) return &cleanedData; else throw Err("Cannot access cleanedData in invalid form")} }
+  readonly Obj? cleanedData {
+    get { 
+      if (isBound && isValid)
+        return &cleanedData;
+      else if(!isValid)
+        throw Err("Cannot access cleanedData in invalid form")
+      else
+        throw Err("Cannot access cleanedData in unbound form")
+      }
+  }
   
   virtual Bool isValid := false
+  virtual Bool isBound := false
   
   virtual Obj? parseData(Obj dataMap) { return dataMap->get(name, null)?->trim }
   abstract SafeStr toHtml(Obj? data)
   
   virtual Bool bind(Obj dataMap) {
+    isBound = true
     data = parseData(dataMap)
     if (errors.isEmpty) {
       try {
@@ -40,10 +51,9 @@ abstract class Field: SafeStrUtil {
   }
   
   virtual SafeStr renderHtml() { return toHtml(data) }
-
+  virtual SafeStr renderLabel() { return escape(label) }
   virtual SafeStr renderErrors() {
-    return safe(errors.isEmpty ? "" : 
-      "<ul class=\"errorlist\"><li>" + errors.map { escape(it) }.join("</li><li>") + "</li></ul>")
+    safe(errors.isEmpty ? "" : "<ul class=\"errorlist\"><li>" + errors.map { escape(it) }.join("</li><li>") + "</li></ul>")
   } 
   
 //  protected Str esc(Str? str) { str == null ? "" : Util.xmlEscape(str) }
@@ -63,9 +73,9 @@ mixin TextInputWidget: SafeStrUtil {
   abstract Obj suffix()
   abstract Str name()
 
-  SafeStr renderWidget(Obj? data) {
+  SafeStr renderWidget(Obj? data, Str widget := "text") {
     safe(escape(prefix)
-       + "<input type=\"text\" name=\"" + escape(name) + "\"" + (data != null ? " value=\"" + escape(data) +"\"" : "") + renderAttrs() + " />"
+       + "<input type=\"$widget\" name=\"" + escape(name) + "\"" + (data != null ? " value=\"" + escape(data) +"\"" : "") + renderAttrs() + " />"
        + escape(suffix))
   }
 }
@@ -74,6 +84,11 @@ class StrField: spectre::Field, TextInputWidget {
   override Obj? parseData(Obj dataMap) { Str? res := dataMap->get(name, null)?->trim; return res == "" ? null : res }
   override SafeStr toHtml(Obj? data) { renderWidget(data) }
   
+  new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
+}
+
+class PasswordField: spectre::StrField, TextInputWidget {
+  override SafeStr toHtml(Obj? data) { renderWidget("", "password") } // do not render back provided passwords
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
@@ -87,9 +102,7 @@ class TextareaField: spectre::StrField {
 }
 
 class HiddenField: spectre::StrField {
-  override SafeStr toHtml(Obj? data) { 
-    safe("<input type=\"hidden\" name=\"${escape(name)}\"" + (data != null ? " value=\"${escape(data)}\"" : "") + " />")
-  }
+  override SafeStr toHtml(Obj? data) { renderWidget(data, "hidden") }
   new make(Str name, Validator[] validators := [,], |This|? f := null): super(name, "", validators, f) {}
 }
 
@@ -147,28 +160,30 @@ class DecimalField: spectre::FloatField {
 }
 
 class BoolField: spectre::Field {
-  Obj checkboxLabel
   override Obj? parseData(Obj dataMap) { dataMap->get(name, null) != null ? true : false }
+  override SafeStr renderLabel() { safe("") }
   override SafeStr toHtml(Obj? data) {
     safe(escape(prefix)
       + "<label><input type=\"checkbox\" name=\"${escape(name)}\"" 
         + (data == true ? " checked=\"checked\"" : "") 
         + renderAttrs() + " />"
-      + escape(checkboxLabel)
+      + escape(label)
       + "</label>"
       + escape(suffix))
   }
   
-  new make(Str name, Obj? label, Validator[] validators := [,], |This|? f := null): super(name, "", validators, f) {
-    checkboxLabel = label
-  }
+  new make(Str name, Obj? label, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
 class SelectField: spectre::Field {
   virtual Obj unknownKeyMsg := "Unknown option selected: %s"
   
-  ** List of [val: Obj?, optional label: Str, optional key: Str] tuples
-  ** If you specify 'val' only, it is allowed to not to wrap it in list
+  ** List of [val: Obj?, optional label: Str, optional key: Str] tuples.
+  ** If you specify 'val' only, it’s allowed to not to wrap it in list.
+  ** E.g.:
+  **   [[1, "Male", "key_man"], [2, "Woman"], [3], 4]
+  ** will be interpreted as:
+  **   [[1, "Male", "key_man"], [2, "Woman", "2"], [3, "3", "3"], [4, "4", "4"]
   Obj[] choices
   
   protected Obj?[] _toList(Obj tuple) { tuple is List ? tuple : [tuple] }

@@ -72,5 +72,5 @@ For more examples take a look at `<http://bitbucket.org/xored/spectre_demo_app>`
 Requirements
 ------------
 
-* `mustache <https://github.com/vspy/mustache>`_
+* `mustache <https://github.com/tonsky/mustache>`_
 * `fantom 1.0.56 <http://fantom.org>`_

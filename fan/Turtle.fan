@@ -72,9 +72,23 @@ class Handler404 : Middleware {
   }
   
   virtual Res? dispatch404(Req req, Http404? err := null) {
-    return ResNotFound.make("<h1>404 Not found</h1><strong>Requested:</strong><br/>"
-      + "<pre>$req.pathInfo</pre><br/>"
-      + (err == null ? "Empty response" : "<pre>${err.msg}:${err.traceToStr}</pre>")
+    return ResNotFound(
+      """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+         <html>
+           <head><title>404 Page not found</title></head>
+           <body style="margin: 0; padding: 0"> 
+             <h1 style="font: normal 24px sans-serif; padding: 32px 32px 16px; margin: 0; 
+                        background-color: #444; color: #FFB266; border-bottom: 1px solid #AAA">
+               404 Page not found
+             </h1>
+             <pre style="margin: 32px; font: 13px/1.5em monospace">
+         <strong>Requested:</strong>
+         $req.pathInfo"""
+         + (err == null ? "" : Util.traceToStr(err)) +
+      """</pre>
+           </body>
+         </html>"""
       //FIXME output existing routes
 //      +"<br/><strong>Tried:</strong><br/><pre>" 
 //      + tried.map { it.toStr }.join("\n") + "</pre>"
@@ -97,8 +111,21 @@ class Handler500 : Middleware {
   }
   
   virtual Res? dispatchErr(Err err) {
-    return ResServerError.make("<h1>500 Internal server error</h1>"
-                             + "<pre>${Util.traceToStr(err)}</pre>")
+    return ResServerError(
+      """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+         <html>
+           <head><title>$err.msg — 500 Internal server error</title></head>
+           <body style="margin: 0; padding: 0"> 
+             <h1 style="font: normal 24px sans-serif; padding: 32px 32px 16px; margin: 0; 
+                        background-color: #444; color: #FFB266; border-bottom: 1px solid #AAA">
+               500 Internal server error
+             </h1>
+             <pre style="margin: 32px; font: 13px/1.5em monospace">
+         ${Util.traceToStr(err)}
+             </pre>
+           </body>
+         </html>""")
   }
   //TODO implement virtual get/renderTemplate
 }

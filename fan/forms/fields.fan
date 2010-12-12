@@ -1,21 +1,50 @@
 using printf
 
+**
+** `Field` is a part of `Form` representing single object required from user.
+** However, it is possible to use single `Field` on its own too.
+**
+** See `Form`
+** 
 abstract class Field: SafeStrUtil {
+  ** Error message for errors of unknown type
   virtual Str unknownErrMsg := "Unknown error: %s"
   
+  ** Field name used to render input 'name' attribute
   virtual Str name
-  virtual Obj label // Str or SafeStr
+  
+  ** Human-readable field label (`Str` or `SafeStr`)
+  virtual Obj label
+  
+  ** Html 'id' attribute value, defaults to `name`.
   virtual Str? id { get { &id ?: name } }
   
-  virtual Obj prefix := "" // Str or SafeStr
-  virtual Obj suffix := "" // Str or SafeStr
+  ** Arbitrary text preceding html input element (`Str` or `SafeStr`)
+  virtual Obj prefix := ""
+  
+  ** Arbitrary text after html input element (`Str` or `SafeStr`)
+  virtual Obj suffix := ""
+  
+  ** Arbitrary html input attributes, except for `name`, `id` and 'type'.
   virtual [Str:Str] attrs := [:]
   
+  ** Lists of errors (`Str` or `SafeStr`) happened during conversion or validation.
+  ** This slot is populated in `validators` and `validate()`.
   virtual Obj[] errors := [,] // Str[] or SafeStr[]
-  virtual Validator[] validators
-  virtual Void validate(Obj? cleanedData) {}
   
+  ** List of `Validator` to check on this field
+  virtual Validator[] validators
+  
+  ** Additional field-specific validation. Errors found should be stored in `errors`.
+  ** This method will only be called if provided data was successfully converted to
+  ** cleaned data.
+  protected virtual Void validate(Obj? cleanedData) {}
+  
+  ** Data bound on this field, either converted or not
   virtual Obj? data
+  
+  ** Converted data that’ve passed all the validataion. Can be accessed only on
+  ** bound valid fields.
   readonly Obj? cleanedData {
     get { 
       if (isBound && isValid)
@@ -29,9 +58,9 @@ abstract class Field: SafeStrUtil {
   
   virtual Bool isValid := false
   virtual Bool isBound := false
-  
-  virtual Obj? parseData(Obj dataMap) { return dataMap->get(name, null)?->trim }
-  
+
+  ** Bind this field with data and validate it. This method moves field from _unbound_
+  ** to _bound_ state, either valid or not. See `isValid`, `isBound`, `cleanedData`.
   virtual Bool bind(Obj dataMap) {
     isBound = true
     data = parseData(dataMap)
@@ -50,23 +79,43 @@ abstract class Field: SafeStrUtil {
     return errors.isEmpty
   }
   
+  ** Convert data provided by user to corresponding Fantom type. `Map` or `QueryMap`
+  ** will typically be passed to this method (it’s recommended to rely on 'get' 
+  ** method only). It's responsibility of this method to find correct value
+  ** in a provided map using field’s `name`. Return either converted data or data
+  ** as it was provided if it cannot be converted. Value returned from this method
+  ** will be stored in `data`. 
+  protected virtual Obj? parseData(Obj dataMap) { return dataMap->get(name, null)?->trim }
+  
+  ** Render field’s input widget, without errors or label.
   abstract SafeStr renderHtml()
+  
+  ** Render field’s label widget. It’s recommended to wrap label text in '<label for="id">' tag.
   virtual SafeStr renderLabel() { safe("<label for=\"${escape(id)}\">" + escape(label) + "</label>") }
+  
+  ** Render field’s errors list, if any.
   virtual SafeStr renderErrors() {
     safe(errors.isEmpty ? "" : "<ul class=\"errorlist\"><li>" + errors.map { escape(it) }.join("</li><li>") + "</li></ul>")
-  } 
+  }
   
-//  protected Str esc(Str? str) { str == null ? "" : Util.xmlEscape(str) }
-  virtual SafeStr renderAttrs() { safe(attrs.isEmpty ? "" : " " + attrs.join(" ") |v,k| {escape(k) + "=\"" + escape(v) + "\""}) }
+  ** Render field’s additional attributes as a part of `renderHtml`. See `attrs`, `renderHtml`.
+  virtual SafeStr renderAttrs() {
+    safe(attrs.isEmpty ? "" : " " + attrs.join(" ") |v,k| {escape(k) + "=\"" + escape(v) + "\""})
+  }
   
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null) {
     this.name = name
     this.label = label
     this.validators = validators
     f?.call(this)
+    ["name", "id"].each {
+      if (attrs.containsKey(it)) throw Err("To set up '$it' attribute, use Field#$it")
+    }
+    if (attrs.containsKey("type")) throw Err("Cannot setup type through Field#attrs")
   }
 }
 
+** Renders '<input type="text">' widget.
 mixin TextInputWidget: SafeStrUtil {
   abstract SafeStr renderAttrs()
   abstract Obj prefix()
@@ -84,6 +133,7 @@ mixin TextInputWidget: SafeStrUtil {
   }
 }
 
+** '<input type="text">' field which will be converted to `Str` object.
 class StrField: spectre::Field, TextInputWidget {
   override Obj? parseData(Obj dataMap) { Str? res := dataMap->get(name, null)?->trim; return res == "" ? null : res }
   override SafeStr renderHtml() { renderWidget(data, id) }
@@ -91,11 +141,13 @@ class StrField: spectre::Field, TextInputWidget {
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
+** '<input type="password">' field which will be converted to `Str` object.
 class PasswordField: spectre::StrField, TextInputWidget {
   override SafeStr renderHtml() { renderWidget("", id, "password") } // do not render back provided passwords
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
+** '<textarea>' field which will be converted to `Str` object.
 class TextareaField: spectre::StrField {
   override SafeStr renderHtml() {
     safe(escape(prefix)
@@ -110,13 +162,16 @@ class TextareaField: spectre::StrField {
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
+** '<input type="hidden">' field which will be converted to `Str` object.
 class HiddenField: spectre::StrField {
   override SafeStr renderHtml() { renderWidget(data, id, "hidden") }
   new make(Str name, Validator[] validators := [,], |This|? f := null): super(name, "", validators, f) {}
 }
 
+** '<input type="text">' field which will be converted to `Int` object.
 class IntField: spectre::Field, TextInputWidget {
-  virtual Obj parseErrMsg := "Provide integer value"
+  virtual Obj parseErrMsg := "Provide an integer value"
+  ** This symbols will be ignored during parsing
   virtual Str[] thousandSeparators := [" ", " ", ","] // TODO move to app settings
 
   virtual Obj? parse(Str value) {
@@ -141,16 +196,23 @@ class IntField: spectre::Field, TextInputWidget {
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
-class FloatField: spectre::IntField {
+** '<input type="text">' field which will be converted to `Decimal` object.
+class DecimalField: spectre::IntField {
   override Obj parseErrMsg := "Provide a float value with a ‘%s’ delimeter"
+  
+  ** This symbols will be ignored during parsing
   override Str[] thousandSeparators := [" ", " "] // TODO move to app settings
+  
+  ** This symbols will be interpreted as fraction separators during parsing
   virtual Str[] parseFractionSep := [".", ","] // TODO move to app settings
+  
+  ** This symbol will be used to format field’s value when displayed to user
   virtual Str printFractionSep := "."
   
   override Obj? parse(Str value) {
     thousandSeparators.each { value = value.replace(it, "") }
     parseFractionSep.each { value = value.replace(it, ".") }
-    return Float.fromStr(value)
+    return Decimal.fromStr(value)
   }
   
   override SafeStr parseErr(ParseErr err) { SafeFormat.printf(parseErrMsg, [printFractionSep]) }
@@ -159,15 +221,18 @@ class FloatField: spectre::IntField {
   new make(Str name, Str? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
-class DecimalField: spectre::FloatField {
+** '<input type="text">' field which will be converted to `Float` object.
+** See `DecimalField`.
+class FloatField: spectre::DecimalField {
   override Obj? parse(Str value) {
     thousandSeparators.each { value = value.replace(it, "") }
     parseFractionSep.each { value = value.replace(it, ".") }
-    return Decimal.fromStr(value)
+    return Float.fromStr(value)
   }
   new make(Str name, Str? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
+** '<input type="checkbox">' field which will be converted to `Bool` object.
 class BoolField: spectre::Field {
   override Obj? parseData(Obj dataMap) { dataMap->get(name, null) != null ? true : false }
   override SafeStr renderLabel() { safe("") }
@@ -187,6 +252,7 @@ class BoolField: spectre::Field {
   new make(Str name, Obj? label, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
+** '<select>' field which will be converted to one of provided `choices`.
 class SelectField: spectre::Field {
   virtual Obj unknownKeyMsg := "Unknown option selected: %s"
   
@@ -246,12 +312,14 @@ class SelectField: spectre::Field {
               + "</select>"
               + escape(suffix))
   }
-  
+
+  ** See `choices`
   new make(Str name, Obj? label, Obj[] choices, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {
     this.choices = choices
   }
 }
 
+** `SelectField` rendered as a set of radiobuttons.
 class SelectRadioField: spectre::SelectField {
   virtual Obj separator := safe("<br/>\n")
   
@@ -271,7 +339,10 @@ class SelectRadioField: spectre::SelectField {
   }
 }
 
+** Multiselect field which will be converted to a list of provided `choices`.
+** Will be rendered as a set of checkboxes.
 class MultiCheckboxField: spectre::SelectField {
+  ** String to separate checkboxes in list 
   virtual Obj separator := safe("<br/>\n")
   
   override Obj? parseData(Obj dataMap) {
@@ -315,6 +386,8 @@ class MultiCheckboxField: spectre::SelectField {
   new make(Str name, Obj? label, Obj[] choices, Validator[] validators := [,], |This|? f := null): super(name, label, choices, validators, f) {}
 }
 
+** Multiselect field which will be converted to a list of provided `choices`.
+** Will be rendered as a '<select multiple="multiple">'. See `MultiCheckboxField`.
 class MultiSelectField: MultiCheckboxField {
   override SafeStr renderLabel() { spectre::Field.super.renderLabel() }
   override SafeStr renderHtml() {
@@ -335,9 +408,15 @@ class MultiSelectField: MultiCheckboxField {
   new make(Str name, Obj? label, Obj[] choices, Validator[] validators := [,], |This|? f := null): super(name, label, choices, validators, f) {}
 }
 
+** '<input type="text">' field which will be converted to a `Date`.
 class DateField: spectre::Field, TextInputWidget {
   virtual Obj parseErrMsg := "Date is required in format ‘%s’"
+
+  ** These formats will be used to parse user provided string, 
+  ** in the same order as defined in list.
   virtual Str[] parseFormats := ["D.M.YYYY", "M/D/YYYY", "YYYY-M-D"]
+  
+  ** This format will be used to display field’s value to user.
   virtual Str printFormat := "D.MM.YYYY" 
   
   override Obj? parseData(Obj dataMap) {
@@ -366,6 +445,8 @@ class DateField: spectre::Field, TextInputWidget {
   }
 }
 
+** `Date` field rendered as three '<select>' lists: day, month, year. This is also
+** an example of a single field having more than one widget.
 class DateSelectField: spectre::Field {
   virtual Obj parseErrMsg := "Provide a correct date"
   virtual Str[][] monthes := Month.vals.map { [(it.ordinal+1).toStr, it.localeFull] }
@@ -422,9 +503,15 @@ class DateSelectField: spectre::Field {
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
+** '<input type="text">' field which will be converted to a `Time`.
 class TimeField: spectre::Field, TextInputWidget {
   virtual Obj parseErrMsg := "Time is required in format ‘%s’"
+
+  ** These formats will be used to parse user provided string, 
+  ** in the same order as defined in list.
   virtual Str[] parseFormats := ["k:m a", "k:m:SS a", "h:m", "h:m:SS"]
+  
+  ** This format will be used to display field’s value to user.
   virtual Str printFormat := "hh:mm"
   
   override Obj? parseData(Obj dataMap) {
@@ -454,10 +541,19 @@ class TimeField: spectre::Field, TextInputWidget {
   }
 }
 
+** '<input type="text">' field which will be converted to a `DateTime`.
 class DateTimeField: spectre::Field, TextInputWidget {
   virtual Obj parseErrMsg := "Time is required in format ‘%s’"
-  virtual Str[] parseFormats :=  ["k:m a D.M.YYYY", "k:m aa D.M.YYYY", "h:m D.M.YYYY", "k:m a M/D/YYYY", "k:m aa M/D/YYYY", "h:m M/D/YYYY"]
+  
+  ** These formats will be used to parse user provided string, 
+  ** in the same order as defined in list.
+  virtual Str[] parseFormats :=  ["k:m a D.M.YYYY", "k:m aa D.M.YYYY", "h:m D.M.YYYY",
+                                  "k:m a M/D/YYYY", "k:m aa M/D/YYYY", "h:m M/D/YYYY"]
+  
+  ** This format will be used to display field’s value to user.
   virtual Str printFormat := "hh:mm D.MM.YYYY"
+  
+  ** Timezone used to both parse and dispay field’s value.
   virtual TimeZone timezone := TimeZone.cur
   
   override Obj? parseData(Obj dataMap) {

@@ -88,19 +88,19 @@ class Res {
 }
 
 **
-** Issues a 302 redirect (found).
+** Issues a 301 redirect (moved permanently).
 ** 
-class ResRedirect : Res {
-  new make(Uri redirectTo) : super("", ["statusCode": 302]) {
+class ResPermanentRedirect : Res {
+  new make(Uri redirectTo) : super("", ["statusCode": 301]) {
     headers["Location"] = redirectTo.encode
   }
 }
 
 **
-** Issues a 301 redirect (moved permanently).
+** Issues a 302 redirect (found).
 ** 
-class ResPermanentRedirect : Res {
-  new make(Uri redirectTo) : super("", ["statusCode": 301]) {
+class ResRedirect : Res {
+  new make(Uri redirectTo) : super("", ["statusCode": 302]) {
     headers["Location"] = redirectTo.encode
   }
 }
@@ -116,11 +116,11 @@ class ResNotModified : Res {
 }
 
 **
-** Issues a 404 Not Found response. Use this if requested page doesn't exist 
-** on your server.
+** Issues a 400 Bad Request response. The request could not be understood by 
+** the server due to malformed syntax.
 ** 
-class ResNotFound : Res {
-  new make(Obj content := "Page not found") : super(content, ["statusCode": 404, "contentType": "text/html"]) {}
+class ResBadRequest : Res {
+  new make(Obj? content := "") : super(content, ["statusCode": 400]) {}
 }
 
 **
@@ -129,6 +129,58 @@ class ResNotFound : Res {
 ** 
 class ResForbidden : Res {
   new make(Obj? content := null) : super(content, ["statusCode": 403]) {}
+}
+
+**
+** Issues a 404 Not Found response. Use this if requested page doesn't exist 
+** on your server.
+** 
+class ResNotFound : Res {
+  new make(Obj content := "Page not found"
+    , Str:Obj options := [:]) : super(content, options) {
+
+    if (!options.containsKey("statusCode"))
+      this.statusCode = 404
+    if (!options.containsKey("contentType"))
+      this.headers["Content-Type"] = "text/html; charset=$charset"
+  }
+}
+
+**
+** Issues a 405 Method Not Allowed response. The method specified in the request 
+** is not allowed for the resource identified by the uri. ``permittedMethods`` 
+** should contain list of methods allowed for this resource (e.g. ``["get", "post"]``).
+** 
+class ResMethodNotAllowed : Res {
+  new make(Str[] permittedMethods, Obj content := "", Str:Obj options := [:]) : super(content, options) {
+    headers["Allow"] = permittedMethods.join(", ")
+    if (!options.containsKey("statusCode"))
+      this.statusCode = 405
+  }
+}
+
+**
+** Issues a 410 Gone response. The requested resource is no longer available 
+** at the server and no forwarding address is known.
+** 
+class ResGone : Res {
+  new make(Obj content := "Resource is no longer available", Str:Obj options := [:]) : super(content, options) {
+    if (!options.containsKey("statusCode"))
+      this.statusCode = 410
+  }
+}
+
+**
+** Issues 415 Unsupported Media Type.
+** The server is refusing to service the request because the entity of the 
+** request is in a format not supported by the requested resource for the 
+** requested method.
+**
+class ResUnsupportedMediaType : Res {
+  new make(Obj content := "Unsupported media type.", Str:Obj options := [:]) : super(content, options) {
+    if (!options.containsKey("statusCode"))
+      this.statusCode = 415
+  }
 }
 
 **
@@ -144,32 +196,3 @@ class ResServerError : Res {
   }
 }
 
-**
-** Issues a 400 Bad Request response. The request could not be understood by 
-** the server due to malformed syntax.
-** 
-class ResBadRequest : Res {
-  new make(Obj? content := "") : super(content, ["statusCode": 400]) {}
-}
-
-**
-** Issues a 405 Method Not Allowed response. The method specified in the request 
-** is not allowed for the resource identified by the uri. ``permittedMethods`` 
-** should contain list of methods allowed for this resource (e.g. ``["get", "post"]``).
-** 
-class ResMethodNotAllowed : Res {
-  new make(Str[] permittedMethods) : super("", ["statusCode": 405]) {
-    headers["Allow"] = permittedMethods.join(", ")
-  }
-}
-
-**
-** Issues a 410 Gone response. The requested resource is no longer available 
-** at the server and no forwarding address is known.
-** 
-class ResGone : Res {
-  new make(Obj content := "Resource is no longer available", Str:Obj options := [:]) : super(content, options) {
-    if (!options.containsKey("statusCode"))
-      this.statusCode = 410
-  }
-}

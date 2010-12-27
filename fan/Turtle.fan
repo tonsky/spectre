@@ -106,11 +106,11 @@ class Handler500 : Middleware {
     try {
       return child.dispatch(req)
     } catch (Err err) {
-      return dispatchErr(err)
+      return dispatchErr(req, err)
     }
   }
   
-  virtual Res? dispatchErr(Err err) {
+  virtual Res? dispatchErr(Req req, Err err) {
     return ResServerError(
       """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
            "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

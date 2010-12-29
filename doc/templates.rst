@@ -4,7 +4,7 @@
 
 Usually you'll need pages a little bit more complex than just a :class:`Str` with substitution variables. That's where you'll need templates.
 
-Templates are simple text files (html, xml, csv, etc.) with special instructions in them. For now, spectre comes with built-in support for mustache templates only. You can find a really short introduction to musatche syntax `on their website <http://mustache.github.com/mustache.5.html>`_.
+Templates are simple text files (html, xml, csv, etc.) with special instructions in them. For now, spectre comes with built-in support for mustache templates only. You can find a really short introduction to musatche syntax `on its website <http://mustache.github.com/mustache.5.html>`_.
 
 .. image:: _images/mustache.png
    :class: cover_mustache
@@ -40,3 +40,16 @@ Finally, return :class:`TemplateRes` instead of :class:`Res` from view::
   }
   
 When intercepted by :class:`MustacheRenderer`, :class:`TemplateRes` will be rendered using :attr:`TemplateRes.template` and :attr:`TemplateRes.context`, and result will be stored in :attr:`TemplateRes.content`. After that, :class:`TemplateRes` will be used as a typical :class:`Res` instance — returned from app, its content will be sent to the client.
+
+Differences to mustache
+-----------------------
+
+Value in inclusion tag is first looked up against context, and, if not found, is used as-is. Following template::
+  
+  {{> content }}
+  
+with context::
+
+  {"content": "page.html"}
+  
+will include ``page.html``, but the very same template without ``"content"`` in context will try to include ``"content"`` template.

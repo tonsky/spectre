@@ -98,7 +98,6 @@ internal const class PartialToken : MustacheToken {
 
   override Void render(StrBuf output, Obj? context, [Str:Mustache]partials) {
     Str? partialName := valueOf(key.trim, context) ?: key
-    echo("Key: $key, partialName: $partialName")
     if (partialName == null)
       throw Err("Partial '$key' is not defined.")
     

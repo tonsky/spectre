@@ -1,11 +1,38 @@
 using mustache
 
+const class TemplateLoader {
+  const File[] templateDirs
+  new make(File[] templateDirs) { this.templateDirs = templateDirs }
+  
+  virtual InStream? templateIn(Str name) {
+    nameUri := Uri.fromStr(name)
+    File? path := templateDirs.find { (it + nameUri).exists }
+    if (path == null)
+      return null
+    
+    return (path + nameUri).in
+  }
+
+  Mustache loadTemplate(Str name) {
+    in := templateIn(name)
+    if (in == null)
+      throw Err.make("Cannot find template ’$name’ in:\n " + templateDirs.join("\n "))
+    return Mustache.forParser(SpectreMustacheParser {
+      it.in = in
+      it.templateLoader = this
+    })
+  }  
+}
+
 class MustacheRenderer : Middleware {
-  File[] templateDirs
   const Str otag := "{{"
   const Str ctag := "}}"
+  const TemplateLoader loader
   
-  new make(|This|? f := null) : super() { f?.call(this) }
+  new make(File[] templateDirs, |This|? f := null) : super() { 
+    loader = TemplateLoader(templateDirs)
+    f?.call(this)    
+  }
   
   override Res? safeAfter(Req req, Res res) {
     if (res is TemplateRes && !(res as TemplateRes).isRendered) {
@@ -16,44 +43,17 @@ class MustacheRenderer : Middleware {
     return res
   }
   
-  virtual Str renderTemplate(Str templateName,
-                     Str:Obj? context := [:]) {
-    Mustache? template := SpectreMustacheParser.loadTemplate(templateName, this)                 
-    if (template == null)
-      throw Err.make("Cannot find template $templateName in:\n  " + templateDirs.join("\n  "))
-    return template.render(context)
+  virtual Str renderTemplate(Str templateName, Str:Obj? context := [:]) {
+    loader.loadTemplate(templateName).render(context)
   }
   
-  virtual InStream? templateIn(Str name) {
-    nameUri := Uri.fromStr(name)
-    File? path := templateDirs.find { (it + nameUri).exists }
-    if (path == null)
-      return null
-    
-    return (path + nameUri).in
-  }
 }
 
 class SpectreMustacheParser : MustacheParser {
-  MustacheRenderer templateLoader
+  TemplateLoader templateLoader
   new make(|This|? f): super(f) {}
-
-  static Mustache? loadTemplate(Str name, MustacheRenderer templateLoader) {
-    in := templateLoader.templateIn(name)
-    if (in == null)
-      return null
-    return Mustache.forParser(SpectreMustacheParser {
-      it.in = in
-      it.templateLoader = templateLoader
-    })
-  }
   
-  override MustacheToken partialToken(Str key) {
-    partial := loadTemplate(key.trim, templateLoader)
-    if (partial == null)
-      throw ArgErr("Partial '$key' is not defined.")
-    return PartialToken(partial)
-  }
+  override MustacheToken partialToken(Str key) { PartialToken(key, templateLoader) }
   
   override MustacheToken defaultToken(Str content) { EscapedToken(content) }
 }
@@ -88,11 +88,21 @@ internal const class EscapedToken : MustacheToken {
 }
 
 internal const class PartialToken : MustacheToken {
-  const Mustache partial
-
-  new make(Mustache partial) { this.partial = partial }
+  const Str key
+  const TemplateLoader loader
+  
+  new make(Str key, TemplateLoader loader) {
+    this.key = key
+    this.loader = loader
+  }
 
   override Void render(StrBuf output, Obj? context, [Str:Mustache]partials) {
+    Str? partialName := valueOf(key.trim, context) ?: key
+    echo("Key: $key, partialName: $partialName")
+    if (partialName == null)
+      throw Err("Partial '$key' is not defined.")
+    
+    partial := loader.loadTemplate(partialName.trim)
     output.add(partial.render(context, partials))
   }
 }

@@ -2,17 +2,17 @@
 ** Forms are Spetre’s approach to handling user-submitted forms.
 ** Forms are resropsible for:
 ** 
-** * Rendering HTML with automatically generated widgets and basic layouts;
-** * Converting submitted data to corresponding Fantom types;
-** * Checking subbmited data against a set of validation rules;
-** * Rendering form with error messages back to user if validation fails.
+** * rendering HTML with automatically generated widgets and basic layouts;
+** * converting submitted data to corresponding Fantom types;
+** * checking subbmited data against a set of validation rules;
+** * rendering form with error messages back to user if validation fails.
 ** 
 ** To define a form, create a class extending `Form` and define form fields
 ** as regular class fields.
 ** 
 **   class MyForm : Form {
-**     spectre::Field name := StrField("name", "Your name", [Required()])
-**     spectre::Field bio := TextareaField("bio", "About yourself")
+**     StrField name := StrField("name", "Your name", [Required()])
+**     TextareaField bio := TextareaField("bio", "About yourself")
 **   }
 ** 
 ** New form is considered _unbound_ and can be displayed only. To populate form
@@ -23,7 +23,7 @@
 **   myForm := MyForm() //unbound
 **   if (myForm.bind(["name": "Ilya", "bio": "Have layed for 33 years"])) {
 **     // bound valid
-**     processForm(myForm.cleanedData)
+**     processF orm(myForm.cleanedData)
 **   } else {
 **     // bound invalid
 **     // rendering back with all the error messages  
@@ -42,7 +42,7 @@ class Form: SafeStrUtil {
   **
   ** Override this method to do validation of form in common, on set of fields,
   ** not of any particular field. Errors found should be stored in `errors`. This
-  ** method will only be called if form has no field-specific errors. 
+  ** method will only be invoked if form has no field-specific errors. 
   ** 
   virtual Void validate() {}
 
@@ -76,20 +76,20 @@ class Form: SafeStrUtil {
   ** Define 'Str[] exclude' field in form class if you need to exclude class-level
   ** Field slots from form's fields.
   ** 
-  protected virtual Str[]? exclude() { null }
+  protected virtual once Str[]? exclude() { null }
 
   **
   ** Define 'Str[] include' field in form class if you need to specify implicitly
   ** which class-level Field slots should became form's fields.
   ** 
-  protected virtual Str[]? include() { null }
+  protected virtual once Str[]? include() { null }
   
   **
-  ** List of active form’s fields. To manage fields’ list dynamically, 
+  ** Read-only list of active form’s fields. To manage fields’ list dynamically, 
   ** override this method.
   ** 
-  protected virtual spectre::Field[] fields() {
-    this.typeof.fields.findAll { it.type.fits(spectre::Field#) && isIncluded(it.name) }.map { it.get(this) }
+  protected virtual once spectre::Field[] fields() {
+    this.typeof.fields.findAll { it.type.fits(spectre::Field#) && isIncluded(it.name) }.map { it.get(this) }.ro
   }
   
   **
@@ -117,7 +117,7 @@ class Form: SafeStrUtil {
           + it.renderLabel
         + "</th><td>"
           + it.renderErrors
-          + it.renderHtml
+          + it.renderWidget
         + "</td></tr>"
       }.join
     )

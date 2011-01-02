@@ -55,14 +55,14 @@ const class MaxValue: Validator {
   }
 }
 
-const class FuncValidator: Validator {
+const class MatchesFunc: Validator {
   const |Obj->Str[]| func
   new make(|Obj->Str[]| func) { this.func = func }
   
   override Str[] validateNotNull(Obj value) { return func.call(value) }
 }
 
-const class RegexValidator: Validator {
+const class MatchesRegex: Validator {
   const Regex regex
   const Str notMathedMsg
   new make(Regex regex, Str notMatchMsg) { this.regex = regex; this.notMathedMsg = notMatchMsg}

@@ -32,7 +32,7 @@ Represents incoming http request. A new instance of :ref:`Req` will be created f
 
    .. attribute:: cookies
 
-      ``[Str:Str]`` of current browser session cookies. It's for reading only, to set cookie, use :func:`Res.setCookie`.
+      ``[Str:Str]`` of current browser session cookies. It’s for reading only, to set cookie, use :func:`Res.setCookie`.
 
    .. attribute:: context
    

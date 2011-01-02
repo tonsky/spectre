@@ -11,9 +11,10 @@ Spectre web framework
    turtles
    routing
    views
-   templates
    Req
    Res
+   templates
+   forms
    sessions
    Cookie
 

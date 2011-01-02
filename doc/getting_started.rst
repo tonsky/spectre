@@ -5,7 +5,7 @@
  Getting started
 =================
 
-Let's create your first Spectre application. Create a folder where you'll keep all your app files::
+Let’s create your first Spectre application. Create a folder where you’ll keep all your app files::
 
   demo_app/
     fan/
@@ -27,7 +27,7 @@ In ``build.fan``, specify dependency on Spectre v.0.8::
       }
     }
 
-In ``fan/`` create your root application's class::
+In ``fan/`` create your root application’s class::
 
   using spectre
 
@@ -37,7 +37,7 @@ In ``fan/`` create your root application's class::
     }  
   }
   
-You'll need one and only one :class:`Settings` implementation in your app, it will be used as a root of your application. For application to work, you set :attr:`Settings.root` property to the root :class:`Turtle` of your application.
+You’ll need one and only one :class:`Settings` implementation in your app, it will be used as a root of your application. For application to work, you set :attr:`Settings.root` property to the root :class:`Turtle` of your application.
 
 To add routes we create :class:`Router` class and pass a list of ``[route path, view method]`` tuples to it::
 
@@ -57,7 +57,7 @@ To add routes we create :class:`Router` class and pass a list of ``[route path, 
     }
   }
   
-Also we've added two error barriers (:class:`Handler500`, :class:`Handler404`) which will catch errors in our app and show error messages to user explaning what happened. As you can see, our router is wrapped by this barriers, so all the errors in the router will be captured and processed properly. It's recommended to set these barriers as top-level middlewares of your app.
+Also we’ve added two error barriers (:class:`Handler500`, :class:`Handler404`) which will catch errors in our app and show error messages to user explaning what happened. As you can see, our router is wrapped by this barriers, so all the errors in the router will be captured and processed properly. It’s recommended to set these barriers as top-level middlewares of your app.
 
 Our route still points at an unimplemented class method (view). To implement it, we just create a class with ``index`` method returning :class:`Res`::
 
@@ -72,9 +72,9 @@ Now you can run::
 
   >>> fan spectre::WispServer path/to/demo_app/
 
-and point your browser at `<http://localhost:8080/>`_. You should see your hello message. Relax, take a cup of coffee, take a deep breath. We're just in the beginning.
+and point your browser at `<http://localhost:8080/>`_. You should see your hello message. Relax, take a cup of coffee, take a deep breath. We’re just in the beginning.
 
-What we've done is the simplest possible way to implement view: just return :class:`Res` instance with all the content of html page. However, we are not using any power of templates at all. Let's fix that in :class:`ItemsView`::
+What we’ve done is the simplest possible way to implement view: just return :class:`Res` instance with all the content of html page. However, we are not using any power of templates at all. Let’s fix that in :class:`ItemsView`::
 
   class ItemsView {
     [Str:Obj][] items() {
@@ -88,7 +88,7 @@ What we've done is the simplest possible way to implement view: just return :cla
     }
   }
   
-By returning :class:`TemplateRes`, we are sending data obtained in view (``items``) to be rendered in :attr:`~TemplateRes.template` ``items_list.html`` with :attr:`~TemplateRes.context` ``["items": items]``. Let's create ``items_list.html`` template in ``templates`` folder::
+By returning :class:`TemplateRes`, we are sending data obtained in view (``items``) to be rendered in :attr:`~TemplateRes.template` ``items_list.html`` with :attr:`~TemplateRes.context` ``["items": items]``. Let’s create ``items_list.html`` template in ``templates`` folder::
 
   <html> 
     <body>
@@ -120,16 +120,16 @@ For this template to work, we should wrap routes with :class:`MustacheRenderer`.
            )
          )
 
-And don't forget to add a route to our brand-new :class:`ItemsView` class::
+And don’t forget to add a route to our brand-new :class:`ItemsView` class::
 
   routes := Router {
     ["/", IndexView#index],
     ["/items/", ItemsView#list],
   }
 
-Switch back to your browser, find a link on the index page and click it. You should be redirected to view we've just implemented. Have you noticed that without restarting the server you still could see new changes? That's a feature, not a bug (see :doc:`devserver` for more details. You also will find out how to put static files into your project — css, js, images. This can make your app much prettier).
+Switch back to your browser, find a link on the index page and click it. You should be redirected to view we’ve just implemented. Have you noticed that without restarting the server you still could see new changes? That’s a feature, not a bug (see :doc:`devserver` for more details. You also will find out how to put static files into your project — css, js, images. This can make your app much prettier).
 
-But we're not using any request parameters yet. Let's fix it by creating a page for individual item. Add a method to :class:`ItemsView`::
+But we’re not using any request parameters yet. Let’s fix it by creating a page for individual item. Add a method to :class:`ItemsView`::
 
   TemplateRes edit(Str itemId) {
     Int _itemId := Int.fromStr(itemId)
@@ -175,7 +175,7 @@ now add a route::
     </body>
   </html>
   
-Now on `<http://localhost:8080/items/1/>`_ you should see a form, but the button doesn't work. Let's change our view a little::
+Now on `<http://localhost:8080/items/1/>`_ you should see a form, but the button doesn’t work. Let’s change our view a little::
 
   TemplateRes edit(Str itemId, Req req) {
     Int _itemId := Int.fromStr(itemId)
@@ -185,7 +185,7 @@ Now on `<http://localhost:8080/items/1/>`_ you should see a form, but the button
   
     if (req.method == "POST") {
       item["name"] = req.post["name"]
-      message = "Item '" + item["name"] + "' saved"
+      message = "Item ’" + item["name"] + "’ saved"
     }
 
     return TemplateRes("item_edit.html", ["id":      item["id"], 
@@ -195,9 +195,9 @@ Now on `<http://localhost:8080/items/1/>`_ you should see a form, but the button
 
 Here we detect form posting via :attr:`Req.method` attribute, and then access form data through :attr:`Req.post` which is a map-like object containing all POST parameters.
 
-"Save changes" button should work now. If you were watching close enough you'll see that changes are not actually persisted, but hey, it's just a demo. You should get the general idea.
+"Save changes" button should work now. If you were watching close enough you’ll see that changes are not actually persisted, but hey, it’s just a demo. You should get the general idea.
 
-Last thing is missing: we should redirect back to page using GET after processing POST request to avoid form reposting on page refresh. Let's see how we can do this::
+Last thing is missing: we should redirect back to page using GET after processing POST request to avoid form reposting on page refresh. Let’s see how we can do this::
 
   Res edit(Str itemId, Req req) {
     Int _itemId := Int.fromStr(itemId)
@@ -205,7 +205,7 @@ Last thing is missing: we should redirect back to page using GET after processin
   
     if (req.method == "POST") {
       item["name"] = req.post["name"]
-      Str message := "Item '" + item["name"] + "' saved"
+      Str message := "Item ’" + item["name"] + "’ saved"
       return ResRedirect(Uri.fromStr("/items/" + item["id"]
                                    + "/?message=" + Util.urlencode(message)))
     }
@@ -219,4 +219,4 @@ Last thing is missing: we should redirect back to page using GET after processin
   
 Here we just return :class:`ResRedirect` from view that will issue 302 FOUND http redirect. We also :func:`~Util.encode` message value: if it contains any of ``&``, ``=`` or ``;`` characters they will be backslash-escaped.
 
-Congratulations! You've just completed this tutorial and should have basic undestanding of how to build applications with Spectre. You may now continue by reading :doc:`turtles` to get a deeper understanding of how these things actually work. Wish you good luck!
+Congratulations! You’ve just completed this tutorial and should have basic undestanding of how to build applications with Spectre. You may now continue by reading :doc:`turtles` to get a deeper understanding of how these things actually work. Wish you good luck!

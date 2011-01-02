@@ -1,0 +1,319 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Forms &mdash; Spectre v0.8 documentation</title>
+    <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
+    <link rel="next" title="Sessions" href="sessions.html" />
+    <link rel="prev" title="Templates" href="templates.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="sessions.html" title="Sessions"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="templates.html" title="Templates"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="forms">
+<h1>Forms<a class="headerlink" href="#forms" title="Permalink to this headline">¶</a></h1>
+<p>Forms are Spetre’s approach to handling user-submitted forms. Forms are resropsible for:</p>
+<ul class="simple">
+<li>rendering HTML with automatically generated widgets and basic layouts;</li>
+<li>converting submitted data to corresponding Fantom types;</li>
+<li>checking subbmited data against a set of validation rules;</li>
+<li>rendering form with error messages back to user if validation fails.</li>
+</ul>
+<p>To define a form, create a class extending <tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt> and define form fields
+as regular class fields:</p>
+<div class="highlight-python"><pre>class MyForm : Form {
+  StrField name := StrField("name", "Your name", [Required()])
+  TextareaField bio := TextareaField("bio", "About yourself")
+  BoolField hasSuperpowers := BoolField("has_superpowers", "Has superpowers")
+}</pre>
+</div>
+<p>New form is considered <em>unbound</em> and can be displayed only. To populate form
+with data, call <tt class="xref py py-func docutils literal"><span class="pre">bind()</span></tt> method with <tt class="xref py py-class docutils literal"><span class="pre">Map</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">QueryMap</span></tt> of data. Submitted data will be converted and validated, form will became <em>bound</em> and either <em>valid</em> (all validation passed) or <em>invalid</em>:</p>
+<div class="highlight-python"><pre>// creating unbound form:
+myForm := MyForm()
+
+// rendering unbound form (initial):
+return TemplateRes("page.html", ["form": myForm.asTable])
+
+// binding form against data:
+if (myForm.bind(["name": "Ilya", "bio": "Have layed for 33 years"])) {
+
+  // form is now bound valid
+
+  processForm(myForm.cleanedData)
+  return ResRedirect("...")
+
+} else {
+
+  // validation has failed, form is bound invalid
+  // rendering back with all the error messages
+
+  return TemplateRes("page.html", ["form": myForm.asTable])
+}</pre>
+</div>
+<div class="section" id="accessing-form-data">
+<h2>Accessing form data<a class="headerlink" href="#accessing-form-data" title="Permalink to this headline">¶</a></h2>
+<p>After successful <tt class="xref py py-func docutils literal"><span class="pre">bind()</span></tt>, all form data is converted to corresponded Fantom types and is accessible through <tt class="xref py py-attr docutils literal"><span class="pre">Form.cleanedData</span></tt> (referenced by fields’ names, not slot names) or <tt class="docutils literal"><span class="pre">Form.&lt;field_slot&gt;.cleanedData</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">myForm</span><span class="o">.</span><span class="n">cleanedData</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span> <span class="o">//</span> <span class="s">&quot;Ilya&quot;</span>
+<span class="n">myForm</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">cleanedData</span> <span class="o">//</span> <span class="s">&quot;Ilya&quot;</span>
+<span class="n">myForm</span><span class="o">.</span><span class="n">cleanedData</span><span class="p">[</span><span class="s">&quot;has_superpowers&quot;</span><span class="p">]</span> <span class="o">//</span> <span class="n">false</span>
+<span class="n">myForm</span><span class="o">.</span><span class="n">hasSuperpowers</span><span class="o">.</span><span class="n">cleanedData</span> <span class="o">//</span> <span class="n">false</span>
+</pre></div>
+</div>
+<p>If form is either <em>invalid</em> or <em>unbound</em>, accessing <tt class="xref py py-attr docutils literal"><span class="pre">Form.cleanedData</span></tt> will raise <tt class="xref py py-class docutils literal"><span class="pre">Err</span></tt>. To check if form is valid or not, check <tt class="xref py py-func docutils literal"><span class="pre">Form.bind()</span></tt> return value or use <tt class="xref py py-func docutils literal"><span class="pre">Form.isValid()</span></tt>.</p>
+</div>
+<div class="section" id="form-fields">
+<h2>Form fields<a class="headerlink" href="#form-fields" title="Permalink to this headline">¶</a></h2>
+<p><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt> is a part of <tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt> representing single value requested from user.</p>
+<p>It is also possible to use single <tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt> on its own. <tt class="xref py py-class docutils literal"><span class="pre">Field`s</span> <span class="pre">have</span> <span class="pre">same</span> <span class="pre">bound/unbound</span> <span class="pre">valid/invalid</span> <span class="pre">states</span> <span class="pre">as</span> <span class="pre">:class:`Form`s,</span> <span class="pre">:attr:`~Field.cleanedData</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">errrors</span></tt> and so on.</p>
+</div>
+<div class="section" id="rendering-form-and-fields">
+<h2>Rendering form and fields<a class="headerlink" href="#rendering-form-and-fields" title="Permalink to this headline">¶</a></h2>
+<p><tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt> can be rendered with <tt class="xref py py-func docutils literal"><span class="pre">asTable()</span></tt> method. It will return <tt class="xref py py-class docutils literal"><span class="pre">SafeStr</span></tt> html snippet with fields’ labels, widgets in their current state and error messages, wrapped with <tt class="docutils literal"><span class="pre">&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;</span></tt>. It won’t contain <tt class="docutils literal"><span class="pre">table</span></tt> tag, you should write it by yourself.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">myForm</span><span class="o">.</span><span class="n">asTable</span>
+
+<span class="go">&lt;tr&gt;</span>
+<span class="go">  &lt;th&gt;</span>
+<span class="go">    &lt;label for=&quot;name&quot;&gt;Your name&lt;/label&gt;</span>
+<span class="go">  &lt;/th&gt;</span>
+<span class="go">  &lt;td&gt;</span>
+<span class="go">    &lt;input type=&quot;text&quot; name=&quot;name&quot; id=&quot;name&quot; value=&quot;Ilya&quot;/&gt;</span>
+<span class="go">  &lt;/td&gt;</span>
+<span class="go">&lt;/tr&gt;</span>
+
+<span class="go">&lt;tr&gt;</span>
+<span class="go">  &lt;th&gt;</span>
+<span class="go">    &lt;label for=&quot;bio&quot;&gt;About yourself&lt;/label&gt;</span>
+<span class="go">  &lt;/th&gt;</span>
+<span class="go">  &lt;td&gt;</span>
+<span class="go">    &lt;textarea name=&quot;bio&quot; id=&quot;bio&quot;&gt;Have layed for 33 years&lt;/textarea&gt;</span>
+<span class="go">  &lt;/td&gt;</span>
+<span class="go">&lt;/tr&gt;</span>
+
+<span class="go">&lt;tr&gt;</span>
+<span class="go">  &lt;th&gt;&lt;/th&gt;</span>
+<span class="go">  &lt;td&gt;</span>
+<span class="go">    &lt;label for=&quot;has_superpowers&quot;&gt;</span>
+<span class="go">      &lt;input type=&quot;checkbox&quot; name=&quot;has_superpowers&quot; id=&quot;has_superpowers&quot; /&gt;</span>
+<span class="go">      Has superpowers</span>
+<span class="go">    &lt;/label&gt;</span>
+<span class="go">  &lt;/td&gt;</span>
+<span class="go">&lt;/tr&gt;</span>
+</pre></div>
+</div>
+<p>Individual fields can be rendered on more detailed level:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">myForm</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">renderWidget</span>
+
+<span class="go">&lt;input type=&quot;text&quot; name=&quot;name&quot; id=&quot;name&quot; value=&quot;Ilya&quot;/&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myForm</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">renderLabel</span>
+
+<span class="go">&lt;label for=&quot;name&quot;&gt;Your name&lt;/label&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myForm</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">renderErrors</span>
+
+<span class="go">&lt;ul class=&quot;errorlist&quot;&gt;&lt;li&gt;Specify a value&lt;/li&gt;&lt;/ul&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="validating-form">
+<h2>Validating form<a class="headerlink" href="#validating-form" title="Permalink to this headline">¶</a></h2>
+<p>Form validation consist of three steps:</p>
+<ol class="arabic simple">
+<li>converting raw data to Fantom types in fields;</li>
+<li>running fields validators;</li>
+<li>running form validtaion.</li>
+</ol>
+<p>All errors occured on these steps are stored in <tt class="xref py py-attr docutils literal"><span class="pre">Field.errors</span></tt> (1, 2) and <tt class="xref py py-attr docutils literal"><span class="pre">Form.errors</span></tt> (3) slots. If there is at least one error, form became invalid and its <tt class="xref py py-attr docutils literal"><span class="pre">Form.cleanedData</span></tt> cannot be accessed.</p>
+<p>Field’s validators can be passed to field’s constructor:</p>
+<div class="highlight-python"><pre>StrField name := StrField("name", "Your name", [Required(), MinLength(10), MaxLength(25)])</pre>
+</div>
+<p>There are a bunch of field validators built-in with Spectre: <tt class="xref py py-class docutils literal"><span class="pre">Required</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MinLength</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MaxLength</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MinValue</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MaxValue</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MatchesRegex</span></tt> and <tt class="xref py py-class docutils literal"><span class="pre">MatchesFunc</span></tt>.</p>
+<p>All errors found during individual field’s validation are stored in <tt class="xref py py-attr docutils literal"><span class="pre">Field.errors</span></tt> slot.</p>
+<p>When fields validation isn’t enough, or you have conditions involving more than one field, you redefine <tt class="xref py py-func docutils literal"><span class="pre">Form.validate()</span></tt> method (3) and store results of your validation in <tt class="xref py py-attr docutils literal"><span class="pre">Form.errors</span></tt> slot as plain <tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">SafeStr</span></tt>.:</p>
+<div class="highlight-python"><pre>class MyForm : Form {
+  StrField name := StrField("name", "Your name")
+  TextareaField bio := TextareaField("bio", "About yourself")
+  BoolField hasSuperpowers := BoolField("has_superpowers", "Has superpowers")
+
+  override Void validate() {
+    if ((cleanedData["name"] as Str)?.size &gt; (cleanedData["bio"] as Str)?.size)
+      errors.add("Bio is supposed to be more detailed than name")
+  }
+}</pre>
+</div>
+<p><tt class="xref py py-func docutils literal"><span class="pre">Form.validate()</span></tt> method will only be invoked if form has no field-specific errors (1, 2).</p>
+</div>
+<div class="section" id="list-of-build-in-fields">
+<h2>List of build-in fields<a class="headerlink" href="#list-of-build-in-fields" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="StrField">
+<em class="property">class </em><tt class="descname">StrField</tt><a class="headerlink" href="#StrField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;text&quot;&gt;</span></tt> field which will be converted to <tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt> object.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="PasswordField">
+<em class="property">class </em><tt class="descname">PasswordField</tt><a class="headerlink" href="#PasswordField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;password&quot;&gt;</span></tt> field which will be converted to <tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt> object.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="TextareaField">
+<em class="property">class </em><tt class="descname">TextareaField</tt><a class="headerlink" href="#TextareaField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">&lt;textarea&gt;</span></tt> field which will be converted to <tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt> object.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="HiddenField">
+<em class="property">class </em><tt class="descname">HiddenField</tt><a class="headerlink" href="#HiddenField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;hidden&quot;&gt;</span></tt> field which will be converted to <tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt> object.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="IntField">
+<em class="property">class </em><tt class="descname">IntField</tt><a class="headerlink" href="#IntField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;text&quot;&gt;</span></tt> field which will be converted to <tt class="xref py py-class docutils literal"><span class="pre">Int</span></tt> object.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="DecimalField">
+<em class="property">class </em><tt class="descname">DecimalField</tt><a class="headerlink" href="#DecimalField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;text&quot;&gt;</span></tt> field which will be converted to <tt class="xref py py-class docutils literal"><span class="pre">Decimal</span></tt> object.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="FloatField">
+<em class="property">class </em><tt class="descname">FloatField</tt><a class="headerlink" href="#FloatField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;text&quot;&gt;</span></tt> field which will be converted to <tt class="xref py py-class docutils literal"><span class="pre">Float</span></tt> object. See <a class="reference internal" href="#DecimalField" title="DecimalField"><tt class="xref py py-class docutils literal"><span class="pre">DecimalField</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="BoolField">
+<em class="property">class </em><tt class="descname">BoolField</tt><a class="headerlink" href="#BoolField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;checkbox&quot;&gt;</span></tt> field which will be converted to <tt class="xref py py-class docutils literal"><span class="pre">Bool</span></tt> object.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="SelectField">
+<em class="property">class </em><tt class="descname">SelectField</tt><a class="headerlink" href="#SelectField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">&lt;select&gt;</span></tt> field which will be converted to one of provided <tt class="docutils literal"><span class="pre">choices</span></tt>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="SelectRadioField">
+<em class="property">class </em><tt class="descname">SelectRadioField</tt><a class="headerlink" href="#SelectRadioField" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#SelectField" title="SelectField"><tt class="xref py py-class docutils literal"><span class="pre">SelectField</span></tt></a> rendered as a set of radiobuttons.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="MultiCheckboxField">
+<em class="property">class </em><tt class="descname">MultiCheckboxField</tt><a class="headerlink" href="#MultiCheckboxField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multiselect field which will be converted to a list of provided <tt class="docutils literal"><span class="pre">choices</span></tt>. Will be rendered as a set of checkboxes.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="MultiSelectField">
+<em class="property">class </em><tt class="descname">MultiSelectField</tt><a class="headerlink" href="#MultiSelectField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multiselect field which will be converted to a list of provided <tt class="docutils literal"><span class="pre">choices</span></tt>. Will be rendered as a <tt class="docutils literal"><span class="pre">&lt;select</span> <span class="pre">multiple=&quot;multiple&quot;&gt;</span></tt>. See <a class="reference internal" href="#MultiCheckboxField" title="MultiCheckboxField"><tt class="xref py py-class docutils literal"><span class="pre">MultiCheckboxField</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="DateField">
+<em class="property">class </em><tt class="descname">DateField</tt><a class="headerlink" href="#DateField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;text&quot;&gt;</span></tt> field which will be converted to a <tt class="xref py py-class docutils literal"><span class="pre">Date</span></tt>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="TimeField">
+<em class="property">class </em><tt class="descname">TimeField</tt><a class="headerlink" href="#TimeField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;text&quot;&gt;</span></tt> field which will be converted to a <tt class="xref py py-class docutils literal"><span class="pre">Time</span></tt>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="DateTimeField">
+<em class="property">class </em><tt class="descname">DateTimeField</tt><a class="headerlink" href="#DateTimeField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;text&quot;&gt;</span></tt> field which will be converted to a <tt class="xref py py-class docutils literal"><span class="pre">DateTime</span></tt>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="DateSelectField">
+<em class="property">class </em><tt class="descname">DateSelectField</tt><a class="headerlink" href="#DateSelectField" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">Date</span></tt> field rendered as three <tt class="docutils literal"><span class="pre">&lt;select&gt;</span></tt> lists: day, month, year. This is also an example of a single field having more than one widget.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="advanced-techniques">
+<h2>Advanced techniques<a class="headerlink" href="#advanced-techniques" title="Permalink to this headline">¶</a></h2>
+<p>By default, all <tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt> slots which extend <tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt> are included to form. If you need to specify, which fields to exclude from form rendering/processing, or enumerate which to include, please override <tt class="docutils literal"><span class="pre">Str[]?</span></tt> <tt class="xref py py-attr docutils literal"><span class="pre">Form.exclude</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">Form.include</span></tt> slots.</p>
+<p>If you need to generate fields list dynamically, override <tt class="xref py py-func docutils literal"><span class="pre">Form.fields()</span></tt> method. It should return list of <tt class="xref py py-class docutils literal"><span class="pre">spectre::Field</span></tt> instances that form will contain:</p>
+<div class="highlight-python"><pre>class DynForm : Form {
+  ... // usual fields’ definitions
+
+  override once spectre::Field[] fields() {
+    dynFields := ...
+    return super.fields.dup.addAll(dynFields)
+  }
+}</pre>
+</div>
+<p><tt class="xref py py-func docutils literal"><span class="pre">Form.fields()</span></tt> will be called several times during form processing, so you should specify <tt class="docutils literal"><span class="pre">once</span></tt> modifier on it or ensure otherways that it returns same field <em>instances</em> each time it is called.</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="sessions.html" title="Sessions"
+             >next</a></li>
+        <li class="right" >
+          <a href="templates.html" title="Templates"
+             >previous</a> |</li>
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Nikita Prokopov (xored.com).
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

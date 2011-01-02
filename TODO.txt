@@ -1,4 +1,4 @@
-(v) QueryDecode doesn't actually decodes percents and spaces!!!
+(v) QueryDecode doesn’t actually decodes percents and spaces!!!
 (v) Report compilation errors
 
 Request

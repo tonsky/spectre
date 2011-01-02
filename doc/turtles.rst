@@ -8,7 +8,7 @@ Understanding basics
 Turtles all the way down
 ------------------------
 
-Turtles are unified building blocks of any Spectre application. The name "Turtle" was inspired by Simon Willison's `article <http://simonwillison.net/2009/May/19/djng/>`_, who originally proposed an idea to unify different parts of Django under common contract.
+Turtles are unified building blocks of any Spectre application. The name "Turtle" was inspired by Simon Willison’s `article <http://simonwillison.net/2009/May/19/djng/>`_, who originally proposed an idea to unify different parts of Django under common contract.
 
 .. class:: Turtle
 
@@ -57,16 +57,16 @@ Basic turtles implementations
 
    .. function:: Void before(Req req)
 
-      Is called before invoking child's :func:`~Turtle.dispatch`.
+      Is called before invoking child’s :func:`~Turtle.dispatch`.
 
    .. function:: Res? after(Req req, Res? res)
 
-      Is called after child's :func:`~Turtle.dispatch`.
+      Is called after child’s :func:`~Turtle.dispatch`.
 
    .. function:: Res? safeAfter(Req req, Res res)
 
-      Is called when child's :func:`~Turtle.dispatch` has returned not-null :class:`Res`, otherwise ``null`` will be returned from middleware without invoking :func:`safeAfter`.
+      Is called when child’s :func:`~Turtle.dispatch` has returned not-null :class:`Res`, otherwise ``null`` will be returned from middleware without invoking :func:`safeAfter`.
 
 .. note::
 
-   Usually a single instance of turtle will be constructed for each actor processing requests in web server, so you cannot rely on any local variables or actor's locals inside turtle instances.
+   Usually a single instance of turtle will be constructed for each actor processing requests in web server, so you cannot rely on any local variables or actor’s locals inside turtle instances.

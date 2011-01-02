@@ -49,7 +49,7 @@
 <h1>Understanding basics<a class="headerlink" href="#understanding-basics" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="turtles-all-the-way-down">
 <h2>Turtles all the way down<a class="headerlink" href="#turtles-all-the-way-down" title="Permalink to this headline">¶</a></h2>
-<p>Turtles are unified building blocks of any Spectre application. The name &#8220;Turtle&#8221; was inspired by Simon Willison&#8217;s <a class="reference external" href="http://simonwillison.net/2009/May/19/djng/">article</a>, who originally proposed an idea to unify different parts of Django under common contract.</p>
+<p>Turtles are unified building blocks of any Spectre application. The name &#8220;Turtle&#8221; was inspired by Simon Willison’s <a class="reference external" href="http://simonwillison.net/2009/May/19/djng/">article</a>, who originally proposed an idea to unify different parts of Django under common contract.</p>
 <dl class="class">
 <dt id="Turtle">
 <em class="property">class </em><tt class="descname">Turtle</tt><a class="headerlink" href="#Turtle" title="Permalink to this definition">¶</a></dt>
@@ -99,26 +99,26 @@
 <dl class="function">
 <dt>
 <tt class="descname">Void before(Req req)</tt></dt>
-<dd><p>Is called before invoking child&#8217;s <tt class="xref py py-func docutils literal"><span class="pre">dispatch()</span></tt>.</p>
+<dd><p>Is called before invoking child’s <tt class="xref py py-func docutils literal"><span class="pre">dispatch()</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt>
 <tt class="descname">Res? after(Req req, Res? res)</tt></dt>
-<dd><p>Is called after child&#8217;s <tt class="xref py py-func docutils literal"><span class="pre">dispatch()</span></tt>.</p>
+<dd><p>Is called after child’s <tt class="xref py py-func docutils literal"><span class="pre">dispatch()</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt>
 <tt class="descname">Res? safeAfter(Req req, Res res)</tt></dt>
-<dd><p>Is called when child&#8217;s <tt class="xref py py-func docutils literal"><span class="pre">dispatch()</span></tt> has returned not-null <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a>, otherwise <tt class="docutils literal"><span class="pre">null</span></tt> will be returned from middleware without invoking <tt class="xref py py-func docutils literal"><span class="pre">safeAfter()</span></tt>.</p>
+<dd><p>Is called when child’s <tt class="xref py py-func docutils literal"><span class="pre">dispatch()</span></tt> has returned not-null <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a>, otherwise <tt class="docutils literal"><span class="pre">null</span></tt> will be returned from middleware without invoking <tt class="xref py py-func docutils literal"><span class="pre">safeAfter()</span></tt>.</p>
 </dd></dl>
 
 </dd></dl>
 
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Usually a single instance of turtle will be constructed for each actor processing requests in web server, so you cannot rely on any local variables or actor&#8217;s locals inside turtle instances.</p>
+<p class="last">Usually a single instance of turtle will be constructed for each actor processing requests in web server, so you cannot rely on any local variables or actor’s locals inside turtle instances.</p>
 </div>
 </div>
 </div>

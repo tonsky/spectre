@@ -57,7 +57,7 @@ Sample application
     
 	    if (req.method == "POST") {
 	      item["name"] = req.post["name"]
-	      Str message := "Item '" + item["name"] + "' saved"
+	      Str message := "Item ’" + item["name"] + "’ saved"
 	      return ResRedirect(Uri.fromStr("/items/" + item["id"] + "/?message=" + Util.urlencode(message)))
 	    }
 

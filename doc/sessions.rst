@@ -9,7 +9,7 @@
 
 .. class:: Session
 
-   A common interface you'll work with in your code.
+   A common interface you’ll work with in your code.
 
    .. function:: Obj? get(Str k)
    
@@ -48,7 +48,7 @@ Example::
 
    .. attribute:: cookieName
    
-      :class:`Str`. Name of cookie used to identify user's session. Defaults to ``"__spectre_session"``.
+      :class:`Str`. Name of cookie used to identify user’s session. Defaults to ``"__spectre_session"``.
       
    .. attribute:: cookieDomain
    
@@ -68,12 +68,12 @@ Example::
 
    .. attribute:: saveEveryRequest
    
-      :class:`Bool`. If set to ``true``, session's last accessed time and session cookie will be updated on each request.
+      :class:`Bool`. If set to ``true``, session’s last accessed time and session cookie will be updated on each request.
 
 
 .. class:: InmemorySessionStore
 
-   Store all session data in memory. For performance reasons it's allowed to store constant objects only (``toImmutable == true``).
+   Store all session data in memory. For performance reasons it’s allowed to store constant objects only (``toImmutable == true``).
    
    .. attribute:: maxSessionAge
    

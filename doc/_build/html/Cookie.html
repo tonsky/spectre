@@ -43,14 +43,14 @@
   <img alt="_images/cookies.png" class="article-cover cover-cookies" src="_images/cookies.png" />
 <div class="section" id="cookie">
 <h1>Cookie<a class="headerlink" href="#cookie" title="Permalink to this headline">¶</a></h1>
-<p>Cookie models an HTTP cookie used to pass data between the server and brower as defined by the original Netscape cookie specification and <a class="reference external" href="http://tools.ietf.org/html/rfc2109.html">RFC 2109</a>. Note the newer RFC 2965 is unsupported by most browsers, and even 2109 isn&#8217;t really supported by some of the major browsers.</p>
+<p>Cookie models an HTTP cookie used to pass data between the server and brower as defined by the original Netscape cookie specification and <a class="reference external" href="http://tools.ietf.org/html/rfc2109.html">RFC 2109</a>. Note the newer RFC 2965 is unsupported by most browsers, and even 2109 isn’t really supported by some of the major browsers.</p>
 <p>Since only strict subset of ASCII is allowed in http headers, spectre encodes/decodes cookie values automatically using following scheme:</p>
 <ul class="simple">
-<li>chars <tt class="docutils literal"><span class="pre">0x00..0x20</span></tt>, <tt class="docutils literal"><span class="pre">0x7e..0xff</span></tt>, <tt class="docutils literal"><span class="pre">';'</span></tt> and <tt class="docutils literal"><span class="pre">','</span></tt> are encoded as <tt class="docutils literal"><span class="pre">\xff</span></tt>, where <tt class="docutils literal"><span class="pre">ff</span></tt> stands for two-digit character&#8217;s hex code;</li>
-<li>chars <tt class="docutils literal"><span class="pre">0x0100..0xffff</span></tt> are encoded as <tt class="docutils literal"><span class="pre">\uffff</span></tt>, where <tt class="docutils literal"><span class="pre">ffff</span></tt> stands for four-digit character&#8217;s hex code;</li>
+<li>chars <tt class="docutils literal"><span class="pre">0x00..0x20</span></tt>, <tt class="docutils literal"><span class="pre">0x7e..0xff</span></tt>, <tt class="docutils literal"><span class="pre">';'</span></tt> and <tt class="docutils literal"><span class="pre">','</span></tt> are encoded as <tt class="docutils literal"><span class="pre">\xff</span></tt>, where <tt class="docutils literal"><span class="pre">ff</span></tt> stands for two-digit character’s hex code;</li>
+<li>chars <tt class="docutils literal"><span class="pre">0x0100..0xffff</span></tt> are encoded as <tt class="docutils literal"><span class="pre">\uffff</span></tt>, where <tt class="docutils literal"><span class="pre">ffff</span></tt> stands for four-digit character’s hex code;</li>
 <li><tt class="docutils literal"><span class="pre">&quot;</span></tt> and <tt class="docutils literal"><span class="pre">\</span></tt> are backslash-escaped as <tt class="docutils literal"><span class="pre">\&quot;</span></tt> and <tt class="docutils literal"><span class="pre">\\</span></tt>, respectively.</li>
 </ul>
-<p>This encoding will be absolutely transparent for you on server side, but you&#8217;ll have to deal with it by yourself on the client.</p>
+<p>This encoding will be absolutely transparent for you on server side, but you’ll have to deal with it by yourself on the client.</p>
 <p>See also <a class="reference internal" href="Req.html#Req.cookies" title="Req.cookies"><tt class="xref py py-attr docutils literal"><span class="pre">Req.cookies</span></tt></a> and <a class="reference internal" href="Res.html#Res.setCookie" title="Res.setCookie"><tt class="xref py py-func docutils literal"><span class="pre">Res.setCookie()</span></tt></a>.</p>
 <dl class="class">
 <dt id="Cookie">
@@ -70,7 +70,7 @@
 <dl class="attribute">
 <dt id="Cookie.maxAge">
 <tt class="descname">maxAge</tt><a class="headerlink" href="#Cookie.maxAge" title="Permalink to this definition">¶</a></dt>
-<dd><p><tt class="xref py py-class docutils literal"><span class="pre">Duration?</span></tt>. Lifetime of this cookie. After <tt class="docutils literal"><span class="pre">max-age</span></tt> elapses, the client should discard the cookie. Note that many browsers still don&#8217;t recognize <tt class="docutils literal"><span class="pre">max-age</span></tt>, so setting <tt class="docutils literal"><span class="pre">max-age</span></tt> also always includes an <tt class="docutils literal"><span class="pre">expires</span></tt> attribute.</p>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">Duration?</span></tt>. Lifetime of this cookie. After <tt class="docutils literal"><span class="pre">max-age</span></tt> elapses, the client should discard the cookie. Note that many browsers still don’t recognize <tt class="docutils literal"><span class="pre">max-age</span></tt>, so setting <tt class="docutils literal"><span class="pre">max-age</span></tt> also always includes an <tt class="docutils literal"><span class="pre">expires</span></tt> attribute.</p>
 <p>If <a class="reference internal" href="#Cookie.maxAge" title="Cookie.maxAge"><tt class="xref py py-attr docutils literal"><span class="pre">maxAge</span></tt></a> is <tt class="docutils literal"><span class="pre">null</span></tt> (the default) then the cookie persists until the client is shutdown.</p>
 <p>If zero is specified, the cookie is discarded immediately.</p>
 </dd></dl>

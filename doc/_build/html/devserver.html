@@ -47,10 +47,10 @@
   <img alt="_images/devserver.png" class="article-cover cover-devserver" src="_images/devserver.png" />
 <div class="section" id="spectre-development-server">
 <h1>Spectre development server<a class="headerlink" href="#spectre-development-server" title="Permalink to this headline">¶</a></h1>
-<p>Spectre comes with built-in development server based on Fantom&#8217;s <a class="reference external" href="http://fantom.org/doc/wisp/index.html">wisp web server</a>. Its main purpose is to monitor source files in you app&#8217;s folder and reload them when something has been changed, so you&#8217;ll see a new version in your browser with no need to restart server manually.</p>
+<p>Spectre comes with built-in development server based on Fantom’s <a class="reference external" href="http://fantom.org/doc/wisp/index.html">wisp web server</a>. Its main purpose is to monitor source files in you app’s folder and reload them when something has been changed, so you’ll see a new version in your browser with no need to restart server manually.</p>
 <div class="section" id="running-devserver">
 <h2>Running devserver<a class="headerlink" href="#running-devserver" title="Permalink to this headline">¶</a></h2>
-<p>To run development server, you&#8217;ll need both Fantom 1.0.56 and Spectre installed (see <a class="reference internal" href="installation.html"><em>Installing Spectre</em></a>). Execute the following in your command prompt:</p>
+<p>To run development server, you’ll need both Fantom 1.0.56 and Spectre installed (see <a class="reference internal" href="installation.html"><em>Installing Spectre</em></a>). Execute the following in your command prompt:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fan</span> <span class="n">spectre</span><span class="p">::</span><span class="n">WispServer</span> <span class="o">&lt;</span><span class="n">path_to_your_app_folder</span><span class="o">&gt;</span>
 <span class="go">[20:09:47 23-Nov-10] [info] [spectre] Watching &lt;path_to_your_app_folder&gt;/ for modifications</span>
 <span class="go">[20:09:47 23-Nov-10] [info] [spectre] Rebuildind pod spectre_demo_app as file:&lt;...&gt;</span>
@@ -65,7 +65,7 @@
 </div>
 <div class="section" id="serving-static-files">
 <h2>Serving static files<a class="headerlink" href="#serving-static-files" title="Permalink to this headline">¶</a></h2>
-<p>When developing app, you&#8217;ll probably want to serve static files from the same devserver as the rest of the app. Spectre includes <tt class="xref py py-class docutils literal"><span class="pre">StaticView</span></tt> turtle for that purpose. Just include it into your app&#8217;s routing scheme:</p>
+<p>When developing app, you’ll probably want to serve static files from the same devserver as the rest of the app. Spectre includes <tt class="xref py py-class docutils literal"><span class="pre">StaticView</span></tt> turtle for that purpose. Just include it into your app’s routing scheme:</p>
 <div class="highlight-python"><pre>router := Router {
   ...
 

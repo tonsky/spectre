@@ -43,8 +43,8 @@ abstract class Field: SafeStrUtil {
   ** Data bound on this field, either converted or not
   virtual Obj? data
   
-  ** Converted data that’ve passed all the validataion. Can be accessed only on
-  ** bound valid fields.
+  ** Converted data that has passed all the validataions. Can be accessed only on
+  ** bound valid fields. See `bind`, `isValid`, `isBound`.
   readonly Obj? cleanedData {
     get { 
       if (isBound && isValid)
@@ -88,7 +88,7 @@ abstract class Field: SafeStrUtil {
   protected virtual Obj? parseData(Obj dataMap) { return dataMap->get(name, null)?->trim }
   
   ** Render field’s input widget, without errors or label.
-  abstract SafeStr renderHtml()
+  abstract SafeStr renderWidget()
   
   ** Render field’s label widget. It’s recommended to wrap label text in '<label for="id">' tag.
   virtual SafeStr renderLabel() { safe("<label for=\"${escape(id)}\">" + escape(label) + "</label>") }
@@ -98,7 +98,7 @@ abstract class Field: SafeStrUtil {
     safe(errors.isEmpty ? "" : "<ul class=\"errorlist\"><li>" + errors.map { escape(it) }.join("</li><li>") + "</li></ul>")
   }
   
-  ** Render field’s additional attributes as a part of `renderHtml`. See `attrs`, `renderHtml`.
+  ** Render field’s additional attributes as a part of `renderWidget`. See `attrs`, `renderWidget`.
   virtual SafeStr renderAttrs() {
     safe(attrs.isEmpty ? "" : " " + attrs.join(" ") |v,k| {escape(k) + "=\"" + escape(v) + "\""})
   }
@@ -122,7 +122,7 @@ mixin TextInputWidget: SafeStrUtil {
   abstract Obj suffix()
   abstract Str name()
 
-  SafeStr renderWidget(Obj? data, Str id, Str widget := "text") {
+  SafeStr renderInput(Obj? data, Str id, Str widget := "text") {
     safe(escape(prefix)
        + "<input type=\"$widget\" name=\"" + escape(name) + "\""
          + (data != null ? " value=\"" + escape(data) +"\"" : "")
@@ -136,20 +136,20 @@ mixin TextInputWidget: SafeStrUtil {
 ** '<input type="text">' field which will be converted to `Str` object.
 class StrField: spectre::Field, TextInputWidget {
   override Obj? parseData(Obj dataMap) { Str? res := dataMap->get(name, null)?->trim; return res == "" ? null : res }
-  override SafeStr renderHtml() { renderWidget(data, id) }
+  override SafeStr renderWidget() { renderInput(data, id) }
   
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
 ** '<input type="password">' field which will be converted to `Str` object.
 class PasswordField: spectre::StrField, TextInputWidget {
-  override SafeStr renderHtml() { renderWidget("", id, "password") } // do not render back provided passwords
+  override SafeStr renderWidget() { renderInput("", id, "password") } // do not render back provided passwords
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
 ** '<textarea>' field which will be converted to `Str` object.
 class TextareaField: spectre::StrField {
-  override SafeStr renderHtml() {
+  override SafeStr renderWidget() {
     safe(escape(prefix)
         + "<textarea name=\"${escape(name)}\""
           + renderAttrs()
@@ -164,7 +164,7 @@ class TextareaField: spectre::StrField {
 
 ** '<input type="hidden">' field which will be converted to `Str` object.
 class HiddenField: spectre::StrField {
-  override SafeStr renderHtml() { renderWidget(data, id, "hidden") }
+  override SafeStr renderWidget() { renderInput(data, id, "hidden") }
   new make(Str name, Validator[] validators := [,], |This|? f := null): super(name, "", validators, f) {}
 }
 
@@ -192,7 +192,7 @@ class IntField: spectre::Field, TextInputWidget {
       return rawData
     }
   }
-  override SafeStr renderHtml() { renderWidget(data?.toStr, id) }  
+  override SafeStr renderWidget() { renderInput(data?.toStr, id) }  
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
@@ -217,7 +217,7 @@ class DecimalField: spectre::IntField {
   
   override SafeStr parseErr(ParseErr err) { SafeFormat.printf(parseErrMsg, [printFractionSep]) }
   
-  override SafeStr renderHtml() { renderWidget(data?.toStr?.replace(".", printFractionSep), id) }  
+  override SafeStr renderWidget() { renderInput(data?.toStr?.replace(".", printFractionSep), id) }  
   new make(Str name, Str? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {}
 }
 
@@ -236,7 +236,7 @@ class FloatField: spectre::DecimalField {
 class BoolField: spectre::Field {
   override Obj? parseData(Obj dataMap) { dataMap->get(name, null) != null ? true : false }
   override SafeStr renderLabel() { safe("") }
-  override SafeStr renderHtml() {
+  override SafeStr renderWidget() {
     safe(escape(prefix)
       + "<label for=\"${escape(id)}\">"
       + "<input type=\"checkbox\" name=\"${escape(name)}\"" 
@@ -298,7 +298,7 @@ class SelectField: spectre::Field {
     return _key(selected)
   }
   
-  override SafeStr renderHtml() {
+  override SafeStr renderWidget() {
     selectedKey := _selectedKey(data)
     return safe(escape(prefix) 
               + "<select name=\"${escape(name)}\""
@@ -323,7 +323,7 @@ class SelectField: spectre::Field {
 class SelectRadioField: spectre::SelectField {
   virtual Obj separator := safe("<br/>\n")
   
-  override SafeStr renderHtml() {
+  override SafeStr renderWidget() {
     selectedKey := _selectedKey(data)
     return safe(escape(prefix) +
                 choices.map { "<label><input type=\"radio\" name=\"${escape(name)}\" value=\"${escape(_key(it))}\""
@@ -373,7 +373,7 @@ class MultiCheckboxField: spectre::SelectField {
   }
   
   override SafeStr renderLabel() { escape(label) }
-  override SafeStr renderHtml() {
+  override SafeStr renderWidget() {
     selectedKeys := _selectedKeys(data)
     return safe(escape(prefix) 
               + choices.map { "<label><input type=\"checkbox\" name=\"${escape(name)}\" value=\"" + escape(_key(it)) + "\""
@@ -390,7 +390,7 @@ class MultiCheckboxField: spectre::SelectField {
 ** Will be rendered as a '<select multiple="multiple">'. See `MultiCheckboxField`.
 class MultiSelectField: MultiCheckboxField {
   override SafeStr renderLabel() { spectre::Field.super.renderLabel() }
-  override SafeStr renderHtml() {
+  override SafeStr renderWidget() {
     selectedKeys := _selectedKeys(data)
     return safe(escape(prefix)
               + "<select name=\"${escape(name)}\" multiple=\"multiple\""
@@ -432,12 +432,12 @@ class DateField: spectre::Field, TextInputWidget {
     return rawData
   }
 
-  override SafeStr renderHtml() {
+  override SafeStr renderWidget() {
     if (data == null)
       data = ""
     else if (data is Date)
       data = (data as Date).toLocale(printFormat)
-    return renderWidget(data, id)
+    return renderInput(data, id)
   }
   
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {
@@ -466,7 +466,7 @@ class DateSelectField: spectre::Field {
   }
   
   override SafeStr renderLabel() { safe("<label for=\"${escape(id)}_d\">" + escape(label) + "</label>") }
-  override SafeStr renderHtml() {
+  override SafeStr renderWidget() {
     Str? d
     Str? m
     Str? y
@@ -528,12 +528,12 @@ class TimeField: spectre::Field, TextInputWidget {
     return rawData
   }
 
-  override SafeStr renderHtml() {
+  override SafeStr renderWidget() {
     if (data == null)
       data = ""
     else if (data is Time)
       data = (data as Time).toLocale(printFormat)
-    return renderWidget(data, id)
+    return renderInput(data, id)
   }
   
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {
@@ -570,12 +570,12 @@ class DateTimeField: spectre::Field, TextInputWidget {
     return rawData
   }
 
-  override SafeStr renderHtml() {
+  override SafeStr renderWidget() {
     if (data == null)
       data = ""
     else if (data is DateTime)
       data = (data as DateTime).toTimeZone(timezone).toLocale(printFormat)
-    return renderWidget(data, id)
+    return renderInput(data, id)
   }
   
   new make(Str name, Obj? label := name, Validator[] validators := [,], |This|? f := null): super(name, label, validators, f) {

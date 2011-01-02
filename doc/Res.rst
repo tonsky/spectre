@@ -80,12 +80,12 @@ There are a number of special :class:`Res` subclasses addressing most common res
 
 .. class:: ResNotModified
 
-   Issue a 304 Not Modified response. Use this if page was not modified since last client's request and can be loaded from browser's cache.
+   Issue a 304 Not Modified response. Use this if page was not modified since last client’s request and can be loaded from browser’s cache.
 
 
 .. class:: ResNotFound
 
-   Issue a 404 Not Found response. Use this if requested page doesn't exist on your server.
+   Issue a 404 Not Found response. Use this if requested page doesn’t exist on your server.
 
 
 .. class:: ResForbidden

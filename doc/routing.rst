@@ -32,7 +32,7 @@ There are three types of matching:
     "/orders/"
     "/some/app/edit"
 
-  Number of slashed doesn't count here.
+  Number of slashed doesn’t count here.
 
 **Pathterm capturing:**
   ::

@@ -45,7 +45,7 @@ class ValidatorsTest: Test, FieldTestMixin {
   }
   
   Void testClosureValidator() {
-    validator := FuncValidator{(it as Int).isEven ? [,] : ["Even required"]}
+    validator := MatchesFunc{(it as Int).isEven ? [,] : ["Even required"]}
 
     verifyInputField(IntField ("name", "label",  [validator]), ["name": "1"], false, null, "1")
     verifyInputField(IntField ("name", "label",  [validator]), ["name": "2"], true, 2, "2")
@@ -53,7 +53,7 @@ class ValidatorsTest: Test, FieldTestMixin {
   }
   
   Void testRegexValidator() {
-    validator := RegexValidator(Regex("H(e)+llo"), "You should salute me")
+    validator := MatchesRegex(Regex("H(e)+llo"), "You should salute me")
 
     verifyInputField(StrField ("name", "label",  [validator]), ["name": " Hello  "], true, "Hello", "Hello")
     verifyInputField(StrField ("name", "label",  [validator]), ["name": "Heeeello"], true, "Heeeello", "Heeeello")

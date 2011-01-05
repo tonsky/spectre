@@ -58,27 +58,30 @@ class DynActorTest : Test {
 
   Void testSerialization() {
     a := TestDynActor(ActorPool())
-    SerializableArg res := a->sendSerializationTest(staticConstArg, SerializableArg { y = "test" })
+    
+    // see how const args and serializable args are passed
+    SerializableArg res := a->sendSerializationTest(staticConstArg, SerializableArg { y = "test" })->get
     verifyEq(res.x, 25)
     verifyEq(res.y, "test passed")
+    // check that prev test is is actually testing smth
+    verifyErr(ConstWasSerializedErr#) { a->sendSerializationTest(ConstArg(), SerializableArg())->get }
     
-    verifyErr(ConstWasSerializedErr#) { a->sendSerializationTest(ConstArg(), SerializableArg()) }
-    
+    // see if not-serializable arg will raise error
     verifyErr(IOErr#) { a->sendSerializationTest(ConstArg(), SerializableArg(), NotSerializableArg()) }
     
-    a->sendUnsafePassing(staticSerializableArgUnsafe)
-    a->sendUnsafeUnwrapping(staticSerializableArgUnsafe)
-    verifyErr(ConstWasSerializedErr#) { a->sendUnsafeUnwrapping(staticSerializableArgUnsafe.val) }
+    // see in unsafe is passed by reference
+    a->sendUnsafePassing(staticSerializableArgUnsafe)->get
+    // see in unsafe is correctly unwrapped
+    a->sendUnsafeUnwrapping(staticSerializableArgUnsafe)->get
+    // check that two prev test are actually testing smth
+    verifyErr(ConstWasSerializedErr#) { a->sendUnsafeUnwrapping(staticSerializableArgUnsafe.val)->get }
   }
   
   Void testMethodName() {
     a := DynActor(ActorPool())
     verifyEq(a.toMethodName("sendSomeName"), "_someName")
-    verifyEq(a.toMethodName("sendSomeNameNoWait"), "_someName")
+    verifyEq(a.toMethodName("sendSomeNameNoWait"), "_someNameNoWait")
     verifyEq(a.toMethodName("sendSend"), "_send")
-    verifyEq(a.toMethodName("sendNoWaitNoWait"), "_noWait")
-    verifyEq(a.toMethodName("sendNoWait"), "_")
-    verifyEq(a.toMethodName("sendNoWaitName"), "_noWaitName")
     verifyEq(a.toMethodName("sendHELLO"), "_hELLO")
     verifyEq(a.toMethodName("sendA"), "_a")
     verifyEq(a.toMethodName("send"), "_")
@@ -86,21 +89,27 @@ class DynActorTest : Test {
   
   Void testMethodCalls() {
     a := TestDynActor(ActorPool())
-    verifyEq(a->sendMethod1("X", "y", 2), "[X, y, 2]")
-    verifyEq(a->sendMethod1("X", "y"), "[X, y, 0]")
-    verifyEq(a->sendMethod1NoWait("X", "y", 2).typeof, Future#)
-    verifyEq(a->sendMethod2, null)
-    verifyEq(a->sendMethod2NoWait.typeof, Future#)
+
+    // passing args
+    verifyEq(a->sendMethod1("X", "y", 2).typeof, Future#)
+    verifyEq(a->sendMethod1("X", "y", 2)->get, "[X, y, 2]")
+    // default args
+    verifyEq(a->sendMethod1("X", "y")->get, "[X, y, 0]")
+    // no args, no return value
+    verifyEq(a->sendMethod2.typeof, Future#)
+    verifyEq(a->sendMethod2->get, null)
     
-    verifyEq(a->sendStaticMethod(5), 60)
-    verifyEq(a->sendStaticMethodNoWait(5).typeof, Future#)
+    // static
+    verifyEq(a->sendStaticMethod(5).typeof, Future#)
+    verifyEq(a->sendStaticMethod(5)->get, 60)
     
     // required args are required
-    verifyErr(ArgErr#) { a->sendMethod1 }
-    verifyErr(ArgErr#) { a->sendMethod1("1", 2, 3) }
-    verifyErr(ArgErr#) { a->sendStaticMethod }
+    verifyErr(ArgErr#) { a->sendMethod1->get }
+    verifyErr(ArgErr#) { a->sendMethod1("1", 2, 3)->get }
+    verifyErr(ArgErr#) { a->sendStaticMethod->get }
     
-    a->sendMethod1NoWait
-    a->sendStaticMethodNoWait
+    // if result is not retrieved, no exception is thrown
+    a->sendMethod1
+    a->sendStaticMethod
   }
 }

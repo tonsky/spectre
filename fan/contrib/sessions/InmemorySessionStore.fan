@@ -17,7 +17,7 @@ class InmemorySessionStore : SessionStore {
   
   override Session load(Str? sessionId) {
     if (sessionId != null) {
-      [Str:Obj?]? stored := actor->sendLoad(sessionId, maxSessionAge)
+      [Str:Obj?]? stored := actor->sendLoad(sessionId, maxSessionAge)->get
       if (stored != null)
         return InmemorySession { map = stored }
     }
@@ -28,12 +28,12 @@ class InmemorySessionStore : SessionStore {
   override Str? save(Session session, Str? sessionId, Bool forceSave) {
     if (session.map.isEmpty) {
       if (sessionId != null)
-        actor->sendDeleteNoWait(sessionId)
+        actor->sendDelete(sessionId)
       return null
     } else {
       sessionId = sessionId ?: newSessionId
       if (isModified(session) || forceSave)
-        actor->sendSaveNoWait(sessionId, session.map.toImmutable)
+        actor->sendSave(sessionId, session.map.toImmutable)
       return sessionId
     }
   }

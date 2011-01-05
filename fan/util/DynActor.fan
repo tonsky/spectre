@@ -44,10 +44,10 @@ const class DynActor : Actor {
   
   virtual Str toMethodName(Str trappedName) {
     if (!trappedName.startsWith("send"))
-      throw UnknownSlotErr("Cannot call '$trappedName'. To call underscore methods, call them as 'send<MethodName>[NoWait]'")
+      throw UnknownSlotErr("Cannot call '$trappedName'. To call underscore methods, call them as 'send<MethodName>'")
     trappedName = trappedName[4..-1] // removing 'send'
-    if (trappedName.endsWith("NoWait"))
-      trappedName = trappedName[0..-7] // removing 'NoWait'
+//    if (trappedName.endsWith("AndWait"))
+//      trappedName = trappedName[0..-7] // removing 'AndWait'
     return "_" + trappedName.decapitalize
   }
   
@@ -55,7 +55,7 @@ const class DynActor : Actor {
     Str methodName := toMethodName(name)
     Method method := this.typeof.method(methodName)
     
-    future := this.send(DynActorCommand(method, args))
-    return name.endsWith("NoWait") ? future : future.get
+    return this.send(DynActorCommand(method, args))
+//    return name.endsWith("AndWait") ? future.get : future
   }
 }

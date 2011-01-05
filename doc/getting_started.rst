@@ -70,7 +70,7 @@ Our route still points at an unimplemented class method (view). To implement it,
 
 Now you can run::
 
-  >>> fan spectre::WispServer path/to/demo_app/
+  >>> fan spectre::RunDevServer path/to/demo_app/
 
 and point your browser at `<http://localhost:8080/>`_. You should see your hello message. Relax, take a cup of coffee, take a deep breath. We’re just in the beginning.
 

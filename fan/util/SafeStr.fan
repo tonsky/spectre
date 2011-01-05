@@ -11,7 +11,9 @@ using printf
 
 class SafeStr {
   const Str escapedStr
-  internal virtual Str _escape(Str val) { val.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace("'", "&#39;") }
+  internal virtual Str _escape(Str val) {
+    val.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace("'", "&#39;")
+  }
   internal new _make(|This| f) { f.call(this) }
   override Str toStr() { escapedStr }
   

@@ -11,7 +11,7 @@ class RunDevServer : AbstractMain
   File? appDir
   
   override Int run() {
-    return runServices([ DevServer { it.port = this.port; listeners = [SpectreHttpListener(appDir)] } ])
+    return runServices([ WebServer { it.port = this.port; protocols = [SpectreWSProtocol(), SpectreHttpProtocol(appDir)] } ])
   }
 }
 
@@ -40,9 +40,36 @@ class DevServerReq : Req {
   }
 }
 
+const class SpectreWSActor : DynActor {
+  OutStream out { get { Actor.locals["spectre.ws_actor.out"] }
+                  set { Actor.locals["spectre.ws_actor.out"] = it } }
+  
+  new make(ActorPool pool, OutStream out) : super(pool) {
+    this->sendSetOut(Unsafe(out))
+    this.sendLater(Duration("500ms"), DynActorCommand(#_sendSmth, ["Hello from webSocket!!!"]))
+    this.sendLater(Duration("1500ms"), DynActorCommand(#_sendSmth, ["Hello again"]))
+  }
+  
+  protected Void _echo(Str msg) { _sendSmth("You sent: " + msg) }
+  
+  protected Void _sendSmth(Str msg) { WebSocketDataFrame_HIXIE_76 { data = msg.toBuf }.write(out) }
+  
+  protected Void _setOut(OutStream out) { this.out = out }
+}
 
-const class SpectreHttpListener : HttpConnectionListener {
-  private const static Log log := SpectreHttpListener#.pod.log
+
+const class SpectreWSProtocol : WebSocketProtocol {
+  const ActorPool pool := ActorPool()
+  
+  override WebSocketHandshakeRes onHandshake(WebSocketHandshakeReq req, OutStream out) {
+    return WebSocketHandshakeRes(req) { processor = SpectreWSActor(pool, out) } 
+  }
+  
+  override Void onMessage(Actor processor, Buf data) { processor->sendEcho(data.readAllStr) }
+}
+
+const class SpectreHttpProtocol : HttpProtocol {
+  private const static Log log := Log.find("spectre")
   
   const WatchPodActor watchPodActor
   
@@ -89,7 +116,7 @@ const class SpectreHttpListener : HttpConnectionListener {
     Settings.setInstance(settings)
   }
   
-  override Bool onMessage(HttpReq httpReq, OutStream out) {
+  override Bool onRequest(HttpReq httpReq, OutStream out) {
     try {
       Req req := DevServerReq(httpReq)
       Res? response := activeApp.dispatch(req)
@@ -119,8 +146,10 @@ const class SpectreHttpListener : HttpConnectionListener {
        .print(response.statusCode)
        .print(" ")
        .print(WebRes.statusMsg[response.statusCode])
-       .print("\r\n");
+       .print("\r\n")
+    
     response.headers.asMultimap.each |v,k| { v.each { out.print("$k: $it\r\n") } }
+    out.print("Connection: Keep-Alive\r\n")
     out.print("\r\n").flush
     
     if (needOut) {

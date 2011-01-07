@@ -67,6 +67,8 @@ internal const class InmemorySessionActor : DynActor {
   
   protected [Str:Obj?]? _load(Str id, Duration? maxAge) {
     session := sessions[id]
+    if (session == null)
+      return null
     if (maxAge != null && session.lastModified.plus(maxAge) < DateTime.now) {
       sessions.remove(id)
       return null

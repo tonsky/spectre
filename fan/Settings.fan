@@ -17,9 +17,15 @@ abstract class Settings {
   Charset charset := Charset.utf8  
   
 //////////////////////////////////////////////////////////////////////////
+// WebSockets
+//////////////////////////////////////////////////////////////////////////
+  
+  virtual WsActor createWsActor(WsHandshakeReq req) { throw UnsupportedErr() }
+  
+//////////////////////////////////////////////////////////////////////////
 // App instance
 //////////////////////////////////////////////////////////////////////////
   
-  static Settings instance() { Actor.locals["spectre.settings"] }
-  static Void setInstance(Settings app) { Actor.locals["spectre.settings"] = app }
+//  static Settings instance() { Actor.locals["spectre.settings"] }
+//  static Void setInstance(Settings app) { Actor.locals["spectre.settings"] = app }
 }

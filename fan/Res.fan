@@ -19,7 +19,7 @@ class Res {
   virtual QueryMap headers := QueryMap()
   virtual Int statusCode
   virtual Obj? content
-  virtual Charset charset := Settings.instance.charset
+  virtual Charset charset := Charset.utf8
   
   **
   ** Supported options:

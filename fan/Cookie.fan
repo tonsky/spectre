@@ -39,7 +39,7 @@ class Cookie {
       v := m.group(2)
       
       if(k[0] == '$' || reserved.contains(k.lower)) {
-        // TODO k is a Cookie attr name, set to corresponding field
+        // TODO then k is a Cookie attr name, set to corresponding field
         // if (currentCookie != null)
         //   Cookie#.field(k[1..-1]).set(currentCookie, v)
       } else {

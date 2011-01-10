@@ -1,3 +1,4 @@
+
 using concurrent
 using util
 using web
@@ -9,82 +10,93 @@ class RunDevServer : AbstractMain {
   @Arg { help = "path to app dir (must contains build.fan and spectre::App implementation)" }
   File? appDir
   
+  static const AtomicRef appRef := AtomicRef()
+  static Settings? app() { (appRef.val as Unsafe)?.val as Settings }
+  static Void setApp(Settings s) { appRef.val = Unsafe(s) }
+  
+  static const AtomicRef activePodRef := AtomicRef()
+  static Pod? activePod() { (activePodRef.val as Unsafe)?.val as Pod }
+  static Void setActivePod(Pod s) { activePodRef.val = Unsafe(s) }
+  
   override Int run() {
     return runServices([ WebServer { 
       it.port = this.port
-      protocols = [SpectreWsProtocol(), 
+      protocols = [AppReloadProtocol(appDir),
+                   SpectreWsProtocol(),
                    SpectreHttpProtocol(appDir)] 
     } ])
   }
 }
 
-const class SpectreWsActor : WsActor {
-  new make(ActorPool pool) : super(pool) {
-    this.sendLater(1sec, DynActorCommand(#_writeStr, ["Hello from webSocket!!!"]))
-    this.sendLater(2sec, DynActorCommand(#_writeStr, ["Hello again"]))
-    this.sendLater(3sec, DynActorCommand(#_close))
-  }
-  
-  override Void _onData(Buf msg) { _writeStr("You sent: " + msg.readAllStr) }
-}
-
-const class SpectreWsProtocol : WsProtocol {
-  const ActorPool pool := ActorPool()  
-  override WsActor createWsActor(WsHandshakeReq req) { SpectreWsActor(pool) }
-}
-
-const class SpectreHttpProtocol : HttpProtocol {
+const class AppReloadProtocol : Protocol {
   private const static Log log := Log.find("spectre")
-  
   const WatchPodActor watchPodActor
-  
+
   new make(File podDir) {
     pool := ActorPool { maxThreads = 1 }
     watchPodActor = WatchPodActor.make(pool, podDir)
 
     // trying to load app
+    activeApp
+  }
+
+  override Bool onConnection(HttpReq req) {
+    app := activeApp
+    if (app !== RunDevServer.app)
+      RunDevServer.setApp(app)
+    return false // pass through to next protocol
+  }
+  
+  File podDir() { watchPodActor.podDir }
+  
+  virtual Settings activeApp() {
     try {
-      activeApp
+      Obj? loadedPodObj := watchPodActor.send(null).get
+      if (loadedPodObj is Err)
+        throw loadedPodObj
+  
+      loadedPod := loadedPodObj as Pod
+      
+      if (loadedPod !== RunDevServer.activePod) {
+        startApp(loadedPod)
+        RunDevServer.setActivePod(loadedPod)
+      }
     } catch(build::FatalBuildErr err) {
       log.err("App compilation error: ${podDir}build.fan", err)
     } catch(Err err) {
       log.err("Error occured", err)
     }
-  }
-  
-  Pod? activePod { get { Actor.locals["spectre.app_pod"] } 
-                   set { Actor.locals["spectre.app_pod"] = it } }
-  
-  File podDir() { watchPodActor.podDir }
-  
-  virtual Turtle activeApp() {
-    Obj? loadedPodObj := watchPodActor.send(null).get
-    if (loadedPodObj is Err)
-      throw loadedPodObj
-
-    loadedPod := loadedPodObj as Pod
     
-    if (loadedPod !== activePod) {
-      restartApp(loadedPod)
-      activePod = loadedPod
-    }
-    return Settings.instance.root
+    return RunDevServer.app
   }
   
-  virtual Void restartApp(Pod appPod) {
-    log.info("Restarting pod $appPod")
+  virtual Void startApp(Pod appPod) {
+    log.info("Starting pod $appPod")
     Type? settingsType := appPod.types.find { it.fits(Settings#) }
     if (settingsType == null)
       throw Err.make("Cannot find spectre::Settings implementation in ${podDir}")
     
     Settings settings := settingsType.make([podDir])
-    Settings.setInstance(settings)
+    RunDevServer.setApp(settings)
   }
+}
+
+const class SpectreWsProtocol : WsProtocol {
+  override WsActor createWsActor(WsHandshakeReq req) {
+    RunDevServer.app.createWsActor(req)
+  }
+}
+
+const class SpectreHttpProtocol : HttpProtocol {
+  private const static Log log := Log.find("spectre")
+  private const File podDir
+  
+  new make(File podDir) { this.podDir = podDir }
   
   override Bool onRequest(HttpReq httpReq, OutStream out) {
     try {
       Req req := SpectreReq(httpReq)
-      Res? response := activeApp.dispatch(req)
+      Res? response := RunDevServer.app.root.dispatch(req)
       
       if(response != null)
         writeResponse(response, out)

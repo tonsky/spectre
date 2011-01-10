@@ -2,8 +2,7 @@ using concurrent
 using util
 using web
 
-class RunDevServer : AbstractMain
-{
+class RunDevServer : AbstractMain {
   @Opt { help = "http port" }
   Int port := 8080
 
@@ -11,61 +10,27 @@ class RunDevServer : AbstractMain
   File? appDir
   
   override Int run() {
-    return runServices([ WebServer { it.port = this.port; protocols = [SpectreWSProtocol(), SpectreHttpProtocol(appDir)] } ])
+    return runServices([ WebServer { 
+      it.port = this.port
+      protocols = [SpectreWsProtocol(), 
+                   SpectreHttpProtocol(appDir)] 
+    } ])
   }
 }
 
-class DevServerReq : Req {
-  HttpReq req
-  new make(HttpReq req) { this.req = req }
-  
-  once override QueryMap get() { return QueryMap.decodeQuery(req.uri.queryStr).ro }
-  once override QueryMap post() { QueryMap.decodeQuery(form).ro }
-  once override QueryMap request() { QueryMap.decodeQuery(req.uri.queryStr).setAllMap(post).ro }
-
-  once override Uri pathInfo() { req.uri }
-  once override Str:Str headers() { req.headers.ro }
-  once override Str method() { req.method }
-  
-  override InStream in() { req.in }
-  
-  virtual protected once Str? form() {
-    ct := headers.get("Content-Type", "").lower
-    if (ct.startsWith("application/x-www-form-urlencoded")) {
-      len := headers["Content-Length"]
-      if (len == null) throw IOErr("Missing Content-Length header")
-      return req.in.readLine(len.toInt)
-    }
-    return null
+const class SpectreWsActor : WsActor {
+  new make(ActorPool pool) : super(pool) {
+    this.sendLater(1sec, DynActorCommand(#_writeStr, ["Hello from webSocket!!!"]))
+    this.sendLater(2sec, DynActorCommand(#_writeStr, ["Hello again"]))
+    this.sendLater(3sec, DynActorCommand(#_close))
   }
+  
+  override Void _onData(Buf msg) { _writeStr("You sent: " + msg.readAllStr) }
 }
 
-const class SpectreWSActor : DynActor {
-  OutStream out { get { Actor.locals["spectre.ws_actor.out"] }
-                  set { Actor.locals["spectre.ws_actor.out"] = it } }
-  
-  new make(ActorPool pool, OutStream out) : super(pool) {
-    this->sendSetOut(Unsafe(out))
-    this.sendLater(Duration("500ms"), DynActorCommand(#_sendSmth, ["Hello from webSocket!!!"]))
-    this.sendLater(Duration("1500ms"), DynActorCommand(#_sendSmth, ["Hello again"]))
-  }
-  
-  protected Void _echo(Str msg) { _sendSmth("You sent: " + msg) }
-  
-  protected Void _sendSmth(Str msg) { WebSocketDataFrame_HIXIE_76 { data = msg.toBuf }.write(out) }
-  
-  protected Void _setOut(OutStream out) { this.out = out }
-}
-
-
-const class SpectreWSProtocol : WebSocketProtocol {
-  const ActorPool pool := ActorPool()
-  
-  override WebSocketHandshakeRes onHandshake(WebSocketHandshakeReq req, OutStream out) {
-    return WebSocketHandshakeRes(req) { processor = SpectreWSActor(pool, out) } 
-  }
-  
-  override Void onMessage(Actor processor, Buf data) { processor->sendEcho(data.readAllStr) }
+const class SpectreWsProtocol : WsProtocol {
+  const ActorPool pool := ActorPool()  
+  override WsActor createWsActor(WsHandshakeReq req) { SpectreWsActor(pool) }
 }
 
 const class SpectreHttpProtocol : HttpProtocol {
@@ -118,7 +83,7 @@ const class SpectreHttpProtocol : HttpProtocol {
   
   override Bool onRequest(HttpReq httpReq, OutStream out) {
     try {
-      Req req := DevServerReq(httpReq)
+      Req req := SpectreReq(httpReq)
       Res? response := activeApp.dispatch(req)
       
       if(response != null)
@@ -160,5 +125,30 @@ const class SpectreHttpProtocol : HttpProtocol {
       cout.charset = response.charset
       response.writeBody(cout)
     }
+  }
+}
+
+class SpectreReq : Req {
+  HttpReq req
+  new make(HttpReq req) { this.req = req }
+  
+  once override QueryMap get() { return QueryMap.decodeQuery(req.uri.queryStr).ro }
+  once override QueryMap post() { QueryMap.decodeQuery(form).ro }
+  once override QueryMap request() { QueryMap.decodeQuery(req.uri.queryStr).setAllMap(post).ro }
+
+  once override Uri pathInfo() { req.uri }
+  once override Str:Str headers() { req.headers.ro }
+  once override Str method() { req.method }
+  
+  override InStream in() { req.in }
+  
+  virtual protected once Str? form() {
+    ct := headers.get("Content-Type", "").lower
+    if (ct.startsWith("application/x-www-form-urlencoded")) {
+      len := headers["Content-Length"]
+      if (len == null) throw IOErr("Missing Content-Length header")
+      return req.in.readLine(len.toInt)
+    }
+    return null
   }
 }

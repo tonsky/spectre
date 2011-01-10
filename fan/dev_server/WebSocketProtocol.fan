@@ -1,21 +1,29 @@
 
 using concurrent
+using inet
 
-abstract const class WebSocketProtocol : Protocol {
+**
+** Web socket protocol implementation.
+** One shall override `#createWsActor` in order to use it.
+** 
+abstract const class WsProtocol : Protocol {
   private static const Log log := Log.find("spectre")
   
-  override Bool onConnection(HttpReq req) {
-    if (!req.headers.get("Connection", "").equalsIgnoreCase("upgrade") ||
-        !req.headers.get("Upgrade", "").equalsIgnoreCase("websocket"))
+  abstract WsActor createWsActor(WsHandshakeReq req)
+  
+  override Bool onConnection(HttpReq httpReq) {
+    // check if we support this connection
+    if (!httpReq.headers.get("Connection", "").equalsIgnoreCase("upgrade") ||
+        !httpReq.headers.get("Upgrade", "").equalsIgnoreCase("websocket"))
       return false
 
-    socket := req.socket
+    socket := httpReq.socket
     in := socket.in
     out := socket.out
     
-    handshake := WebSocketHandshakeReq(req)
-    handshakeRes := onHandshake(handshake, out)
-    processor := handshakeRes.processor
+    handshakeReq := WsHandshakeReq(httpReq)
+    processor := createWsActor(handshakeReq)
+    WsHandshakeRes handshakeRes := processor->sendOnHandshake(handshakeReq, Unsafe(socket))->get
 
     /*  We need to send the 101 response immediately when using Draft 76 with
         a load balancing proxy, such as HAProxy.  In order to protect an
@@ -36,35 +44,76 @@ abstract const class WebSocketProtocol : Protocol {
        out.writeChars("Sec-WebSocket-Protocol: " + handshakeRes.protocol + "\r\n")
     out.writeChars("\r\n").flush
     
-    key3 := req.in.readBufFully(null, 8)
+    key3 := httpReq.in.readBufFully(null, 8)
     out.writeBuf(handshakeRes.challenge(key3)).flush
-
-    // There’s no timeout for client’s messages
-    // TODO how will this be stopped?
-    socket.options.receiveTimeout = null
-    
+        
     try {
       while (true) {
-        frame := WebSocketDataFrame_HIXIE_76.read(req.in)
+        // There’s no timeout when waiting for client’s messages
+        socket.options.receiveTimeout = null
+        if (httpReq.in.peek == null)
+          break
+
+        // before we start reading message set a receive timeout in case
+        // the client fails to send us data in a timely fashion
+        socket.options.receiveTimeout = 10sec
+        frame := WsFrame_HIXIE_76.read(httpReq.in)
         if (frame == null)
           break
-        onMessage(processor, frame.data)
-        // TODO how would Actor close connection?
+        processor->sendOnData(Unsafe(frame.data))
       }
+    } catch(IOErr e) {
+      if (!e.msg.contains("Socket closed")) // FIXME does anybody has better ideas?
+        log.err("Error in WebSocket communication", e)
     } catch(Err e) {
       log.err("Error in WebSocket communication", e)
     }
     return true
-  }  
-
-  abstract WebSocketHandshakeRes onHandshake(WebSocketHandshakeReq req, OutStream out)
-  abstract Void onMessage(Actor processor, Buf data)
+  }
 }
 
-
-const class WebSocketHandshakeReq {
-  new makeTest(|This|? f := null) { f?.call(this) }
+**
+** Web socket connection processing actor. One shall override
+** `#_onData` to respond to incoming web socket messages.
+** 
+abstract const class WsActor : DynActor {
+  internal TcpSocket socket { get { Actor.locals["spectre.WsActor.socket"] }
+                              set { Actor.locals["spectre.WsActor.socket"] = it } }
   
+  new make(ActorPool pool) : super(pool) {}
+  
+  **
+  ** Override this method to respond to incoming web socket messages.
+  ** 
+  virtual Void _onData(Buf msg) {}
+  
+  virtual WsHandshakeRes _onHandshake(WsHandshakeReq req, TcpSocket socket) {
+    this.socket = socket
+    return WsHandshakeRes(req)
+  }
+  
+  ** Use this method to write messages from actor to client
+  protected Void _writeStr(Str msg) {
+    WsFrame_HIXIE_76 { data = msg.toBuf }.write(socket.out)
+  }
+  
+  ** Use this method from actor to close web socket connection
+  protected Void _close() { 
+    WsFrame_HIXIE_76.close(socket.out)
+    socket.close
+  }
+} 
+
+
+const class WsHandshakeReq {
+  const Str key1
+  const Str key2
+  const Str? protocols
+  const Str host
+  const Str origin
+  const Str resource
+  const Bool secure := false
+
   new make(HttpReq req) {
     h := req.headers
     resource = req.uri.pathStr
@@ -74,29 +123,19 @@ const class WebSocketHandshakeReq {
     host = h["Host"]
     protocols = h["Sec-WebSocket-Protocol"]
   }
-  
-  const Str key1
-  const Str key2
-  const Str? protocols
-  const Str host
-  const Str origin
-  const Str resource
-  const Bool secure := false
+
+  new makeTest(|This|? f := null) { f?.call(this) }
 }
 
-const class WebSocketHandshakeRes {
-
+const class WsHandshakeRes {
   const Str? protocol
   const Str location
   const Str origin
   
-  // FIXME this should not be nullable
-  const Actor? processor
-  
   internal const Int part1
   internal const Int part2
   
-  new make(WebSocketHandshakeReq req, |This|? f := null) {
+  new make(WsHandshakeReq req, |This|? f := null) {
     protocol = req.protocols
     origin = req.origin
     location = (origin.startsWith("https") ? "wss" : "ws") + "://" + req.host + req.resource
@@ -136,8 +175,11 @@ const class WebSocketHandshakeRes {
   }
 }
 
-** draft-hixie-thewebsocketprotocol-76
-class WebSocketDataFrame_HIXIE_76 {
+**
+** DataFrame that parses and sends data through web socket connection.
+** Conforms to draft-hixie-thewebsocketprotocol-76
+** 
+class WsFrame_HIXIE_76 {
   Buf data
 
   new make(|This| f) { f.call(this) }
@@ -145,8 +187,12 @@ class WebSocketDataFrame_HIXIE_76 {
   Void write(OutStream out) {
     out.write(0x00).writeBuf(data).write(0xFF).flush
   }
+
+  static Void close(OutStream out) {
+    out.write(0xFF).write(0x00).flush
+  }
   
-  static WebSocketDataFrame_HIXIE_76? read(InStream in) {
+  static WsFrame_HIXIE_76? read(InStream in) {
     b := in.read
     if (b != 0x00) {
       if (b == null || (b == 0xFF && in.read == 0x00)) // FIXME setUp readTimeout
@@ -157,7 +203,7 @@ class WebSocketDataFrame_HIXIE_76 {
 
     buf := Buf()
     while(true) { 
-      b = in.read // TODO read buf, not single byte
+      b = in.read
       if (b == null)
         throw IOErr("Protocol error")
       if (b == 0xFF)
@@ -165,18 +211,16 @@ class WebSocketDataFrame_HIXIE_76 {
       buf.write(b)
     }
 
-    return WebSocketDataFrame_HIXIE_76 { data = buf.seek(0) }
-  }
-  
-  Void close(OutStream out) {
-    out.write(0xFF).write(0x00).flush
-    // TODO do smth with this method
+    return WsFrame_HIXIE_76 { data = buf.seek(0) }
   }
 }
 
-
-** draft-ietf-hybi-thewebsocketprotocol-03 protocol
-const class WebSocketDataFrame_IETF_03 {
+**
+** DataFrame that parses and sends data through web socket connection.
+** To be used when browsers will catch up. 
+** Conforms to draft-ietf-hybi-thewebsocketprotocol-03 protocol
+**  
+class WsFrame_IETF_03 {
   static const Int continuation := 0
   static const Int close := 1
   static const Int ping := 2
@@ -190,7 +234,7 @@ const class WebSocketDataFrame_IETF_03 {
   const Bool rsv3 := false
   const Bool rsv4 := false
   const Int opcode := text
-  const Str data
+  Buf data
   
   new make(|This| f) { f.call(this) }
   Void write(OutStream out) {
@@ -204,7 +248,7 @@ const class WebSocketDataFrame_IETF_03 {
       else
         out.writeI8(len)
     }
-    out.writeChars(data).flush
+    out.writeBuf(data).flush
   }
   
   // TODO support continuation
@@ -230,6 +274,6 @@ const class WebSocketDataFrame_IETF_03 {
     }
     
     // TODO support binary
-    data = in.readBufFully(null, len).readAllStr
+    data = in.readBufFully(null, len)
   }
 }

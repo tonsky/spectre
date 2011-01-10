@@ -67,9 +67,7 @@ class Handler404 : Middleware {
     }    
   }
   
-  virtual Res? dispatchEmptyResponse(Req req) {
-    return dispatch404(req)
-  }
+  virtual Res? dispatchEmptyResponse(Req req) { return dispatch404(req) }
   
   virtual Res? dispatch404(Req req, Http404? err := null) {
     return ResNotFound(

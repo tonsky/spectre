@@ -112,7 +112,6 @@ const class SpectreHttpProtocol : HttpProtocol {
       writeResponse(ResServerError("<h1>500 Internal server error</h1>"
                                  + "<pre>${Util.traceToStr(err)}</pre>"), out)
     }
-    
     return true
   }
   

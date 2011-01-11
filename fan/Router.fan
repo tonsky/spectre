@@ -35,6 +35,7 @@ class Router : Selector {
     children.add(route)
   }
   
+  @Operator
   override This add(Obj obj) {
     if (obj is Turtle)
       return super.add(obj) as Router

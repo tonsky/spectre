@@ -15,6 +15,7 @@ class Selector : Turtle {
   **
   ** This class accepts Turtles only, but children may support other argument types
   ** 
+  @Operator
   virtual This add(Obj obj) {
     if (obj is Turtle)
       children.add(obj)

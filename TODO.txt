@@ -1,5 +1,19 @@
+Other
+-----
+Port to 1.0.57
 (v) QueryDecode doesn’t actually decodes percents and spaces!!!
 (v) Report compilation errors
+
+WebServer
+---------
+Process app’s response via special class, do not give OutputStream to user’s app
+Review multithreading (make Settings class const)
+Production mode
+
+WebSockets
+----------
+Routing
+Actor’s interoperability 
 
 Request
 ----------------

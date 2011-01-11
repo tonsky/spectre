@@ -41,7 +41,9 @@ abstract const class HttpProtocol : Protocol {
     while(_req != null) {
       keepAlive := false
       try {
+        _req.in = WebUtil.makeContentInStream(_req.headers, in)
         keepAlive = onRequest(_req, out)
+
         try {
           out.flush
           

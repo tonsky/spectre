@@ -15,7 +15,7 @@ const class WebServer : Service {
   const Str? bindAddr := null
   const Int port := 80
 
-  internal const TcpListener tcpListener     := TcpListener()
+  internal const Unsafe      tcpListener     := Unsafe(TcpListener())
   internal const ActorPool   listenerPool    := ActorPool { maxThreads = 1 }
   internal const ActorPool   processorPool   := ActorPool()
 
@@ -23,11 +23,15 @@ const class WebServer : Service {
   
   override Void onStart() {
     if (listenerPool.isStopped) throw Err("spectre::WebServer is already stopped, use new instance to restart")
-    WebServerListener(this, listenerPool)->sendListen()
+    WebServerListener(this, listenerPool)->sendListen(tcpListener)
   }
 
   override Void onStop() {
-    try tcpListener.close;   catch (Err e) log.err("spectre::WebServer error closing listener socket", e)
+    try {
+      (tcpListener.val as TcpListener).close;
+    } catch (Err e) {
+      log.err("spectre::WebServer error closing listener socket", e)
+    }
     try listenerPool.stop;   catch (Err e) log.err("spectre::WebServer error stopping listener pool", e)
     try processorPool.stop;  catch (Err e) log.err("spectre::WebServer error stopping processor pool", e)
   }
@@ -39,11 +43,11 @@ const class WebServerListener : DynActor {
   
   new make(WebServer server, ActorPool pool) : super(pool) { this.server = server }
   
-  protected Void _listen() {
+  protected Void _listen(TcpListener tcpListener) {
     // loop until we successfully bind to port
     while (true) {
       try {
-        server.tcpListener.bind(server.bindAddr == null ? null : IpAddr(server.bindAddr), server.port)
+        tcpListener.bind(server.bindAddr == null ? null : IpAddr(server.bindAddr), server.port)
         break
       } catch (Err e) {
         log.err("spectre::WebServer cannot bind to port ${server.port}, trying again in 10 seconds", e)
@@ -55,7 +59,7 @@ const class WebServerListener : DynActor {
     // loop until stopped accepting incoming TCP connections
     while (!pool.isStopped) {
       try {
-        socket := server.tcpListener.accept
+        socket := tcpListener.accept
         WebServerAcceptor(server.processorPool)->sendAccept(Unsafe(socket), server.protocols)
       } catch (Err e) {
         if (!pool.isStopped)
@@ -64,7 +68,7 @@ const class WebServerListener : DynActor {
     }
 
     // socket should be closed by onStop, but do it again to be really sure
-    try { server.tcpListener.close } catch {}
+    try { tcpListener.close } catch {}
     log.info("spectre::WebServer stopped on port ${server.port}")
   }
 }

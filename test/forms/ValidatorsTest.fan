@@ -45,7 +45,7 @@ class ValidatorsTest: Test, FieldTestMixin {
   }
   
   Void testClosureValidator() {
-    validator := MatchesFunc{(it as Int).isEven ? [,] : ["Even required"]}
+    validator := MatchesFunc{ it->isEven ? [,] : ["Even required"]}
 
     verifyInputField(IntField ("name", "label",  [validator]), ["name": "1"], false, null, "1")
     verifyInputField(IntField ("name", "label",  [validator]), ["name": "2"], true, 2, "2")

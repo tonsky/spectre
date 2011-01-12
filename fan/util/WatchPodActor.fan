@@ -63,6 +63,7 @@ const class WatchPodActor : Actor {
     buildPod.log = BuildLog(buf.out)
     buildPod.log.indent
     buildPod.log.level = LogLevel.info
+    buildPod.docApi = false // docs cannot be loaded anyway
     
     try {
       // building and loading rebuilded pod

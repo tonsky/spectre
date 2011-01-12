@@ -1,6 +1,6 @@
 Other
 -----
-Port to 1.0.57
+(v) Port to 1.0.57
 (v) QueryDecode doesn’t actually decodes percents and spaces!!!
 (v) Report compilation errors
 
@@ -13,7 +13,7 @@ Production mode
 WebSockets
 ----------
 Routing
-Actor’s interoperability 
+(-) Actor’s interoperability
 
 Request
 ----------------

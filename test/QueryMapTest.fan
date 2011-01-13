@@ -131,6 +131,14 @@ class QueryMapTest : Test {
     verifyEq(qm3.getList("z", ["def"]), Str[,])
   }
   
+  Void testAsMap() {
+    qm := QueryMap.make(["a": ["b"]])
+    verifyEq(qm.asList, Obj?[["a", "b"]])
+    
+    qm = QueryMap.make(["a": ["b", "c"]])
+    verifyEq(qm.asList, Obj?[["a", "b"], ["a", "c"]])
+  }
+  
   private Void verifyDecode(Str queryStr, Map expected) {
     verifyEq(QueryMap.decodeQuery(queryStr), QueryMap.make(expected))
   }

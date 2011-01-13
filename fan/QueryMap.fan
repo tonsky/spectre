@@ -19,6 +19,14 @@ class QueryMap {
   ** 
   [Str:Str[]] asMultimap() { impl.ro }
 
+  **
+  ** Converts ["a": [1, 2, 3], "b": [4, 5]] to [["a", 1], ["a", 2], ["a", 3], ["b", 4], ["b", 5]]
+  ** 
+  Str[][] asList() { 
+    Str[][] res := [,]
+    impl.each |vals, k| { vals.each |val| { res.add([k, val]) } }
+    return res
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Constructors

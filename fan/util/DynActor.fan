@@ -73,9 +73,9 @@ const class DynActorCommand {
   const Method method
   const Obj?[] args
   
-  new make(Method m, Obj?[] args := [,]) {
+  new make(Method m, Obj?[]? args := [,]) {
     this.method = m
-    this.args = args.map { it.isImmutable ? it : SerializedWrapper(it) }
+    this.args = (args?:[,]).map { it.isImmutable ? it : SerializedWrapper(it) }
   }
   
   Obj? invoke(Actor? instance := null) {

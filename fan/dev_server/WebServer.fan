@@ -84,7 +84,7 @@ const class WebServerAcceptor : DynActor {
       
       req := HttpProtocol.parseReq(socket)
       if (req == null) {
-        log.debug("Incorrect http header")
+        log.debug("HttpReq parsing failed (incorrect http header?): $req")
         dispose
         return
       }

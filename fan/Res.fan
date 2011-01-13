@@ -54,23 +54,6 @@ class Res {
     setCookie(spectre::Cookie {name=cookieName; maxAge = Duration(-1)})
   }
 
-  **
-  ** Return 'true' if there is something to write to output stream, 'false' otherwise
-  ** 
-  virtual Bool beforeWrite() {
-    if (content == null)
-      return false
-    
-    //TODO take a look at performance
-    if (content is Str)
-      content = (content as Str).toBuf(this.charset)
-    
-    if (content is File || content is Buf)
-      headers["Content-Length"] = content->size.toStr
-
-    return true
-  }
-  
   virtual Void writeBody(OutStream out) {
     if (content == null)
       return

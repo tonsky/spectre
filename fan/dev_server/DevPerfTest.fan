@@ -1,9 +1,7 @@
-using concurrent
 using util
-using web
 
-class DevPerfTest : AbstractMain
-{
+// SPECTRE
+class SpectrePerfTest : AbstractMain {
   @Opt { help = "http port" }
   Int port := 8080
 
@@ -15,27 +13,31 @@ class DevPerfTest : AbstractMain
 const class PerfTestHttpProtocol : HttpProtocol {
   private const static Log log := Log.find("spectre")
   
-  override Bool onRequest(HttpReq httpReq, OutStream out) {
-    resp := "Hello world #4"
-    status := 200
-    
-    out.print("HTTP/1.1 ")
-       .print(status)
-       .print(" ")
-       .print(WebRes.statusMsg[status])
-       .print("\r\n");
-    
-    out.print("Content-Type: text/plain; charset=utf8\r\n")
-    out.print("Content-Lenght: " + resp.size + "\r\n")
-    
-    if (httpReq.version === HttpReq.ver10 && "keep-alive".equalsIgnoreCase(httpReq.headers.get("Connection", "")))
-      out.print("Connection: keep-alive\r\n")
-    
-    out.print("\r\n")
-    
-    cout := WebUtil.makeFixedOutStream(out, resp.size)
-    cout.print(resp)
-    
-    return true
+  override HttpRes onRequest(HttpReq httpReq) {
+    HttpRes(200, 
+      [["Content-Type", "text/plain; charset=utf8"]],
+      "Hello world #4".toBuf)
   }
 }
+
+
+// WISP
+//using wisp
+//
+//class WispPerfTest : AbstractMain {
+//  @Opt { help = "http port" }
+//  Int port := 8080
+//
+//  override Int run() {
+//    wisp := WispService { it.port = this.port;  it.root = HelloMod(); }
+//    return runServices([wisp])
+//  }
+//}
+//
+//const class HelloMod : WebMod {
+//  override Void onGet() {
+//    res.headers["Content-Type"] = "text/plain; charset=utf-8"
+//    res.out.print("hello world #4")
+//  }
+//}
+

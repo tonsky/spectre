@@ -25,12 +25,88 @@ class HttpReq {
   override Str toStr() { "$method $uri HTTP/$version\n " + headers.join("\n ") }
 }
 
+class HttpRes {
+  Int status := 200
+  Str[][] headers := [,]
+  Obj? body
+  new make(Int status, Str[][] headers, Obj? body := null) {
+    this.status =  status
+    this.headers = headers
+    this.body = body
+  }
+}
+
 abstract const class HttpProtocol : Protocol {
   private static const Log log := HttpProtocol#.pod.log
-
+  static const Str serverVer   := "SpectreDevServer/" + HttpProtocol#.pod.version
+  
+  **
   ** To be implemented in descendants
-  ** Return 'false' if connection should not be reused
-  abstract Bool onRequest(HttpReq req, OutStream out)
+  ** 
+  abstract HttpRes onRequest(HttpReq req)
+
+  internal Bool writeResponse(HttpRes res, HttpReq req, OutStream out) {
+    Bool keepAlive := false
+    
+    headers := res.headers.dup // we’re going to modify it
+    content := res.body
+    contentLength := getHeader(headers, "content-length")?.toInt
+    
+    if (content != null && contentLength == null)
+      if (content.typeof.slot("size", false) != null) {
+        contentLength = content->size
+        headers.add(["Content-Length", contentLength.toStr])
+      }
+    
+    // if client doesn’t say explicitly that he’s going to reuse connection,
+    // it’s safer not to keep it alive
+    if(req.headers["connection"]?.lower == "keep-alive") {
+      headers.add(["Connection", "Keep-Alive"])
+      keepAlive = true
+    }
+    
+    out.print("HTTP/1.1 ")
+       .print(res.status)
+       .print(" ")
+       .print(WebRes.statusMsg[res.status])
+       .print("\r\n")
+    printHeaders(headers, out)
+    out.print("\r\n")
+    
+    if (content == null || contentLength == 0)
+      return keepAlive
+    
+    if (contentLength != null)
+      out = WebUtil.makeFixedOutStream(out, contentLength)
+    else
+      out = WebUtil.makeChunkedOutStream(out)
+    
+    if (content is InStream)
+      (content as InStream).pipe(out)
+    else if (content is File)
+      (content as File).in.pipe(out, (content as File).size)
+    else if (content is Buf)
+      out.writeBuf(content)
+    else
+      throw ArgErr("Unknown res.body type: ${res.body.typeof}, "
+                 + "known types are: InStream, File, Buf")
+    return keepAlive
+  }
+  
+  internal Void printHeaders(Str[][] headers, OutStream out) {
+    headers.each {
+      k := it[0]
+      v := it[1]
+      out.print("$k: $v\r\n")
+    }
+    out.print("Server: $serverVer\r\n")
+    out.print("Date: " + DateTime.now.toHttpStr + "\r\n")
+  }
+  
+  internal Str? getHeader(Str[][] headers, Str name) {
+    tuple := headers.find { it[0].equalsIgnoreCase(name) }
+    return tuple == null ? null : tuple[1]
+  }
   
   override Bool onConnection(HttpReq req) {
     socket := req.socket
@@ -42,7 +118,8 @@ abstract const class HttpProtocol : Protocol {
       keepAlive := false
       try {
         _req.in = WebUtil.makeContentInStream(_req.headers, in)
-        keepAlive = onRequest(_req, out)
+        res := onRequest(_req)
+        keepAlive = writeResponse(res, _req, out)
 
         try {
           out.flush
@@ -50,8 +127,9 @@ abstract const class HttpProtocol : Protocol {
           // if the listener didn’t finishing reading the content
           // stream then don’t attempt to reuse this connection,
           // safest thing is to just close the socket
-          if (!req.isAllRead)
+          if (!req.isAllRead) {
             keepAlive = false
+          }
         } catch (IOErr e) {
           keepAlive = false
         }
@@ -59,10 +137,7 @@ abstract const class HttpProtocol : Protocol {
         log.err("Error processing request:\n $_req", e)
         keepAlive = false
       }
-      
-      // if client doesn’t say explicitly that he’s going to reuse connection, it’s safer to close it
-      keepAlive = keepAlive && _req.headers.get("Connection", "").equalsIgnoreCase("keep-alive")
-      
+
       if (!keepAlive)
         break
       
@@ -107,7 +182,7 @@ abstract const class HttpProtocol : Protocol {
       else return null
 
       // parse headers
-      req.headers = WebUtil.parseHeaders(in).ro
+      req.headers = WebUtil.parseHeaders(in).ro //case-insensitive already
 
       req.in = in
       

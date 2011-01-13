@@ -93,49 +93,31 @@ const class SpectreHttpProtocol : HttpProtocol {
   
   new make(File podDir) { this.podDir = podDir }
   
-  override Bool onRequest(HttpReq httpReq, OutStream out) {
+  override HttpRes onRequest(HttpReq httpReq) {
     try {
       Req req := SpectreReq(httpReq)
       Res? response := RunDevServer.app.root.dispatch(req)
       
       if(response != null)
-        writeResponse(response, out)
+        return httpRes(response)
       else
         throw Err("App returned empty response")
     } catch(build::FatalBuildErr err) {
       log.err("App compilation error: ${podDir}build.fan", err)
-      writeResponse(ResServerError("<h1>500 App compilation error</h1>"
-                                 + "<pre>App path: ${podDir}build.fan\n\n"
-                                 + "${Util.traceToStr(err)}</pre>"), out)
+      return httpRes(ResServerError("<h1>500 App compilation error</h1>"
+                                  + "<pre>App path: ${podDir}build.fan\n\n"
+                                  + "${Util.traceToStr(err)}</pre>"))
     } catch(Err err) {
       log.err("Error occured", err)
-      writeResponse(ResServerError("<h1>500 Internal server error</h1>"
-                                 + "<pre>${Util.traceToStr(err)}</pre>"), out)
+      return httpRes(ResServerError("<h1>500 Internal server error</h1>"
+                                  + "<pre>${Util.traceToStr(err)}</pre>"))
     }
-    return true
   }
   
-  virtual Void writeResponse(Res response, OutStream out) {
-    needOut := response.beforeWrite
-    
-    out.print("HTTP/1.1 ")
-       .print(response.statusCode)
-       .print(" ")
-       .print(WebRes.statusMsg[response.statusCode])
-       .print("\r\n")
-    
-    response.headers.asMultimap.each |v,k| { v.each { out.print("$k: $it\r\n") } }
-    out.print("Connection: Keep-Alive\r\n")
-    out.print("\r\n").flush
-    
-    if (needOut) {
-      cout := WebUtil.makeContentOutStream(response.headers.asMap, out)
-      if (cout == null)
-        cout = out
-      
-      cout.charset = response.charset
-      response.writeBody(cout)
-    }
+  HttpRes httpRes(Res res) { 
+    HttpRes(res.statusCode,
+      res.headers.asList, 
+      res.content is Str ? (res.content as Str).toBuf(res.charset) : res.content)
   }
 }
 

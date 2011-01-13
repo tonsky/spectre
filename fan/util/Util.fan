@@ -25,8 +25,6 @@ abstract class Util
   ** Find first file in dir (deep scanning) matching predicate
   ** 
   static File? findFirstFile(File dir, |File->Bool| predicate) {
-    if (log.isDebug)
-      log.debug("Scanning $dir")
     found := dir.listFiles.find(predicate)
     if (found != null)
       return found

@@ -11,7 +11,7 @@ class SpectrePerfTest : AbstractMain {
 }
 
 const class PerfTestHttpProtocol : HttpProtocol {
-  private const static Log log := Log.find("spectre")
+  private const static Log log := Log.get("spectre")
   
   override HttpRes onRequest(HttpReq httpReq) {
     HttpRes(200, 

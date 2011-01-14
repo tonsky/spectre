@@ -39,7 +39,7 @@ const class DynActor : Actor {
   new make(ActorPool pool, |This|? f := null) : super(pool) { f?.call(this) }
   
   override Obj? receive(Obj? msg) {
-    return (msg as DynActorCommand).invoke(this)
+    (msg as DynActorCommand).invoke(this)
   }
   
   virtual Str toMethodName(Str trappedName) {

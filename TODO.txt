@@ -6,7 +6,7 @@ Other
 
 WebServer
 ---------
-Process app’s response via special class, do not give OutputStream to user’s app
+(v) Process app’s response via special class, do not give OutputStream to user’s app
 Review multithreading (make Settings class const)
 Production mode
 

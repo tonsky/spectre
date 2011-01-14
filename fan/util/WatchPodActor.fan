@@ -40,9 +40,6 @@ const class WatchPodActor : Actor {
         
         pod = reloadPod()
         lastModified = DateTime.now
-      } catch(Err err) {
-//        log.err("Error", err)
-        return err
       } finally {
         ver = ver + 1
       }

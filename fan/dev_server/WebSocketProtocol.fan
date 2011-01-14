@@ -7,7 +7,7 @@ using inet
 ** One shall override `#createWsActor` in order to use it.
 ** 
 abstract const class WsProtocol : Protocol {
-  private static const Log log := Log.find("spectre")
+  private static const Log log := Log.get("spectre")
   
   abstract WsActor createWsActor(WsHandshakeReq req)
   

@@ -29,34 +29,32 @@ class RunDevServer : AbstractMain {
 }
 
 const class AppReloadProtocol : Protocol {
-  private const static Log log := Log.find("spectre")
+  private const static Log log := Log.get("spectre")
   const WatchPodActor watchPodActor
 
   new make(File podDir) {
     pool := ActorPool { maxThreads = 1 }
     watchPodActor = WatchPodActor.make(pool, podDir)
-
+    
     // trying to load app
-    activeApp
-  }
-
-  override Bool onConnection(HttpReq req) {
     app := activeApp
     if (app !== RunDevServer.app)
+      RunDevServer.setApp(app)
+  }
+  
+  override Bool onConnection(HttpReq req) {
+    app := activeApp
+    if (app != null && app !== RunDevServer.app)
       RunDevServer.setApp(app)
     return false // pass through to next protocol
   }
   
   File podDir() { watchPodActor.podDir }
   
-  virtual Settings activeApp() {
+  virtual Settings? activeApp() {
     try {
       Obj? loadedPodObj := watchPodActor.send(null).get
-      if (loadedPodObj is Err)
-        throw loadedPodObj
-  
       loadedPod := loadedPodObj as Pod
-      
       if (loadedPod !== RunDevServer.activePod) {
         startApp(loadedPod)
         RunDevServer.setActivePod(loadedPod)
@@ -66,7 +64,6 @@ const class AppReloadProtocol : Protocol {
     } catch(Err err) {
       log.err("Error occured", err)
     }
-    
     return RunDevServer.app
   }
   
@@ -74,7 +71,7 @@ const class AppReloadProtocol : Protocol {
     log.info("Starting pod $appPod")
     Type? settingsType := appPod.types.find { it.fits(Settings#) }
     if (settingsType == null)
-      throw Err.make("Cannot find spectre::Settings implementation in ${podDir}")
+      throw Err("Cannot find spectre::Settings implementation in ${podDir}")
     
     Settings settings := settingsType.make([podDir])
     RunDevServer.setApp(settings)
@@ -88,7 +85,7 @@ const class SpectreWsProtocol : WsProtocol {
 }
 
 const class SpectreHttpProtocol : HttpProtocol {
-  private const static Log log := Log.find("spectre")
+  private const static Log log := Log.get("spectre")
   private const File podDir
   
   new make(File podDir) { this.podDir = podDir }

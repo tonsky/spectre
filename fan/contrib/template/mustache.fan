@@ -1,4 +1,5 @@
 using mustache
+using concurrent
 
 const class TemplateLoader {
   const File[] templateDirs
@@ -21,17 +22,24 @@ const class TemplateLoader {
       it.in = in
       it.templateLoader = this
     })
-  }  
+  }
 }
 
 class MustacheRenderer : Middleware {
   const Str otag := "{{"
   const Str ctag := "}}"
   const TemplateLoader loader
+  const Cache? templatesCache
   
-  new make(File[] templateDirs, |This|? f := null) : super() { 
+  **
+  ** Avaliable options: 
+  ** * useCache: true/false
+  ** 
+  new make(File[] templateDirs, Str:Obj? options := [:], |This|? f := null) : super() { 
     loader = TemplateLoader(templateDirs)
-    f?.call(this)    
+    if (options.get("useCache", false))
+      templatesCache := Cache(ActorPool())
+    f?.call(this)
   }
   
   override Res? safeAfter(Req req, Res res) {
@@ -39,14 +47,15 @@ class MustacheRenderer : Middleware {
       _res := res as TemplateRes
       _res.content = renderTemplate(_res.template, _res.context)
     }
-    
     return res
   }
   
-  virtual Str renderTemplate(Str templateName, Str:Obj? context := [:]) {
-    loader.loadTemplate(templateName).render(context)
+  virtual Str renderTemplate(Str name, Str:Obj? context := [:]) {
+    Mustache template := templatesCache == null ?
+      loader.loadTemplate(name) :
+      templatesCache.getOrAdd(name) |->Obj?| { loader.loadTemplate(name) }
+    return template.render(context)
   }
-  
 }
 
 class SpectreMustacheParser : MustacheParser {

@@ -6,10 +6,11 @@ using inet
 ** Web socket protocol implementation.
 ** One shall override `#createWsActor` in order to use it.
 ** 
-abstract const class WsProtocol : Protocol {
+const class WsProtocol : Protocol {
   private static const Log log := Log.get("spectre")
   
-  abstract WsActor createWsActor(WsHandshakeReq req)
+  const |WsHandshakeReq->WsProcessor| processorFunc
+  new make(|WsHandshakeReq->WsProcessor| processorFunc) { this.processorFunc = processorFunc }
   
   override Bool onConnection(HttpReq httpReq) {
     // check if we support this connection
@@ -22,8 +23,10 @@ abstract const class WsProtocol : Protocol {
     out := socket.out
     
     handshakeReq := WsHandshakeReq(httpReq)
-    processor := createWsActor(handshakeReq)
-    WsHandshakeRes handshakeRes := processor->sendOnHandshake(handshakeReq, Unsafe(socket))->get
+    WsProcessor processor := processorFunc.call(handshakeReq)
+//    processor := createWsActor(handshakeReq)
+//    WsHandshakeRes handshakeRes := processor->sendOnHandshake(handshakeReq, Unsafe(socket))->get
+    WsHandshakeRes handshakeRes := processor.onHandshake(handshakeReq)
 
     /*  We need to send the 101 response immediately when using Draft 76 with
         a load balancing proxy, such as HAProxy.  In order to protect an
@@ -46,21 +49,15 @@ abstract const class WsProtocol : Protocol {
     
     key3 := httpReq.in.readBufFully(null, 8)
     out.writeBuf(handshakeRes.challenge(key3)).flush
-        
-    try {
-      while (true) {
-        // There’s no timeout when waiting for client’s messages
-        socket.options.receiveTimeout = null
-        if (httpReq.in.peek == null)
-          break
 
-        // before we start reading message set a receive timeout in case
-        // the client fails to send us data in a timely fashion
-        socket.options.receiveTimeout = 10sec
-        frame := WsFrame_HIXIE_76.read(httpReq.in)
-        if (frame == null)
+    WsConn conn := WsConn(handshakeReq, socket)
+    try {
+      processor.onReady(conn)
+      while (true) {
+        data := conn.read
+        if (data == null)
           break
-        processor->sendOnData(Unsafe(frame.data))
+        processor.onData(conn, data)
       }
     } catch(IOErr e) {
       if (!e.msg.contains("Socket closed")) // FIXME does anybody has better ideas?
@@ -68,42 +65,68 @@ abstract const class WsProtocol : Protocol {
     } catch(Err e) {
       log.err("Error in WebSocket communication", e)
     }
+    conn.closed.val = true
+    try processor.onClose(conn); catch(Err e) log.err("Error closing WebSocket", e)
     return true
   }
 }
 
-**
-** Web socket connection processing actor. One shall override
-** `#_onData` to respond to incoming web socket messages.
-** 
-abstract const class WsActor : DynActor {
-  internal TcpSocket socket { get { Actor.locals["spectre.WsActor.socket"] }
-                              set { Actor.locals["spectre.WsActor.socket"] = it } }
+const class WsConn {
+  const WsHandshakeReq req
+  private const Unsafe socketUnsafe
+  TcpSocket socket() { socketUnsafe.val }
+  const AtomicBool closed := AtomicBool(false)
   
-  new make(ActorPool pool) : super(pool) {}
+  new make(WsHandshakeReq req, TcpSocket socket) { this.req = req; this.socketUnsafe = Unsafe(socket) }
   
-  **
-  ** Override this method to respond to incoming web socket messages.
-  ** 
-  virtual Void _onData(Buf msg) {}
-  
-  virtual WsHandshakeRes _onHandshake(WsHandshakeReq req, TcpSocket socket) {
-    this.socket = socket
-    return WsHandshakeRes(req)
+  ** Read next message from client. This method will block until message is read or error was raised.
+  ** Return null if socket was closed.
+  Buf? read() {
+    // There’s no timeout when waiting for client’s messages
+    socket.options.receiveTimeout = null
+    if(socket.in.peek == null)
+      return null
+
+    // before we start reading message set a receive timeout in case
+    // the client fails to send us data in a timely fashion
+    socket.options.receiveTimeout = 10sec
+    frame := WsFrame_HIXIE_76.read(socket.in)
+    return frame?.data
   }
   
-  ** Use this method to write messages from actor to client
-  protected Void _writeStr(Str msg) {
+  ** Send message to web socket client
+  Void writeStr(Str msg) {
+    if (closed.val) throw CancelledErr("Attemt to write to socket already closed")
     WsFrame_HIXIE_76 { data = msg.toBuf }.write(socket.out)
   }
   
-  ** Use this method from actor to close web socket connection
-  protected Void _close() { 
-    WsFrame_HIXIE_76.close(socket.out)
-    socket.close
+  ** Close web socket connection
+  Void close() {
+    closed := true
+    try {
+      WsFrame_HIXIE_76.close(socket.out)
+      socket.close
+    } catch {}
   }
-} 
+}
 
+**
+** Web socket connection processing mixin. 
+** 
+mixin WsProcessor {
+  ** Should return web socket handshake response. May be overriden to choose
+  ** protocol or tune smth else.
+  virtual WsHandshakeRes onHandshake(WsHandshakeReq req) { WsHandshakeRes(req) }
+  
+  ** Will be called after connection was successfully negotiated.
+  virtual Void onReady(WsConn conn) {}
+  
+  ** When data is received from client.
+  virtual Void onData(WsConn conn, Buf msg) {}
+  
+  ** When client has closed connection. It’s invalid to send message to conn from this method.
+  virtual Void onClose(WsConn conn) {}
+}
 
 const class WsHandshakeReq {
   const Str key1

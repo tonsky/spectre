@@ -36,15 +36,98 @@ class HttpRes {
   }
 }
 
-abstract const class HttpProtocol : Protocol {
+const class HttpProtocol : Protocol {
   private static const Log log := HttpProtocol#.pod.log
   static const Str serverVer   := "SpectreDevServer/" + HttpProtocol#.pod.version
   
-  **
-  ** To be implemented in descendants
-  ** 
-  abstract HttpRes onRequest(HttpReq req)
+  const |HttpReq->HttpRes| process
+  new make(|HttpReq->HttpRes| process) { this.process = process }
 
+  override Bool onConnection(HttpReq req) {
+    socket := req.socket
+    in := socket.in
+    out := socket.out
+    
+    HttpReq? _req := req
+    while(_req != null) {
+      keepAlive := false
+      try {
+        _req.in = WebUtil.makeContentInStream(_req.headers, in)
+        res := process.call(_req)
+        keepAlive = writeResponse(res, _req, out)
+
+        try {
+          out.flush
+          
+          // if the listener didn’t finishing reading the content
+          // stream then don’t attempt to reuse this connection,
+          // safest thing is to just close the socket
+          if (!req.isAllRead) {
+            keepAlive = false
+          }
+        } catch (IOErr e) {
+          keepAlive = false
+        }
+      } catch(Err e) {
+        log.err("Error processing request:\n $_req", e)
+        keepAlive = false
+      }
+
+      if (!keepAlive)
+        break
+      
+      _req = parseReq(socket)
+    }
+    return true
+  }
+
+  **
+  ** Parse the first request line and request headers.
+  ** Return null on failure.
+  **
+  static HttpReq? parseReq(TcpSocket socket) {
+    try {
+      req := HttpReq(socket)
+      
+      // skip leading CRLF (4.1)
+      in := socket.in
+      line := in.readLine
+      if (line == null) return null
+      while (line.isEmpty) {
+        line = in.readLine
+        if (line == null) return null
+      }
+
+      // parse request-line (5.1)
+      toks   := line.split
+      method := toks[0]
+      uri    := toks[1]
+      ver    := toks[2]
+
+      // method
+      req.method = method.upper
+
+      // uri; immediately reject any uri which starts with ..
+      req.uri = Uri.decode(uri)
+      if (req.uri.path.first == "..") return null
+
+      // version
+      if (ver == "HTTP/1.1") req.version = HttpReq.ver11
+      else if (ver == "HTTP/1.0") req.version = HttpReq.ver10
+      else return null
+
+      // parse headers
+      req.headers = WebUtil.parseHeaders(in).ro //case-insensitive already
+
+      req.in = in
+      
+      // success
+      return req
+    } catch (Err e) {
+      return null
+    }
+  }
+  
   internal Bool writeResponse(HttpRes res, HttpReq req, OutStream out) {
     Bool keepAlive := false
     
@@ -93,6 +176,11 @@ abstract const class HttpProtocol : Protocol {
     return keepAlive
   }
   
+  internal Str? getHeader(Str[][] headers, Str name) {
+    tuple := headers.find { it[0].equalsIgnoreCase(name) }
+    return tuple == null ? null : tuple[1]
+  }
+  
   internal Void printHeaders(Str[][] headers, OutStream out) {
     headers.each {
       k := it[0]
@@ -101,95 +189,5 @@ abstract const class HttpProtocol : Protocol {
     }
     out.print("Server: $serverVer\r\n")
     out.print("Date: " + DateTime.now.toHttpStr + "\r\n")
-  }
-  
-  internal Str? getHeader(Str[][] headers, Str name) {
-    tuple := headers.find { it[0].equalsIgnoreCase(name) }
-    return tuple == null ? null : tuple[1]
-  }
-  
-  override Bool onConnection(HttpReq req) {
-    socket := req.socket
-    in := socket.in
-    out := socket.out
-    
-    HttpReq? _req := req
-    while(_req != null) {
-      keepAlive := false
-      try {
-        _req.in = WebUtil.makeContentInStream(_req.headers, in)
-        res := onRequest(_req)
-        keepAlive = writeResponse(res, _req, out)
-
-        try {
-          out.flush
-          
-          // if the listener didn’t finishing reading the content
-          // stream then don’t attempt to reuse this connection,
-          // safest thing is to just close the socket
-          if (!req.isAllRead) {
-            keepAlive = false
-          }
-        } catch (IOErr e) {
-          keepAlive = false
-        }
-      } catch(Err e) {
-        log.err("Error processing request:\n $_req", e)
-        keepAlive = false
-      }
-
-      if (!keepAlive)
-        break
-      
-      _req = parseReq(socket)
-    }
-    return true
-  }
-  
-  **
-  ** Parse the first request line and request headers.
-  ** Return null on failure.
-  **
-  static HttpReq? parseReq(TcpSocket socket) {
-    try {
-      req := HttpReq(socket)
-      
-      // skip leading CRLF (4.1)
-      in := socket.in
-      line := in.readLine
-      if (line == null) return null
-      while (line.isEmpty) {
-        line = in.readLine
-        if (line == null) return null
-      }
-
-      // parse request-line (5.1)
-      toks   := line.split
-      method := toks[0]
-      uri    := toks[1]
-      ver    := toks[2]
-
-      // method
-      req.method = method.upper
-
-      // uri; immediately reject any uri which starts with ..
-      req.uri = Uri.decode(uri)
-      if (req.uri.path.first == "..") return null
-
-      // version
-      if (ver == "HTTP/1.1") req.version = HttpReq.ver11
-      else if (ver == "HTTP/1.0") req.version = HttpReq.ver10
-      else return null
-
-      // parse headers
-      req.headers = WebUtil.parseHeaders(in).ro //case-insensitive already
-
-      req.in = in
-      
-      // success
-      return req
-    } catch (Err e) {
-      return null
-    }
   }
 }

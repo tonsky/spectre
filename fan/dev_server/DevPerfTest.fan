@@ -6,20 +6,16 @@ class SpectrePerfTest : AbstractMain {
   Int port := 8080
 
   override Int run() {
-    return runServices([ WebServer { it.port = this.port; protocols = [PerfTestHttpProtocol()] } ])
+    return runServices([ WebServer { 
+      it.port = this.port
+      protocols = [
+        HttpProtocol { HttpRes(200, 
+                               [["Content-Type", "text/plain; charset=utf8"]],
+                               "Hello world #4".toBuf) }
+      ]
+    } ])
   }
 }
-
-const class PerfTestHttpProtocol : HttpProtocol {
-  private const static Log log := Log.get("spectre")
-  
-  override HttpRes onRequest(HttpReq httpReq) {
-    HttpRes(200, 
-      [["Content-Type", "text/plain; charset=utf8"]],
-      "Hello world #4".toBuf)
-  }
-}
-
 
 // WISP
 //using wisp

@@ -20,7 +20,7 @@ abstract class Settings {
 // WebSockets
 //////////////////////////////////////////////////////////////////////////
   
-  virtual WsActor createWsActor(WsHandshakeReq req) { throw UnsupportedErr() }
+  virtual WsActor createWsActor(WsConn conn) { throw UnsupportedErr() }
   
 //////////////////////////////////////////////////////////////////////////
 // App instance

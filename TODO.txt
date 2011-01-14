@@ -3,38 +3,29 @@ Other
 (v) Port to 1.0.57
 (v) QueryDecode doesn’t actually decodes percents and spaces!!!
 (v) Report compilation errors
+(v) StaticView: serve single files like favicon.ico, not "pathTail" only.
 
 WebServer
 ---------
 (v) Process app’s response via special class, do not give OutputStream to user’s app
+Dev/Production modes
+ 
+
+Spectre
+-------
+WebSockets: Routing
+Setting infrastructure
 Review multithreading (make Settings class const)
-Production mode
-
-WebSockets
-----------
-Routing
-(-) Actor’s interoperability
-
-Request
-----------------
+Report app’s compilation errors
+(-) WebSockets: Actor’s interoperability
 (v) Cookies
 (v) Session
 raw in stream
-
 Conditional responses
 File uploading
-
 (v) Investigate multiple cookies bug
-
-Templates
----------
 (v) Template response
-
-
-Response
---------
 (v) investigate Safari refresh/304 bug
-
 
 Router
 ------
@@ -57,4 +48,3 @@ APPEND_SLASH
 PREPEND_WWW
 
 
-(v) StaticView: serve single files like favicon.ico, not "pathTail" only.

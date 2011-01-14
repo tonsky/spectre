@@ -21,9 +21,10 @@ class RunDevServer : AbstractMain {
   override Int run() {
     return runServices([ WebServer { 
       it.port = this.port
+      httpProcessor := SpectreHttpProcessor(appDir)
       protocols = [AppReloadProtocol(appDir),
-                   SpectreWsProtocol(),
-                   SpectreHttpProtocol(appDir)] 
+                   WsProtocol { SpectreWsProcessor() },
+                   HttpProtocol { httpProcessor.onRequest(it) }] 
     } ])
   }
 }
@@ -78,19 +79,25 @@ const class AppReloadProtocol : Protocol {
   }
 }
 
-const class SpectreWsProtocol : WsProtocol {
-  override WsActor createWsActor(WsHandshakeReq req) {
-    RunDevServer.app.createWsActor(req)
+class SpectreWsProcessor : WsProcessor {
+  WsActor? actor
+//  virtual WsHandshakeRes onHandshake(WsHandshakeReq req) { WsHandshakeRes(req) }
+  override Void onReady(WsConn conn) {
+    actor = RunDevServer.app.createWsActor(conn)
   }
+  override Void onData(WsConn conn, Buf msg) {
+    actor->sendOnData(Unsafe(msg))
+  }
+//  virtual Void onClose(WsConn conn) {}
 }
 
-const class SpectreHttpProtocol : HttpProtocol {
+const class SpectreHttpProcessor {
   private const static Log log := Log.get("spectre")
   private const File podDir
   
   new make(File podDir) { this.podDir = podDir }
   
-  override HttpRes onRequest(HttpReq httpReq) {
+  HttpRes onRequest(HttpReq httpReq) {
     try {
       Req req := SpectreReq(httpReq)
       Res? response := RunDevServer.app.root.dispatch(req)

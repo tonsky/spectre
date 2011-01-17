@@ -35,11 +35,25 @@ using concurrent
 **     // here you accept automatically unwrapped instance
 **   }
 ** 
+** It’s also possible to send const closures with no arguments to DynActor:
+** 
+**   const Int x := 1
+**   ...
+**   actor.send |->Int| { this.x + 2 } 
+** 
 const class DynActor : Actor {
   new make(ActorPool pool, |This|? f := null) : super(pool) { f?.call(this) }
   
   override Obj? receive(Obj? msg) {
-    (msg as DynActorCommand).invoke(this)
+    if (msg is Unsafe)
+      msg = (msg as Unsafe).val
+    
+    if (msg is DynActorCommand)
+      return (msg as DynActorCommand).invoke(this)
+    else if (msg is Func)
+      return (msg as Func).call
+    else
+      throw UnsupportedErr("You should pass either DynActorCommand or Func")
   }
   
   virtual Str toMethodName(Str trappedName) {
@@ -78,7 +92,7 @@ const class DynActorCommand {
     this.args = (args?:[,]).map { it.isImmutable ? it : SerializedWrapper(it) }
   }
   
-  Obj? invoke(Actor? instance := null) {
+  Obj? invoke(Obj? instance := null) {
     params := method.func.params
     off := method.isStatic ? 0 : 1
     deserializedArgs := args.map |arg, idx| {

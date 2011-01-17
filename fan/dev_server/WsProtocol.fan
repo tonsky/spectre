@@ -128,7 +128,7 @@ internal const class WsConnImpl : WsConn {
 **
 ** Web socket connection processing mixin. 
 ** 
-mixin WsProcessor {
+const mixin WsProcessor {
   ** Should return web socket handshake response. May be overriden to choose
   ** protocol or tune smth else.
   virtual WsHandshakeRes onHandshake(WsHandshakeReq req) { WsHandshakeRes(req) }

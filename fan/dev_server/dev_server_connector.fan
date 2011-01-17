@@ -19,11 +19,12 @@ class RunDevServer : AbstractMain {
   static Void setActivePod(Pod s) { activePodRef.val = Unsafe(s) }
   
   override Int run() {
-    return runServices([ WebServer { 
+    return runServices([ WebServer {
+      processorPool = ActorPool { maxThreads = 101 }
       it.port = this.port
       httpProcessor := SpectreHttpProcessor(appDir)
       protocols = [AppReloadProtocol(appDir),
-                   WsProtocol { SpectreWsProcessor() },
+                   WsProtocol { RunDevServer.app.wsProcessor(it) },
                    HttpProtocol { httpProcessor.onRequest(it) }] 
     } ])
   }
@@ -77,18 +78,6 @@ const class AppReloadProtocol : Protocol {
     Settings settings := settingsType.make([podDir])
     RunDevServer.setApp(settings)
   }
-}
-
-class SpectreWsProcessor : WsProcessor {
-  WsActor? actor
-//  virtual WsHandshakeRes onHandshake(WsHandshakeReq req) { WsHandshakeRes(req) }
-  override Void onReady(WsConn conn) {
-    actor = RunDevServer.app.createWsActor(conn)
-  }
-  override Void onData(WsConn conn, Buf msg) {
-    actor->sendOnData(Unsafe(msg))
-  }
-//  virtual Void onClose(WsConn conn) {}
 }
 
 const class SpectreHttpProcessor {

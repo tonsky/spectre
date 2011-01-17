@@ -60,7 +60,7 @@ class DynActorTest : Test {
     a := TestDynActor(ActorPool())
     
     // see how const args and serializable args are passed
-    SerializableArg res := a->sendSerializationTest(staticConstArg, SerializableArg { y = "test" })->get
+    SerializableArg res := a->sendSerializationTest(staticConstArg, SerializableArg { it.y = "test" })->get
     verifyEq(res.x, 25)
     verifyEq(res.y, "test passed")
     // check that prev test is is actually testing smth
@@ -111,5 +111,16 @@ class DynActorTest : Test {
     // if result is not retrieved, no exception is thrown
     a->sendMethod1
     a->sendStaticMethod
+  }
+
+  const Int x := 1
+  Int y := 2
+
+  Void testSendingClosures() {
+    a := TestDynActor(ActorPool())
+    res := a.send |->Int| { DynActorTest().x + 5 }.get
+    verifyEq(res, 6)
+
+    verifyErr(IOErr#) { a.send |->Int| { y + 5 } } // Closure is not serializable
   }
 }

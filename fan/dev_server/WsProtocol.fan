@@ -8,6 +8,8 @@ using inet
 ** 
 const class WsProtocol : Protocol {
   private static const Log log := Log.get("spectre")
+  const Duration? receiveTimeout := 10sec
+  const Duration? messageTimeout := null
   
   const |WsHandshakeReq->WsProcessor| processorFunc
   new make(|WsHandshakeReq->WsProcessor| processorFunc) { this.processorFunc = processorFunc }
@@ -50,7 +52,7 @@ const class WsProtocol : Protocol {
     key3 := httpReq.in.readBufFully(null, 8)
     out.writeBuf(handshakeRes.challenge(key3)).flush
 
-    WsConn conn := WsConn(handshakeReq, socket)
+    conn := WsConnImpl(handshakeReq, socket, this)
     try {
       processor.onReady(conn)
       while (true) {
@@ -59,9 +61,9 @@ const class WsProtocol : Protocol {
           break
         processor.onData(conn, data)
       }
-    } catch(IOErr e) {
-      if (!e.msg.contains("Socket closed")) // FIXME does anybody has better ideas?
-        log.err("Error in WebSocket communication", e)
+    } catch(IOErr e) { // IOErrs are just ok
+      if (log.isDebug)
+        log.debug("Error in web socket communication", e)      
     } catch(Err e) {
       log.err("Error in WebSocket communication", e)
     }
@@ -71,37 +73,50 @@ const class WsProtocol : Protocol {
   }
 }
 
-const class WsConn {
-  const WsHandshakeReq req
-  private const Unsafe socketUnsafe
-  TcpSocket socket() { socketUnsafe.val }
-  const AtomicBool closed := AtomicBool(false)
+const mixin WsConn {
+  abstract WsHandshakeReq req()
+  abstract Buf? read()
+  abstract Void writeStr(Str msg)
+  abstract Void close()
+}
+
+internal const class WsConnImpl : WsConn {
+  override const WsHandshakeReq req
   
-  new make(WsHandshakeReq req, TcpSocket socket) { this.req = req; this.socketUnsafe = Unsafe(socket) }
+  const Unsafe     socketUnsafe
+        TcpSocket  socket() { socketUnsafe.val }
+  const AtomicBool closed := AtomicBool(false)
+  const WsProtocol protocol
+  
+  internal new make(WsHandshakeReq req, TcpSocket socket, WsProtocol protocol) {
+    this.req = req
+    this.socketUnsafe = Unsafe(socket)
+    this.protocol = protocol
+  }
   
   ** Read next message from client. This method will block until message is read or error was raised.
   ** Return null if socket was closed.
-  Buf? read() {
+  override Buf? read() {
     // There’s no timeout when waiting for client’s messages
-    socket.options.receiveTimeout = null
-    if(socket.in.peek == null)
+    socket.options.receiveTimeout = protocol.messageTimeout
+    if (socket.in.peek == null)
       return null
 
     // before we start reading message set a receive timeout in case
     // the client fails to send us data in a timely fashion
-    socket.options.receiveTimeout = 10sec
+    socket.options.receiveTimeout = protocol.receiveTimeout
     frame := WsFrame_HIXIE_76.read(socket.in)
     return frame?.data
   }
   
   ** Send message to web socket client
-  Void writeStr(Str msg) {
+  override Void writeStr(Str msg) {
     if (closed.val) throw CancelledErr("Attemt to write to socket already closed")
     WsFrame_HIXIE_76 { data = msg.toBuf }.write(socket.out)
   }
   
   ** Close web socket connection
-  Void close() {
+  override Void close() {
     closed := true
     try {
       WsFrame_HIXIE_76.close(socket.out)

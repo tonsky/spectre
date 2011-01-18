@@ -1,0 +1,192 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>WebSocket support &mdash; Spectre v0.8 documentation</title>
+    <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
+    <link rel="prev" title="Cookie" href="Cookie.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="Cookie.html" title="Cookie"
+             accesskey="P">previous</a></li>
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="websocket-support">
+<h1>WebSocket support<a class="headerlink" href="#websocket-support" title="Permalink to this headline">¶</a></h1>
+<p>Spectre currently supports <a class="reference external" href="http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76">draft 76</a> of WebSocket Protocol specification, the same that’s implemented in browsers for now. WebSocket client API documentation can be found <a class="reference external" href="http://dev.w3.org/html5/websockets/">here</a>.</p>
+<p>To process WebSocket connections in Spectre, your app instance must override <tt class="xref py py-func docutils literal"><span class="pre">wsProcessor()</span></tt> factory method:</p>
+<div class="highlight-python"><pre>override WsProcessor? wsProcessor(WsHandshakeReq req) {
+  if (req.uri.pathStr == "/") return FooWsProcessor(pool)
+  else throw Err("Unknown path ${req.uri.pathStr}")
+}</pre>
+</div>
+<p><tt class="xref py py-func docutils literal"><span class="pre">wsProcessor()</span></tt> should return <a class="reference internal" href="#WsProcessor" title="WsProcessor"><tt class="xref py py-class docutils literal"><span class="pre">WsProcessor</span></tt></a> instance that will process this WebSocket connection. Here you do all your routing work etc. You can always return a static instance that implements <a class="reference internal" href="#WsProcessor" title="WsProcessor"><tt class="xref py py-class docutils literal"><span class="pre">WsProcessor</span></tt></a> directly, but usually it’ll be actors, one per connection, extending <a class="reference internal" href="#WsActor" title="WsActor"><tt class="xref py py-class docutils literal"><span class="pre">WsActor</span></tt></a> helper class:</p>
+<dl class="class">
+<dt id="WsActor">
+<em class="property">class </em><tt class="descname">WsActor</tt><a class="headerlink" href="#WsActor" title="Permalink to this definition">¶</a></dt>
+<dd><p>WebSocket processor that processes data in a separate thread.</p>
+<dl class="function">
+<dt id="WsActor.asyncOnReady">
+<tt class="descname">asyncOnReady</tt><big>(</big><em>WsConn conn</em><big>)</big><a class="headerlink" href="#WsActor.asyncOnReady" title="Permalink to this definition">¶</a></dt>
+<dd><p>Will be called after connection has been successfully negotiated.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="WsActor.asyncOnMsg">
+<tt class="descname">asyncOnMsg</tt><big>(</big><em>WsConn conn</em>, <em>Buf msg</em><big>)</big><a class="headerlink" href="#WsActor.asyncOnMsg" title="Permalink to this definition">¶</a></dt>
+<dd><p>When message has been received from client.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="WsActor.asyncOnClose">
+<tt class="descname">asyncOnClose</tt><big>(</big><em>WsConn conn</em><big>)</big><a class="headerlink" href="#WsActor.asyncOnClose" title="Permalink to this definition">¶</a></dt>
+<dd><p>When client has closed connection. It’s invalid to read/send messages from/to <tt class="docutils literal"><span class="pre">conn</span></tt> in this method.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>When you need to interoperate with WebSocket, use <tt class="docutils literal"><span class="pre">conn</span></tt> argument:</p>
+<dl class="class">
+<dt id="WsConn">
+<em class="property">class </em><tt class="descname">WsConn</tt><a class="headerlink" href="#WsConn" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="WsConn.req">
+<tt class="descname">req</tt><a class="headerlink" href="#WsConn.req" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">WsHandshake</span></tt>. Handshake request that connection has started from.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="WsConn.read">
+<tt class="descname">read</tt><big>(</big><big>)</big><a class="headerlink" href="#WsConn.read" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">Buf?</span></tt>. Read next message from socket. This operation blocks until there’ll be a message in WebSocket. Returns <tt class="docutils literal"><span class="pre">null</span></tt> if connection was closed before anything was received.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="WsConn.writeStr">
+<tt class="descname">writeStr</tt><big>(</big><em>Str msg</em><big>)</big><a class="headerlink" href="#WsConn.writeStr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write text message to the WebSocket.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="WsConn.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#WsConn.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finish WebSocket communication. After this method called it’s impossible to write or read to/from this connection anymore.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You cannot use <a class="reference internal" href="#WsConn.read" title="WsConn.read"><tt class="xref py py-func docutils literal"><span class="pre">WsConn.read()</span></tt></a> from <a class="reference internal" href="#WsActor" title="WsActor"><tt class="xref py py-class docutils literal"><span class="pre">WsActor</span></tt></a>’s <tt class="docutils literal"><span class="pre">async_*</span></tt> methods because reading is already pending in the web server thread.</p>
+</div>
+<p>Synchronous WebSocket processing can be done by extending <a class="reference internal" href="#WsProcessor" title="WsProcessor"><tt class="xref py py-class docutils literal"><span class="pre">WsProcessor</span></tt></a> itself:</p>
+<blockquote>
+<div><dl class="class">
+<dt id="WsProcessor">
+<em class="property">class </em><tt class="descname">WsProcessor</tt><a class="headerlink" href="#WsProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>WebSocket processor that processes data in a synchronous manner.</p>
+<dl class="function">
+<dt id="WsProcessor.onHandshake">
+<tt class="descname">onHandshake</tt><big>(</big><em>WsHandshakeReq req</em><big>)</big><a class="headerlink" href="#WsProcessor.onHandshake" title="Permalink to this definition">¶</a></dt>
+<dd><p>Should return WebSocket handshake response. May be overriden to choose protocol or tune smth else in handshake response.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="WsProcessor.onReady">
+<tt class="descname">onReady</tt><big>(</big><em>WsConn conn</em><big>)</big><a class="headerlink" href="#WsProcessor.onReady" title="Permalink to this definition">¶</a></dt>
+<dd><p>Will be called after connection has been successfully negotiated.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="WsProcessor.onMsg">
+<tt class="descname">onMsg</tt><big>(</big><em>WsConn conn</em>, <em>Buf msg</em><big>)</big><a class="headerlink" href="#WsProcessor.onMsg" title="Permalink to this definition">¶</a></dt>
+<dd><p>When message has been received from client.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="WsProcessor.onClose">
+<tt class="descname">onClose</tt><big>(</big><em>WsConn conn</em><big>)</big><a class="headerlink" href="#WsProcessor.onClose" title="Permalink to this definition">¶</a></dt>
+<dd><p>When client has closed connection. It’s invalid to read/send messages from/to <tt class="docutils literal"><span class="pre">conn</span></tt> in this method.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div></blockquote>
+<p>Finally, an example of <a class="reference internal" href="#WsActor" title="WsActor"><tt class="xref py py-class docutils literal"><span class="pre">WsActor</span></tt></a> implementation demonstrates both sync and async processing:</p>
+<div class="highlight-python"><pre>const class FooWsProcessor : WsActor {
+  new make(ActorPool pool) : super(pool) {}
+
+  // synchronous processing (we’re overriding WsProcessor here)
+  override Void onReady(WsConn conn) {
+    conn.writeStr("Waiting for your message")
+
+    // Processing of this socket will block until read returns:
+    Buf data := conn.read()
+
+    // First message to be processed here,
+    // all the rest to be received asynchronously:
+    conn.writeStr("Received ‘${data.readAllStr}’ (synchronously)")
+
+    // Sheduling some work for later:
+    sendLater(0.5sec) |-&gt;|{ conn.writeStr("Send after 0.5sec") }
+    sendLater(1sec)   |-&gt;|{ conn.writeStr("Send after 1sec") }
+    sendLater(3sec)   |-&gt;|{ conn.writeStr("Close after 3sec..."); conn.close }
+  }
+
+  // asynchronous processing example
+  override Void asyncOnMsg(WsConn conn, Buf msg) {
+    conn.writeStr("Received ‘" + msg.readAllStr + "’ (asynchronously)")
+  }
+}</pre>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="Cookie.html" title="Cookie"
+             >previous</a></li>
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Nikita Prokopov (xored.com).
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

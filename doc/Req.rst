@@ -5,7 +5,7 @@
  Req
 =====
 
-Represents incoming http request. A new instance of :ref:`Req` will be created for each incoming request. :ref:`Req` instance is read-only except for :ref:`req.context <ref_context>`.
+Represents incoming http request. A new instance of :class:`Req` will be created for each incoming request. :class:`Req` instance is read-only except for :attr:`~Req.context`.
 
 .. class:: Req
 

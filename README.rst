@@ -14,7 +14,7 @@ Main features
 Documentation
 -------------
 
-**Please take a look at ``doc/build/html/index.html``**
+**Please take a look at doc/build/html/index.html**. It’s pretty complete and really nice actually.
 
 Sample application
 ------------------

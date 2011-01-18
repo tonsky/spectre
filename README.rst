@@ -4,10 +4,17 @@
 
 Spectre is a general-purpose web application framework for `Fantom <http://fantom.org>`_ language.
 
+Main features
+-------------
+
+* MVC architecture;
+* Mustache templates for presentation layer;
+* WebSocket Protocol draft 76 support.
+
 Documentation
 -------------
 
-Please take a look at ``doc/build/html/index.html``
+**Please take a look at ``doc/build/html/index.html``**
 
 Sample application
 ------------------
@@ -72,5 +79,7 @@ For more examples take a look at `<http://bitbucket.org/xored/spectre_demo_app>`
 Requirements
 ------------
 
+* `fantom 1.0.57 <http://fantom.org>`_
+* `printf <https://bitbucket.org/prokopov/printf>`_
 * `mustache <https://github.com/tonsky/mustache>`_
-* `fantom 1.0.56 <http://fantom.org>`_
+

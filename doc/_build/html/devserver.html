@@ -47,19 +47,19 @@
   <img alt="_images/devserver.png" class="article-cover cover-devserver" src="_images/devserver.png" />
 <div class="section" id="spectre-development-server">
 <h1>Spectre development server<a class="headerlink" href="#spectre-development-server" title="Permalink to this headline">¶</a></h1>
-<p>Spectre comes with built-in development server based on Fantom’s <a class="reference external" href="http://fantom.org/doc/wisp/index.html">wisp web server</a>. Its main purpose is to monitor source files in you app’s folder and reload them when something has been changed, so you’ll see a new version in your browser with no need to restart server manually.</p>
+<p>Spectre comes with built-in development server. Its main purpose is to monitor source files in you app’s folder and reload them when something has been changed, so you’ll see a new version in your browser with no need to restart server manually.</p>
 <div class="section" id="running-devserver">
 <h2>Running devserver<a class="headerlink" href="#running-devserver" title="Permalink to this headline">¶</a></h2>
 <p>To run development server, you’ll need both Fantom 1.0.56 and Spectre installed (see <a class="reference internal" href="installation.html"><em>Installing Spectre</em></a>). Execute the following in your command prompt:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fan</span> <span class="n">spectre</span><span class="p">::</span><span class="n">WispServer</span> <span class="o">&lt;</span><span class="n">path_to_your_app_folder</span><span class="o">&gt;</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fan</span> <span class="n">spectre</span><span class="p">::</span><span class="n">RunDevServer</span> <span class="o">&lt;</span><span class="n">path_to_your_app_folder</span><span class="o">&gt;</span>
 <span class="go">[20:09:47 23-Nov-10] [info] [spectre] Watching &lt;path_to_your_app_folder&gt;/ for modifications</span>
 <span class="go">[20:09:47 23-Nov-10] [info] [spectre] Rebuildind pod spectre_demo_app as file:&lt;...&gt;</span>
 <span class="go">[20:09:47 23-Nov-10] [info] [spectre] Restarting pod &lt;...&gt;_reloaded_1</span>
-<span class="go">[20:09:47 23-Nov-10] [info] [web] WispService started on port 8080</span>
+<span class="go">[20:09:47 23-Nov-10] [info] [web] DevServer started on port 8080</span>
 </pre></div>
 </div>
 <p>To bind on specific port use:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fan</span> <span class="n">spectre</span><span class="p">::</span><span class="n">WispServer</span> <span class="o">-</span><span class="n">port</span> <span class="mi">8000</span> <span class="o">&lt;</span><span class="n">path_to_your_app_folder</span><span class="o">&gt;</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fan</span> <span class="n">spectre</span><span class="p">::</span><span class="n">RunDevServer</span> <span class="o">-</span><span class="n">port</span> <span class="mi">8000</span> <span class="o">&lt;</span><span class="n">path_to_your_app_folder</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 </div>
@@ -96,7 +96,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2010, Nikita Prokopov (xored.com).
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

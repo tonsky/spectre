@@ -10,8 +10,8 @@ const class WsProtocol : Protocol {
   const Duration? receiveTimeout := 10sec
   const Duration? messageTimeout := null
   
-  const |WsHandshakeReq->WsProcessor| processorFunc
-  new make(|WsHandshakeReq->WsProcessor| processorFunc) { this.processorFunc = processorFunc }
+  const |WsHandshakeReq->WsProcessor?| processorFunc
+  new make(|WsHandshakeReq->WsProcessor?| processorFunc) { this.processorFunc = processorFunc }
   
   override Bool onConnection(HttpReq httpReq) {
     // check if we support this connection
@@ -24,7 +24,9 @@ const class WsProtocol : Protocol {
     out := socket.out
     
     handshakeReq := WsHandshakeReq(httpReq)
-    WsProcessor processor := processorFunc.call(handshakeReq)
+    WsProcessor? processor := processorFunc.call(handshakeReq)
+    if (processor == null)
+      return true // connection has been processed
     WsHandshakeRes handshakeRes := processor.onHandshake(handshakeReq)
 
     /*  We need to send the 101 response immediately when using Draft 76 with
@@ -69,10 +71,23 @@ const class WsProtocol : Protocol {
   }
 }
 
+**
+** Represents single WebSocket connection with browser.
+** 
 const mixin WsConn {
+  ** Handshake request that connection has started from.
   abstract WsHandshakeReq req()
+  
+  ** Read next message from socket. This operation blocks until 
+  ** there’ll be a message in WebSocket. Returns 'null' if connection
+  ** was closed before anything was received.
   abstract Buf? read()
+  
+  ** Write text message to the WebSocket.
   abstract Void writeStr(Str msg)
+  
+  ** Finish WebSocket communication. After this method called it’s impossible 
+  ** to write or read to/from this connection anymore.
   abstract Void close()
 }
 
@@ -91,8 +106,6 @@ internal const class WsConnImpl : WsConn {
     this.protocol = protocol
   }
   
-  ** Read next message from client. This method will block until message is read or error was raised.
-  ** Return null if socket was closed.
   override Buf? read() {
     if (closed.val) throw CancelledErr("Attemt to read from socket already closed")
     if (!reading.compareAndSet(false, true)) throw Err("Reading already started in another actor")
@@ -113,13 +126,11 @@ internal const class WsConnImpl : WsConn {
     }
   }
   
-  ** Send message to web socket client
   override Void writeStr(Str msg) {
     if (closed.val) throw CancelledErr("Attemt to write to socket already closed")
     WsFrame_HIXIE_76 { data = msg.toBuf }.write(socket.out)
   }
   
-  ** Close web socket connection
   override Void close() {
     if (closed.compareAndSet(false, true))
       try {
@@ -130,14 +141,14 @@ internal const class WsConnImpl : WsConn {
 }
 
 **
-** Web socket connection processing mixin. 
+** WebSocket connection processing mixin. 
 ** 
 const mixin WsProcessor {
-  ** Should return web socket handshake response. May be overriden to choose
+  ** Should return WebSocket handshake response. May be overriden to choose
   ** protocol or tune smth else in handshake response.
-  virtual WsHandshakeRes onHandshake(WsHandshakeReq req) { WsHandshakeRes(req) }
+  virtual WsHandshakeRes? onHandshake(WsHandshakeReq req) { WsHandshakeRes(req) }
   
-  ** Will be called after connection has been successfully negotiated
+  ** Will be called after connection has been successfully negotiated.
   virtual Void onReady(WsConn conn) {}
   
   ** When message has been received from client.
@@ -153,12 +164,12 @@ const class WsHandshakeReq {
   const Str? protocols
   const Str host
   const Str origin
-  const Str resource
+  const Uri uri
   const Bool secure := false
 
   new make(HttpReq req) {
     h := req.headers
-    resource = req.uri.pathStr
+    uri = req.uri
     key1 = h["Sec-WebSocket-Key1"]
     key2 = h["Sec-WebSocket-Key2"]
     origin = h["Origin"]
@@ -180,7 +191,7 @@ const class WsHandshakeRes {
   new make(WsHandshakeReq req, |This|? f := null) {
     protocol = req.protocols
     origin = req.origin
-    location = (origin.startsWith("https") ? "wss" : "ws") + "://" + req.host + req.resource
+    location = (origin.startsWith("https") ? "wss" : "ws") + "://" + req.host + req.uri.pathStr
     
     keyNumber1 := keyToNum(req.key1)
     keyNumber2 := keyToNum(req.key2)

@@ -3,7 +3,7 @@ class WebSocketTest : Test {
     req := WsHandshakeReq.makeTest {
       key1 = "3e6b263  4 17 80"
       key2 = "17  9 G`ZD9   2 2b 7X 3 /r90"
-      resource = "/" 
+      uri  = `http://example.com/` 
       host = "example.com"
       origin = "http://example.com"
     }

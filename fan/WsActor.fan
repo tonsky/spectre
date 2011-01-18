@@ -2,20 +2,21 @@
 using concurrent
 
 **
-** Web socket processor that can process data in separate thread.
-** There’re two basic ways to work with web socket:
+** WebSocket processor that processes data in a separate thread.
+** 
+** There’re two basic ways to work with WebSocket:
 **   1. in a separate thread (asynchronously); or 
 **   2. without creating a thread (synchronously).
 ** 
-** Asynchonously, all messages are delivered to the actor’s thread
+** Asynchonously all messages are delivered to the actor’s thread
 ** to 'asyncOn_*' set of methods. You cannot use 'conn.read' because reading
 ** is already pending in the web server thread.
 ** 
 ** To process messages synchronously, one shall override 'on_*' set of methods
 ** from `WsProcessor` mixin. It’s possible to read from 'conn' in this methods,
-** but the execution will block until there’ll be message in web socket.
+** but the execution will block until there’ll be message in WebSocket.
 **
-** To interoperate with web socket itself (read/write/close), use `WsConn` `conn` arg.
+** To interoperate with WebSocket itself (read/write/close), use `WsConn` `conn` arg.
 ** To modify handshake response, override `WsProcessor.onHandshake`. 
 ** It’s also impossible to read or write from/to socket in `#asyncOnClose` or `#onClose`
 ** because socket is already closed when they are called.

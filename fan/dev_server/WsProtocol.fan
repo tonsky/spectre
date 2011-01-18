@@ -3,8 +3,7 @@ using concurrent
 using inet
 
 **
-** Web socket protocol implementation.
-** One shall override `#createWsActor` in order to use it.
+** Web socket protocol (draft 76) implementation.
 ** 
 const class WsProtocol : Protocol {
   private static const Log log := Log.get("spectre")
@@ -26,8 +25,6 @@ const class WsProtocol : Protocol {
     
     handshakeReq := WsHandshakeReq(httpReq)
     WsProcessor processor := processorFunc.call(handshakeReq)
-//    processor := createWsActor(handshakeReq)
-//    WsHandshakeRes handshakeRes := processor->sendOnHandshake(handshakeReq, Unsafe(socket))->get
     WsHandshakeRes handshakeRes := processor.onHandshake(handshakeReq)
 
     /*  We need to send the 101 response immediately when using Draft 76 with
@@ -56,14 +53,13 @@ const class WsProtocol : Protocol {
     try {
       processor.onReady(conn)
       while (true) {
-        data := conn.read
-        if (data == null)
+        msg := conn.read
+        if (msg == null)
           break
-        processor.onData(conn, data)
+        processor.onMsg(conn, msg)
       }
     } catch(IOErr e) { // IOErrs are just ok
-      if (log.isDebug)
-        log.debug("Error in web socket communication", e)      
+      log.debug("Error in web socket communication", e)      
     } catch(Err e) {
       log.err("Error in WebSocket communication", e)
     }
@@ -85,6 +81,7 @@ internal const class WsConnImpl : WsConn {
   
   const Unsafe     socketUnsafe
         TcpSocket  socket() { socketUnsafe.val }
+  const AtomicBool reading := AtomicBool(false)
   const AtomicBool closed := AtomicBool(false)
   const WsProtocol protocol
   
@@ -97,16 +94,23 @@ internal const class WsConnImpl : WsConn {
   ** Read next message from client. This method will block until message is read or error was raised.
   ** Return null if socket was closed.
   override Buf? read() {
-    // There’s no timeout when waiting for client’s messages
-    socket.options.receiveTimeout = protocol.messageTimeout
-    if (socket.in.peek == null)
-      return null
+    if (closed.val) throw CancelledErr("Attemt to read from socket already closed")
+    if (!reading.compareAndSet(false, true)) throw Err("Reading already started in another actor")
 
-    // before we start reading message set a receive timeout in case
-    // the client fails to send us data in a timely fashion
-    socket.options.receiveTimeout = protocol.receiveTimeout
-    frame := WsFrame_HIXIE_76.read(socket.in)
-    return frame?.data
+    try {
+      // There’s no timeout when waiting for client’s messages
+      socket.options.receiveTimeout = protocol.messageTimeout
+      if (socket.in.peek == null)
+        return null
+  
+      // before we start reading message set a receive timeout in case
+      // the client fails to send us data in a timely fashion
+      socket.options.receiveTimeout = protocol.receiveTimeout
+      frame := WsFrame_HIXIE_76.read(socket.in)
+      return frame?.data
+    } finally {
+      reading.val = false
+    }
   }
   
   ** Send message to web socket client
@@ -117,11 +121,11 @@ internal const class WsConnImpl : WsConn {
   
   ** Close web socket connection
   override Void close() {
-    closed := true
-    try {
-      WsFrame_HIXIE_76.close(socket.out)
-      socket.close
-    } catch {}
+    if (closed.compareAndSet(false, true))
+      try {
+        WsFrame_HIXIE_76.close(socket.out)
+        socket.close
+      } catch {}
   }
 }
 
@@ -130,16 +134,16 @@ internal const class WsConnImpl : WsConn {
 ** 
 const mixin WsProcessor {
   ** Should return web socket handshake response. May be overriden to choose
-  ** protocol or tune smth else.
+  ** protocol or tune smth else in handshake response.
   virtual WsHandshakeRes onHandshake(WsHandshakeReq req) { WsHandshakeRes(req) }
   
-  ** Will be called after connection was successfully negotiated.
+  ** Will be called after connection has been successfully negotiated
   virtual Void onReady(WsConn conn) {}
   
-  ** When data is received from client.
-  virtual Void onData(WsConn conn, Buf msg) {}
+  ** When message has been received from client.
+  virtual Void onMsg(WsConn conn, Buf msg) {}
   
-  ** When client has closed connection. It’s invalid to send message to conn from this method.
+  ** When client has closed connection. It’s invalid to read/send messages from/to 'conn' in this method.
   virtual Void onClose(WsConn conn) {}
 }
 

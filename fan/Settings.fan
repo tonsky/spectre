@@ -20,6 +20,8 @@ abstract class Settings {
 // WebSockets
 //////////////////////////////////////////////////////////////////////////
   
+  ** This method should return WsProcessor instance that will process
+  ** incoming web socket connection. See `WsActor`.
   virtual WsProcessor wsProcessor(WsHandshakeReq req) { throw UnsupportedErr() }
   
 //////////////////////////////////////////////////////////////////////////

@@ -4,15 +4,16 @@ Other
 (v) QueryDecode doesn’t actually decodes percents and spaces!!!
 (v) Report compilation errors
 (v) StaticView: serve single files like favicon.ico, not "pathTail" only.
+( ) django/http/utils.py response fixes
 
 WebServer
 ---------
 (v) Process app’s response via special class, do not give OutputStream to user’s app
 Dev/Production modes
  
-
 Spectre
 -------
+DirectToTemplate shortcut
 WebSockets: Routing
 Setting infrastructure
 Review multithreading (make Settings class const)

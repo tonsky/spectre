@@ -37,12 +37,12 @@ abstract class Middleware : Turtle {
   virtual This wrap(Turtle child) { this.child = child; return this }
   
   override Res? dispatch(Req req) {
-    before(req)
-    Res? res := child.dispatch(req)
-    return after(req, res)
+    modifiedReq := before(req)
+    Res? res := child.dispatch(modifiedReq)
+    return after(modifiedReq, res)
   }
   
-  virtual Void before(Req req) {}
+  virtual Req before(Req req) { return req }
   virtual Res? after(Req req, Res? res) { 
     return res == null ? null : safeAfter(req, res)
   }

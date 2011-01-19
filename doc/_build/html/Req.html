@@ -47,7 +47,7 @@
   <img alt="_images/request.png" class="article-cover cover-request" src="_images/request.png" />
 <div class="section" id="req">
 <h1>Req<a class="headerlink" href="#req" title="Permalink to this headline">¶</a></h1>
-<p>Represents incoming http request. A new instance of <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> will be created for each incoming request. <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> instance is read-only except for <a class="reference internal" href="#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">context</span></tt></a>.</p>
+<p>Represents incoming http request. A new instance of <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> will be created for each incoming request. <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> instances are read-only, but <a class="reference internal" href="turtles.html#Middleware" title="Middleware"><tt class="xref py py-class docutils literal"><span class="pre">Middleware</span></tt></a> can create a copy with another <a class="reference internal" href="#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">context</span></tt></a> using <a class="reference internal" href="#Req.dupWith" title="Req.dupWith"><tt class="xref py py-func docutils literal"><span class="pre">dupWith()</span></tt></a> method.</p>
 <dl class="class">
 <dt id="Req">
 <em class="property">class </em><tt class="descname">Req</tt><a class="headerlink" href="#Req" title="Permalink to this definition">¶</a></dt>
@@ -65,7 +65,7 @@
 <dl class="attribute">
 <dt id="Req.post">
 <tt class="descname">post</tt><a class="headerlink" href="#Req.post" title="Permalink to this definition">¶</a></dt>
-<dd><p><tt class="xref py py-class docutils literal"><span class="pre">QueryMap</span></tt> of current request arguments (GET and POST respectively). <tt class="xref py py-class docutils literal"><span class="pre">QueryMap</span></tt> interface is mostly equivalent to <tt class="docutils literal"><span class="pre">[Str:Str]</span></tt>, except that it allows multiple values for single key (accessed using <tt class="docutils literal"><span class="pre">getList(Str</span> <span class="pre">key)</span></tt> method).</p>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">QueryMap</span></tt> of current request’s arguments (GET and POST respectively). <tt class="xref py py-class docutils literal"><span class="pre">QueryMap</span></tt> interface is mostly equivalent to <tt class="docutils literal"><span class="pre">[Str:Str]</span></tt>, except that it allows multiple values for single key (accessed using <tt class="docutils literal"><span class="pre">getList(Str</span> <span class="pre">key)</span></tt> method).</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -77,19 +77,19 @@
 <dl class="attribute">
 <dt id="Req.headers">
 <tt class="descname">headers</tt><a class="headerlink" href="#Req.headers" title="Permalink to this definition">¶</a></dt>
-<dd><p><tt class="docutils literal"><span class="pre">[Str:Str]</span></tt> of http request headers.</p>
+<dd><p><tt class="docutils literal"><span class="pre">[Str:Str]</span></tt> of HTTP request headers.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="Req.method">
 <tt class="descname">method</tt><a class="headerlink" href="#Req.method" title="Permalink to this definition">¶</a></dt>
-<dd><p><tt class="docutils literal"><span class="pre">Str</span></tt> of http request method (<tt class="docutils literal"><span class="pre">&quot;get&quot;</span></tt> or <tt class="docutils literal"><span class="pre">&quot;post&quot;</span></tt> or another).</p>
+<dd><p><tt class="docutils literal"><span class="pre">Str</span></tt> of HTTP request method (<tt class="docutils literal"><span class="pre">&quot;get&quot;</span></tt> or <tt class="docutils literal"><span class="pre">&quot;post&quot;</span></tt> or another).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="Req.cookies">
 <tt class="descname">cookies</tt><a class="headerlink" href="#Req.cookies" title="Permalink to this definition">¶</a></dt>
-<dd><p><tt class="docutils literal"><span class="pre">[Str:Str]</span></tt> of current browser session cookies. It’s for reading only, to set cookie, use <a class="reference internal" href="Res.html#Res.setCookie" title="Res.setCookie"><tt class="xref py py-func docutils literal"><span class="pre">Res.setCookie()</span></tt></a>.</p>
+<dd><p><tt class="docutils literal"><span class="pre">[Str:Str]</span></tt> of current browser session’s cookies. They’re for reading only, to set cookie, use <a class="reference internal" href="Res.html#Res.setCookie" title="Res.setCookie"><tt class="xref py py-func docutils literal"><span class="pre">Res.setCookie()</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -101,6 +101,19 @@
 <li><a class="reference internal" href="routing.html#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> puts url path capture values to context if url matches this route;</li>
 <li><a class="reference internal" href="sessions.html#SessionMiddleware" title="SessionMiddleware"><tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt></a> puts <tt class="docutils literal"><span class="pre">Session</span> <span class="pre">session</span></tt> object in context.</li>
 </ul>
+<p>This slot and its value are both readonly. See <a class="reference internal" href="#Req.dupWith" title="Req.dupWith"><tt class="xref py py-func docutils literal"><span class="pre">dupWith()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Req.dupWith">
+<tt class="descname">dupWith</tt><big>(</big><em>Str:Obj? overrde</em><big>)</big><a class="headerlink" href="#Req.dupWith" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of current <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> with values in context set (added or overriden) with <tt class="docutils literal"><span class="pre">overrde</span></tt> parameter values.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Req.in">
+<tt class="descname">in</tt><a class="headerlink" href="#Req.in" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">InStream</span></tt>. Raw HTTP request input stream.</p>
 </dd></dl>
 
 </dd></dl>

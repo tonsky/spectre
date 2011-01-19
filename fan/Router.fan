@@ -27,7 +27,7 @@ class Router : Selector {
   
   virtual Turtle any(Str path) { UrlMatcherTurtle(UrlMatcher(path)) }
   
-  virtual Void routes(Obj[][] arg) { arg.each { Router#bind.func.callOn(this, it) } }
+  virtual Void routes(Obj[][] arg) { arg.each { bind(it[0], it[1]) } }
   
   virtual Void bind(Obj route, Obj target) {
     route = asRoute(route)
@@ -153,12 +153,7 @@ class UrlMatcherTurtle : Turtle {
     [Str:Str]? match := matcher.match(req.pathInfo.path)
     if (match == null)
       return null
-    populateContext(match, req)
-    return child.dispatch(req)
-  }
-  
-  virtual Void populateContext([Str:Str] match, Req req) {
-    req.context.addAll(match)
+    return child.dispatch(req.dupWith(match))
   }
 }
 

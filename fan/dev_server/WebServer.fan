@@ -27,12 +27,8 @@ const class WebServer : Service {
   }
 
   override Void onStop() {
-    try {
-      (tcpListener.val as TcpListener).close;
-    } catch (Err e) {
-      log.err("spectre::WebServer error closing listener socket", e)
-    }
     try listenerPool.stop;   catch (Err e) log.err("spectre::WebServer error stopping listener pool", e)
+    try (tcpListener.val as TcpListener).close; catch (Err e) log.err("spectre::WebServer error closing listener socket", e)    
     try processorPool.stop;  catch (Err e) log.err("spectre::WebServer error stopping processor pool", e)
   }
 }

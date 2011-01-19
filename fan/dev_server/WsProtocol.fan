@@ -13,13 +13,12 @@ const class WsProtocol : Protocol {
   const |WsHandshakeReq->WsProcessor?| processorFunc
   new make(|WsHandshakeReq->WsProcessor?| processorFunc) { this.processorFunc = processorFunc }
   
-  override Bool onConnection(HttpReq httpReq) {
+  override Bool onConnection(HttpReq httpReq, TcpSocket socket) {
     // check if we support this connection
     if (!httpReq.headers.get("Connection", "").equalsIgnoreCase("upgrade") ||
         !httpReq.headers.get("Upgrade", "").equalsIgnoreCase("websocket"))
       return false
 
-    socket := httpReq.socket
     in := socket.in
     out := socket.out
     
@@ -48,7 +47,7 @@ const class WsProtocol : Protocol {
        out.writeChars("Sec-WebSocket-Protocol: " + handshakeRes.protocol + "\r\n")
     out.writeChars("\r\n").flush
     
-    key3 := httpReq.in.readBufFully(null, 8)
+    key3 := in.readBufFully(null, 8)
     out.writeBuf(handshakeRes.challenge(key3)).flush
 
     conn := WsConnImpl(handshakeReq, socket, this)

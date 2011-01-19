@@ -7,21 +7,19 @@ class HttpReq {
   static const Version ver11 := Version("1.1")
   static const Str:Str nullHeaders := Str:Str[:]
   
-  internal TcpSocket socket
-  SocketOptions socketOptions() { socket.options }
-
   InStream? in { get { &in ?: throw Err("Attempt to access WebReq.in with no content") } }
+  virtual Bool isAllRead() { &in == null || &in.peek == null }
 
   Str method := ""
   Version version := nullVersion
-  IpAddr remoteAddr() { return socket.remoteAddr }
-  Int remotePort() { return socket.remotePort }
+  IpAddr remoteAddr
+  Int remotePort
   Str:Str headers := nullHeaders
   Uri uri := ``
 
-  new make(TcpSocket socket) { this.socket = socket }
-  new makeTest(InStream in) { this.socket = TcpSocket(); this.in = in }
-  virtual Bool isAllRead() { &in == null || &in.peek == null }
+  new make(|This|? f := null) { f?.call(this) }
+  new makeTest(InStream in) { this.in = in; remoteAddr = IpAddr.local }
+  
   override Str toStr() { "$method $uri HTTP/$version\n " + headers.join("\n ") }
 }
 
@@ -43,8 +41,7 @@ const class HttpProtocol : Protocol {
   const |HttpReq->HttpRes| process
   new make(|HttpReq->HttpRes| process) { this.process = process }
 
-  override Bool onConnection(HttpReq req) {
-    socket := req.socket
+  override Bool onConnection(HttpReq req, TcpSocket socket) {
     in := socket.in
     out := socket.out
     
@@ -87,8 +84,6 @@ const class HttpProtocol : Protocol {
   **
   static HttpReq? parseReq(TcpSocket socket) {
     try {
-      req := HttpReq(socket)
-      
       // skip leading CRLF (4.1)
       in := socket.in
       line := in.readLine
@@ -101,28 +96,27 @@ const class HttpProtocol : Protocol {
       // parse request-line (5.1)
       toks   := line.split
       method := toks[0]
-      uri    := toks[1]
-      ver    := toks[2]
-
-      // method
-      req.method = method.upper
+      uriStr := toks[1]
+      verStr := toks[2]
 
       // uri; immediately reject any uri which starts with ..
-      req.uri = Uri.decode(uri)
-      if (req.uri.path.first == "..") return null
+      uri := Uri.decode(uriStr)
+      if (uri.path.first == "..") return null
 
       // version
-      if (ver == "HTTP/1.1") req.version = HttpReq.ver11
-      else if (ver == "HTTP/1.0") req.version = HttpReq.ver10
+      ver := null
+      if (verStr == "HTTP/1.1") ver = HttpReq.ver11
+      else if (verStr == "HTTP/1.0") ver = HttpReq.ver10
       else return null
 
-      // parse headers
-      req.headers = WebUtil.parseHeaders(in).ro //case-insensitive already
-
-      req.in = in
-      
-      // success
-      return req
+      return HttpReq {
+        it.method = method.upper
+        it.uri = uri
+        it.version = ver
+        it.headers = WebUtil.parseHeaders(in).ro //case-insensitive already
+        it.remoteAddr = socket.remoteAddr
+        it.remotePort = socket.remotePort
+      }
     } catch (Err e) {
       return null
     }

@@ -69,8 +69,6 @@ const class DynActor : Actor {
     
     return this.send(DynActorCommand(method, args))
   }
-  
-  Void dispose(){}
 }
 
 const class SerializedWrapper {

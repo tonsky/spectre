@@ -1,5 +1,6 @@
 
 using concurrent
+using inet
 using util
 using web
 
@@ -44,7 +45,7 @@ const class AppReloadProtocol : Protocol {
       RunDevServer.setApp(app)
   }
   
-  override Bool onConnection(HttpReq req) {
+  override Bool onConnection(HttpReq req, TcpSocket socket) {
     app := activeApp
     if (app != null && app !== RunDevServer.app)
       RunDevServer.setApp(app)

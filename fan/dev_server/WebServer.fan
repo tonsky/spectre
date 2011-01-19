@@ -3,7 +3,7 @@ using concurrent
 using inet
 
 mixin Protocol {
-  abstract Bool onConnection(HttpReq req)
+  abstract Bool onConnection(HttpReq req, TcpSocket socket)
 }
 
 const class WebServer : Service {
@@ -76,26 +76,23 @@ const class WebServerAcceptor : DynActor {
   
   protected Void _accept(TcpSocket socket, Protocol[] protocols) {
     try {
-      socket.options.receiveTimeout = 10sec
-      
+      socket.options.receiveTimeout = 10sec      
       req := HttpProtocol.parseReq(socket)
       if (req == null) {
         log.debug("HttpReq parsing failed (incorrect http header?): $req")
-        dispose
         return
       }
       
       // Finding appropriate protocol handler
-      found := protocols.find { onConnection(req) }
+      found := protocols.find { onConnection(req, socket) }
       
       // After connection has been processed or no processors found
       if (found == null)
         throw Err("No listeners to process connection:\n $req")
     } catch(Err e) {
-      log.err("Error processing connection", e)
+      log.err("Error processing connection", e);
     } finally {
       try socket.close; catch {}
-      dispose
     }
   }
 }

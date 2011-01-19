@@ -54,9 +54,9 @@ const class WsProtocol : Protocol {
     conn := WsConnImpl(handshakeReq, socket, this)
     try {
       processor.onReady(conn)
-      while (true) {
+      while (!conn.closed.val) {
         msg := conn.read
-        if (msg == null)
+        if (msg == null || conn.closed.val)
           break
         processor.onMsg(conn, msg)
       }

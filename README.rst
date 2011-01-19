@@ -8,7 +8,9 @@ Main features
 -------------
 
 * MVC architecture;
+* Web forms processing library;
 * Mustache templates for presentation layer;
+* Development server with instant app reload;
 * WebSocket Protocol draft 76 support.
 
 Documentation

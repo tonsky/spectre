@@ -60,9 +60,8 @@ class SessionMiddleware : Middleware {
   override Res? dispatch(Req req) {
     cookieData := loadCookieData(req)
     Session session := sessionStore.load(cookieData)
-    req.context[contextAttrName] = session
     
-    Res? res := child.dispatch(req)
+    Res? res := child.dispatch(req.dupWith([contextAttrName: session]))
     if (res != null) {
       Str? updatedCookieData := sessionStore.save(session, cookieData, saveEveryRequest)
       if (null == updatedCookieData) {

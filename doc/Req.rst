@@ -5,7 +5,7 @@
  Req
 =====
 
-Represents incoming http request. A new instance of :class:`Req` will be created for each incoming request. :class:`Req` instance is read-only except for :attr:`~Req.context`.
+Represents incoming http request. A new instance of :class:`Req` will be created for each incoming request. :class:`Req` instances are read-only, but :class:`Middleware` can create a copy with another :attr:`~Req.context` using :func:`~Req.dupWith` method.
 
 .. class:: Req
 
@@ -16,7 +16,7 @@ Represents incoming http request. A new instance of :class:`Req` will be created
    .. attribute:: get
    .. attribute:: post
 
-      :class:`QueryMap` of current request arguments (GET and POST respectively). :class:`QueryMap` interface is mostly equivalent to ``[Str:Str]``, except that it allows multiple values for single key (accessed using ``getList(Str key)`` method).
+      :class:`QueryMap` of current request’s arguments (GET and POST respectively). :class:`QueryMap` interface is mostly equivalent to ``[Str:Str]``, except that it allows multiple values for single key (accessed using ``getList(Str key)`` method).
 
    .. attribute:: request
 
@@ -24,15 +24,15 @@ Represents incoming http request. A new instance of :class:`Req` will be created
 
    .. attribute:: headers
 
-      ``[Str:Str]`` of http request headers.
+      ``[Str:Str]`` of HTTP request headers.
 
    .. attribute:: method
    
-      ``Str`` of http request method (``"get"`` or ``"post"`` or another).
+      ``Str`` of HTTP request method (``"get"`` or ``"post"`` or another).
 
    .. attribute:: cookies
 
-      ``[Str:Str]`` of current browser session cookies. It’s for reading only, to set cookie, use :func:`Res.setCookie`.
+      ``[Str:Str]`` of current browser session’s cookies. They’re for reading only, to set cookie, use :func:`Res.setCookie`.
 
    .. attribute:: context
    
@@ -42,3 +42,13 @@ Represents incoming http request. A new instance of :class:`Req` will be created
 
       + :class:`Router` puts url path capture values to context if url matches this route;
       + :class:`SessionMiddleware` puts ``Session session`` object in context.
+      
+      This slot and its value are both readonly. See :func:`~Req.dupWith`.
+
+   .. function:: dupWith(Str:Obj? overrde)
+   
+      Returns a copy of current :class:`Req` with values in context set (added or overriden) with ``overrde`` parameter values.
+      
+   .. attribute:: in
+   
+      :class:`InStream`. Raw HTTP request input stream.

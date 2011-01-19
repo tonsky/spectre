@@ -62,7 +62,7 @@ internal const class InmemorySessionActor : DynActor {
   new make(ActorPool pool) : super(pool) {}
   
   Str:InmemorySessionInfo sessions() {
-    Actor.locals.getOrAdd("spectre.sessions2.session_actor") { Str:InmemorySessionInfo [:] }
+    Actor.locals.getOrAdd("spectre.inmem_actor") { Str:InmemorySessionInfo [:] }
   }
   
   protected [Str:Obj?]? _load(Str id, Duration? maxAge) {
@@ -88,9 +88,9 @@ internal const class InmemorySessionActor : DynActor {
   }
   
   protected Void _startCleaning(Duration maxSessionAge, Duration cleanupPeriod) {
-    if (Actor.locals["spectre.contrib.session.inmem_actor.cleaning_started"] != null)
+    if (Actor.locals["spectre.inmem_actor.cleaning_started"] != null)
       return
-    Actor.locals["spectre.contrib.session.inmem_actor.cleaning_started"] = true
+    Actor.locals["spectre.inmem_actor.cleaning_started"] = true
     this.sendLater(cleanupPeriod, DynActorCommand(#_cleanup, [maxSessionAge, cleanupPeriod]))
   }
   

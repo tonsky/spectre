@@ -86,7 +86,8 @@ Finally, an example of :class:`WsActor` implementation demonstrates both sync an
       conn.writeStr("Waiting for your message")
       
       // Processing of this socket will block until read returns:      
-      Buf data := conn.read() 
+      Buf? data := conn.read()
+      if (data == null) { conn.close; return }
       
       // First message to be processed here, 
       // all the rest to be received asynchronously:      

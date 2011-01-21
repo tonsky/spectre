@@ -12,9 +12,9 @@ abstract class Settings {
 // Settings
 //////////////////////////////////////////////////////////////////////////
   
-//  File? appDir
+/*  File? appDir*/
   Turtle? root
-  Charset charset := Charset.utf8  
+  Bool debug := true
   
 //////////////////////////////////////////////////////////////////////////
 // WebSockets
@@ -24,10 +24,4 @@ abstract class Settings {
   ** this WebSocket connection. See `WsActor`.
   virtual WsProcessor? wsProcessor(WsHandshakeReq req) { throw UnsupportedErr() }
   
-//////////////////////////////////////////////////////////////////////////
-// App instance
-//////////////////////////////////////////////////////////////////////////
-  
-//  static Settings instance() { Actor.locals["spectre.settings"] }
-//  static Void setInstance(Settings app) { Actor.locals["spectre.settings"] = app }
 }

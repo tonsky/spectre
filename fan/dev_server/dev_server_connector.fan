@@ -89,19 +89,19 @@ const class SpectreHttpProcessor {
   
   HttpRes onRequest(HttpReq httpReq) {
     try {
-      Req req := SpectreReq(httpReq)
+      Req req := SpectreReq(httpReq, RunDevServer.app)
       Res? response := RunDevServer.app.root.dispatch(req)
       
       if(response != null)
         return httpRes(response)
       else
         throw Err("App returned empty response")
-    } catch(build::FatalBuildErr err) {
+    } catch (build::FatalBuildErr err) {
       log.err("App compilation error: ${podDir}build.fan", err)
       return httpRes(ResServerError("<h1>500 App compilation error</h1>"
                                   + "<pre>App path: ${podDir}build.fan\n\n"
                                   + "${Util.traceToStr(err)}</pre>"))
-    } catch(Err err) {
+    } catch (Err err) {
       log.err("Error occured", err)
       return httpRes(ResServerError("<h1>500 Internal server error</h1>"
                                   + "<pre>${Util.traceToStr(err)}</pre>"))
@@ -117,7 +117,8 @@ const class SpectreHttpProcessor {
 
 class SpectreReq : Req {
   HttpReq req
-  new make(HttpReq req) { this.req = req }
+  override Settings app
+  new make(HttpReq req, Settings app) { this.req = req; this.app = app }
   
   once override QueryMap get() { return QueryMap.decodeQuery(req.uri.queryStr).ro }
   once override QueryMap post() { QueryMap.decodeQuery(form).ro }

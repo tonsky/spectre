@@ -13,9 +13,7 @@ mixin View {
   }
   
   virtual Obj? tryMethodCall(Method method, Obj instance, Req req) {
-    func := method.func//.bind([instance]) // because after bind param names are erased (1.0.56)
-    paramValues := resolveParamValues(func.params[1..-1], req)
-    return func.callList(paramValues.insert(0, instance))
+    tryCall(method.func.bind([instance]), req)
   }
   
   virtual Obj? tryCall(Func func, Req req) {
@@ -29,42 +27,20 @@ mixin View {
     
     for (idx := 0; idx < params.size; ++idx) {
       Param param := params[idx]
-      if(paramHasValue(param, req)) {
+      
+      resolved := req.context(param.name, false, NotResolved.instance)
+      if (resolved === NotResolved.instance) {
+        if (param.hasDefault) defaultUsed = param
+        else throw ArgErr("Unmatched action param '$param.name' in $caller")
+      } else {
         if (defaultUsed != null)
           throw ArgErr("Param '$param.name' cannot be set because '$defaultUsed.name'"
                      + " is using default value before him, in $caller")
-        
-        paramValues.add(resolveParamValue(param, req))
-      } else {
-        if (param.hasDefault)
-          defaultUsed = param
-        else
-          throw ArgErr("Unmatched action param '$param.name' in $caller
-                        matches are ${req.context}")
+        paramValues.add(resolved)
       }
     }
     
     return paramValues
-  }
-  
-  virtual Bool paramHasValue(Param param, Req req) {
-    return param.type == Req# || req.context.containsKey(param.name)
-  }
-  
-  virtual Obj? resolveParamValue(Param param, Req req) {
-    if (param.type == Req#)
-      return req
-      
-    if (req.context.containsKey(param.name)) {
-      return req.context[param.name]
-      // TODO maybe some intelligent conversion later
-      
-//      Str paramStr := req.context[param.name]
-//      return param.type == Str# ? paramStr : param.type.method("fromStr").call(paramStr)
-    }
-    
-    throw ArgErr("Unmatched action param '$param.name' in $caller
-                  matches are ${req.context}")
   }
 }
 
@@ -89,3 +65,4 @@ class FuncView : View, Turtle {
   }
 }
 
+internal enum class NotResolved { instance }

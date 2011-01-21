@@ -17,6 +17,6 @@ class Build : build::BuildPod
                "concurrent 1.0",
 
                "mustache 1.0",
-               "printf 1.0"]
+               "printf 1.0"]               
   }
 }

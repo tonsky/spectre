@@ -57,7 +57,7 @@
   ["/", ViewClass#index],
   ["/items/", ViewClass#itemsList],
   ["/item/{idx:\\d{4}}", ViewClass#itemByIdx],
-  ["/item/{id}/", |Req req-&gt;Res?| { return Res("Item ${req.context['id']} requested" }],
+  ["/item/{id}/", |Req req-&gt;Res?| { return Res("Item " + req.context("id") + " requested" }],
   ["/item/{method}/{id}/", IndexView#]
 }</pre>
 </div>

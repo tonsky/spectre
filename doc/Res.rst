@@ -28,7 +28,7 @@ You can also pass :class:`InStream`, :class:`File` or :class:`List` (merged cont
    
    .. attribute:: statusCode
       
-      ``Int``. Status code of http response. Defaults to 200 (OK). See `List of status code <http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10>`_.
+      ``Int``. Status code of http response. Defaults to 200 (OK). See `List of status codes <http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10>`_.
       
    .. attribute:: content
     

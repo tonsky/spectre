@@ -7,11 +7,22 @@ abstract class Req {
   ** Map of arbitrary values usually populated by `Middleware`s to prepare values for views. 
   ** All values presented in `#context` can be used as view arguments (resolved by name).
   ** This slot and its value are both readonly. See `#dupWith`.
-  readonly Str:Obj? context := [:].ro
+  internal Str:Obj? _context := ["req": this].ro
+  internal abstract Settings app()
   
-  ** Returns a copy of current `Req` with values in context 
-  ** set (added or overriden) with 'overrde' parameter values.
-  Req dupWith(Str:Obj? overrde) { ReqWrapper(this) { it.context = this.context.dup.setAll(overrde) } }
+  ** Resolve injectible data stored in `Req#context` or `Req#app` slots or `Req` itself, by name.
+  Obj? context(Str name, Bool raiseErr := true, Obj? def := null) {
+    if (_context.containsKey(name)) return _context[name]
+    if (Util.supports(app, name)) return app.trap(name)
+    if (raiseErr) throw ArgErr("Cannot resolve ‘$name’, options are: $_context + app slots: " 
+      + app.typeof.slots.findAll { it.isField || (it.isMethod && (it as Method).params.size == 0)}.map { name } )
+    else return def
+  }
+  
+  ** Returns a copy of current `Req` with values in context added or overriden. See `Req#context`.
+  Req dup(Str:Obj? overrde) { 
+    overrde.isEmpty ? this : (ReqWrapper(this) { it._context = this._context.dup.set("req", it).setAll(overrde).ro })
+  }
   
   ** Current request’s GET arguments.
   abstract QueryMap get()
@@ -65,4 +76,5 @@ internal class ReqWrapper : Req {
   override Str method() { impl.method }
   
   override InStream in() { impl.in }
+  internal override Settings app() { impl.app }
 }

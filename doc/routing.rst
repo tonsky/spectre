@@ -19,7 +19,7 @@ Routing scheme of spectre app is defined as one or more :class:`Router` :class:`
          ["/", ViewClass#index],
          ["/items/", ViewClass#itemsList],
          ["/item/{idx:\\d{4}}", ViewClass#itemByIdx],
-         ["/item/{id}/", |Req req->Res?| { return Res("Item ${req.context['id']} requested" }],
+         ["/item/{id}/", |Req req->Res?| { return Res("Item " + req.context("id") + " requested" }],
          ["/item/{method}/{id}/", IndexView#]    
        }
 
@@ -82,4 +82,4 @@ or you can include any turtle *instead* of route-view tuple::
 	2. if yes, populates :attr:`Req.context` with capture args from route path (if any), and calls view function;
 	3. if no, returns ``null``, so next route may be tested.
 	
-	If there is a :class:`Turtle` instead of tuple in array, its :func:`~Trutle.dispatch` will be called directly.
+	If there is a :class:`Turtle` instead of tuple in array, its :func:`~Turtle.dispatch` will be called directly.

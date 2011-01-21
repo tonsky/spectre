@@ -61,7 +61,7 @@ class SessionMiddleware : Middleware {
     cookieData := loadCookieData(req)
     Session session := sessionStore.load(cookieData)
     
-    Res? res := child.dispatch(req.dupWith([contextAttrName: session]))
+    Res? res := child.dispatch(req.dup([contextAttrName: session]))
     if (res != null) {
       Str? updatedCookieData := sessionStore.save(session, cookieData, saveEveryRequest)
       if (null == updatedCookieData) {

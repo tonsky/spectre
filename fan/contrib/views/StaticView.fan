@@ -17,7 +17,7 @@ class StaticView : Turtle {
   override Res? dispatch(Req req) {
     File file := path
     if (path.isDir) {
-      pathRest := req.context[UrlMatcher.PATH_TAIL_PARAM]
+      pathRest := req.context(UrlMatcher.PATH_TAIL_PARAM)
       file = path + Uri.fromStr(pathRest)
     }
     

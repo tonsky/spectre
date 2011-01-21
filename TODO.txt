@@ -15,7 +15,14 @@ Spectre
 -------
 DirectToTemplate shortcut
 WebSockets: Routing
-Setting infrastructure
+Setting infrastructure:
+
+  (+) Settings link in Req
+  (+) No static Settings instance
+  Settings to const
+  (+) Populate context with settings attrs 
+
+Flash messages
 Review multithreading (make Settings class const)
 Report app’s compilation errors
 (-) WebSockets: Actor’s interoperability
@@ -27,6 +34,11 @@ File uploading
 (v) Investigate multiple cookies bug
 (v) Template response
 (v) investigate Safari refresh/304 bug
+
+Docs
+----
+
+Form fields screenshots
 
 Router
 ------

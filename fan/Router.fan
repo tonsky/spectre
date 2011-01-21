@@ -6,8 +6,6 @@ const class InvalidPatternErr : Err {
 }
 
 class Router : Selector {
-  Str basepath := ""// not used yet
-
   virtual Turtle asRoute(Obj route) { route is Str ? any(route) : route as Turtle }
   
   virtual Turtle? asView(Obj target) {
@@ -153,7 +151,7 @@ class UrlMatcherTurtle : Turtle {
     [Str:Str]? match := matcher.match(req.pathInfo.path)
     if (match == null)
       return null
-    return child.dispatch(req.dupWith(match))
+    return child.dispatch(req.dup(match))
   }
 }
 

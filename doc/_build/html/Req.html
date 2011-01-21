@@ -47,7 +47,7 @@
   <img alt="_images/request.png" class="article-cover cover-request" src="_images/request.png" />
 <div class="section" id="req">
 <h1>Req<a class="headerlink" href="#req" title="Permalink to this headline">¶</a></h1>
-<p>Represents incoming http request. A new instance of <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> will be created for each incoming request. <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> instances are read-only, but <a class="reference internal" href="turtles.html#Middleware" title="Middleware"><tt class="xref py py-class docutils literal"><span class="pre">Middleware</span></tt></a> can create a copy with another <a class="reference internal" href="#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">context</span></tt></a> using <a class="reference internal" href="#Req.dupWith" title="Req.dupWith"><tt class="xref py py-func docutils literal"><span class="pre">dupWith()</span></tt></a> method.</p>
+<p>Represents incoming http request. A new instance of <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> will be created for each incoming request. <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> instances are read-only, but <a class="reference internal" href="turtles.html#Middleware" title="Middleware"><tt class="xref py py-class docutils literal"><span class="pre">Middleware</span></tt></a> can create a copy with another <a class="reference internal" href="#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">context</span></tt></a> using <a class="reference internal" href="#Req.dup" title="Req.dup"><tt class="xref py py-func docutils literal"><span class="pre">dup()</span></tt></a> method.</p>
 <dl class="class">
 <dt id="Req">
 <em class="property">class </em><tt class="descname">Req</tt><a class="headerlink" href="#Req" title="Permalink to this definition">¶</a></dt>
@@ -94,20 +94,22 @@
 
 <dl class="attribute">
 <dt id="Req.context">
-<tt class="descname">context</tt><a class="headerlink" href="#Req.context" title="Permalink to this definition">¶</a></dt>
-<dd><p><tt class="docutils literal"><span class="pre">[Str:Obj?]</span></tt> usually populated by middlewares to prepare values for views. All values presented in <tt class="docutils literal"><span class="pre">context</span></tt> can be used as view arguments (resolved by name).</p>
-<p>Two standard use cases of <a class="reference internal" href="#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">context</span></tt></a> are:</p>
+<tt class="descname">context</tt><big>(</big><em>Str name</em><big>)</big><a class="headerlink" href="#Req.context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolve injectible data stored in <a class="reference internal" href="#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">context</span></tt></a> or <tt class="xref py py-attr docutils literal"><span class="pre">app</span></tt> internal slots or <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> instance itself, by name. This method is internally used for injecting method and constructor params on views. It may be useful in middleware or when for some reasons you cannot use constructor/parameter injection in view.</p>
+<p>Standart resolvable options are:</p>
 <ul class="simple">
+<li><tt class="docutils literal"><span class="pre">&quot;req&quot;</span></tt> is resovled to current <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> instance, if not overriden;</li>
 <li><a class="reference internal" href="routing.html#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> puts url path capture values to context if url matches this route;</li>
-<li><a class="reference internal" href="sessions.html#SessionMiddleware" title="SessionMiddleware"><tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt></a> puts <tt class="docutils literal"><span class="pre">Session</span> <span class="pre">session</span></tt> object in context.</li>
+<li><tt class="docutils literal"><span class="pre">&quot;session&quot;</span></tt> is resolved to <a class="reference internal" href="sessions.html#Session" title="Session"><tt class="xref py py-class docutils literal"><span class="pre">Session</span></tt></a> if <a class="reference internal" href="sessions.html#SessionMiddleware" title="SessionMiddleware"><tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt></a> is active.</li>
+<li><tt class="docutils literal"><span class="pre">&quot;debug&quot;</span></tt> is resolved to <tt class="xref py py-attr docutils literal"><span class="pre">Settings.debug</span></tt> value.</li>
 </ul>
-<p>This slot and its value are both readonly. See <a class="reference internal" href="#Req.dupWith" title="Req.dupWith"><tt class="xref py py-func docutils literal"><span class="pre">dupWith()</span></tt></a>.</p>
+<p>See <a class="reference internal" href="#Req.dup" title="Req.dup"><tt class="xref py py-func docutils literal"><span class="pre">dup()</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Req.dupWith">
-<tt class="descname">dupWith</tt><big>(</big><em>Str:Obj? overrde</em><big>)</big><a class="headerlink" href="#Req.dupWith" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a copy of current <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> with values in context set (added or overriden) with <tt class="docutils literal"><span class="pre">overrde</span></tt> parameter values.</p>
+<dt id="Req.dup">
+<tt class="descname">dup</tt><big>(</big><em>Str:Obj? overrde</em><big>)</big><a class="headerlink" href="#Req.dup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of current <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a> with values in context added or overriden. This method will usually be used by middleware to populate context with new values and made them visible to children by passing returned <a class="reference internal" href="#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a>. See <a class="reference internal" href="#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">context</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="attribute">

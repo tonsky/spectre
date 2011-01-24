@@ -5,7 +5,7 @@ using concurrent
 **
 ** Descendant of this class is an entry point of web application
 ** 
-abstract class Settings {
+abstract const class Settings {
 //  new make(File appDir) { this.appDir = appDir }
   
 //////////////////////////////////////////////////////////////////////////
@@ -13,8 +13,8 @@ abstract class Settings {
 //////////////////////////////////////////////////////////////////////////
   
 /*  File? appDir*/
-  Turtle? root
-  Bool debug := true
+  const Turtle? root
+  const Bool debug := true
   
 //////////////////////////////////////////////////////////////////////////
 // WebSockets

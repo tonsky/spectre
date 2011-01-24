@@ -1,6 +1,6 @@
 
-class StaticView : Turtle {
-  File path
+const class StaticView : Turtle {
+  const File path
   new make(File path, |This|? f := null) { 
     this.path = path
     f?.call(this)

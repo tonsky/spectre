@@ -18,8 +18,7 @@ First, create ``templates/`` folder somewhere inside your app’s folder (it’s
 
 Set up renderer by wrapping your app with :class:`MustacheRenderer`::
 
-  tempalteRenderer := MustacheRenderer { templateDirs = [appDir + `templates/`] }
-  tempalteRenderer.wrap(router)
+  tempalteRenderer := MustacheRenderer(router, [appDir + `templates/`])
 
 Then, create a template file inside ``templates/`` folder, for example ``index.html``::
 
@@ -39,7 +38,7 @@ Finally, return :class:`TemplateRes` instead of :class:`Res` from view::
     return TemplateRes("index.html", context)
   }
   
-When intercepted by :class:`MustacheRenderer`, :class:`TemplateRes` will be rendered using :attr:`TemplateRes.template` and :attr:`TemplateRes.context`, and result will be stored in :attr:`TemplateRes.content`. After that, :class:`TemplateRes` will be used as a typical :class:`Res` instance — returned from app, its content will be sent to the client.
+When intercepted by :class:`MustacheRenderer`, :class:`TemplateRes` will be rendered using :attr:`TemplateRes.template` and :attr:`TemplateRes.context`, and result will be stored in :attr:`TemplateRes.content`. After that, :class:`TemplateRes` will be used as a typical :class:`Res` instance — returned from app, its content will be sent to the client.
 
 Differences to mustache
 -----------------------

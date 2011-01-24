@@ -65,7 +65,7 @@ It is also possible to use single :class:`Field` on its own. :class:`Field`s hav
 Rendering form and fields
 -------------------------
 
-:class:`Form` can be rendered with :func:`~Form.asTable` method. It will return :class:`SafeStr` html snippet with fields’ labels, widgets in their current state and error messages, wrapped with ``<tr><th></th><td></td></tr>``. It won’t contain ``table`` tag, you should write it by yourself.::
+:class:`Form` can be rendered with :func:`~Form.asTable` method. It will return :class:`SafeStr` html snippet with fields’ labels, widgets in their current state and error messages, wrapped with ``<tr><th></th><td></td></tr>``. It won’t contain the ``<table>`` tag, you should write it by yourself::
 
   >>> myForm.asTable
   
@@ -120,7 +120,7 @@ Form validation consist of three steps:
 2. running fields validators;
 3. running form validtaion.
 
-All errors occured on these steps are stored in :attr:`Field.errors` (1, 2) and :attr:`Form.errors` (3) slots. If there is at least one error, form became invalid and its :attr:`Form.cleanedData` cannot be accessed.
+All errors occured on these steps are stored in :attr:`Field.errors` (1, 2) and :attr:`Form.errors` (3) slots. If there is at least one error, form became invalid and its :attr:`Form.cleanedData` cannot be accessed.
 
 Field’s validators can be passed to field’s constructor::
 
@@ -130,7 +130,7 @@ There are a bunch of field validators built-in with Spectre: :class:`Required`, 
 
 All errors found during individual field’s validation are stored in :attr:`Field.errors` slot.
 
-When fields validation isn’t enough, or you have conditions involving more than one field, you redefine :func:`Form.validate` method (3) and store results of your validation in :attr:`Form.errors` slot as plain :class:`Str` or :class:`SafeStr`.::
+When fields validation isn’t enough, or you have conditions involving more than one field, you redefine :func:`Form.validate` method (3) and store results of your validation in :attr:`Form.errors` slot as plain :class:`Str` or :class:`SafeStr`.::
 
   class MyForm : Form {
     StrField name := StrField("name", "Your name")
@@ -143,7 +143,7 @@ When fields validation isn’t enough, or you have conditions involving more tha
     }
   }
 
-:func:`Form.validate` method will only be invoked if form has no field-specific errors (1, 2).
+:func:`Form.validate` method will only be invoked if form has no field-specific errors (1, 2).
 
 List of build-in fields
 -----------------------

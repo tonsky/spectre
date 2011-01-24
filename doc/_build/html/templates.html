@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Templates &mdash; Spectre v0.8 documentation</title>
+    <title>Templates &mdash; Spectre v1.0 documentation</title>
     <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.8',
+        VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
+    <link rel="top" title="Spectre v1.0 documentation" href="index.html" />
     <link rel="next" title="Forms" href="forms.html" />
     <link rel="prev" title="Res" href="Res.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="Res.html" title="Res"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
 
@@ -54,8 +54,7 @@
 <h2>How to use templates<a class="headerlink" href="#how-to-use-templates" title="Permalink to this headline">¶</a></h2>
 <p>First, create <tt class="docutils literal"><span class="pre">templates/</span></tt> folder somewhere inside your app’s folder (it’s just a convention, you are free to choose any name you want).</p>
 <p>Set up renderer by wrapping your app with <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt>:</p>
-<div class="highlight-python"><pre>tempalteRenderer := MustacheRenderer { templateDirs = [appDir + `templates/`] }
-tempalteRenderer.wrap(router)</pre>
+<div class="highlight-python"><pre>tempalteRenderer := MustacheRenderer(router, [appDir + `templates/`])</pre>
 </div>
 <p>Then, create a template file inside <tt class="docutils literal"><span class="pre">templates/</span></tt> folder, for example <tt class="docutils literal"><span class="pre">index.html</span></tt>:</p>
 <div class="highlight-python"><pre>&lt;h1&gt;Hello from other world, {{name}}!&lt;/h1&gt;
@@ -73,7 +72,7 @@ Well, ${{taxed_value}}, after taxes.
   return TemplateRes("index.html", context)
 }</pre>
 </div>
-<p>When intercepted by <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will be rendered using <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.template</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.context</span></tt>, and result will be stored in <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.content</span></tt>. After that, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will be used as a typical <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> instance — returned from app, its content will be sent to the client.</p>
+<p>When intercepted by <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will be rendered using <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.template</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.context</span></tt>, and result will be stored in <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.content</span></tt>. After that, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will be used as a typical <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> instance&nbsp;— returned from app, its content will be sent to the client.</p>
 </div>
 <div class="section" id="differences-to-mustache">
 <h2>Differences to mustache<a class="headerlink" href="#differences-to-mustache" title="Permalink to this headline">¶</a></h2>
@@ -102,11 +101,11 @@ Well, ${{taxed_value}}, after taxes.
         <li class="right" >
           <a href="Res.html" title="Res"
              >previous</a> |</li>
-        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010, Nikita Prokopov (xored.com).
+        &copy; Copyright 2010—2011, Nikita Prokopov (xored.com).
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

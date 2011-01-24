@@ -12,12 +12,10 @@ class RunDevServer : AbstractMain {
   File? appDir
   
   static const AtomicRef appRef := AtomicRef()
-  static Settings? app() { (appRef.val as Unsafe)?.val as Settings }
-  static Void setApp(Settings s) { appRef.val = Unsafe(s) }
+  static Settings? app() { appRef.val as Settings }
   
   static const AtomicRef activePodRef := AtomicRef()
-  static Pod? activePod() { (activePodRef.val as Unsafe)?.val as Pod }
-  static Void setActivePod(Pod s) { activePodRef.val = Unsafe(s) }
+  static Pod? activePod() { activePodRef.val as Pod }
   
   override Int run() {
     return runServices([ WebServer {
@@ -42,13 +40,15 @@ const class AppReloadProtocol : Protocol {
     // trying to load app
     app := activeApp
     if (app !== RunDevServer.app)
-      RunDevServer.setApp(app)
+      RunDevServer.appRef.val = app
   }
   
   override Bool onConnection(HttpReq req, TcpSocket socket) {
     app := activeApp
     if (app != null && app !== RunDevServer.app)
-      RunDevServer.setApp(app)
+      RunDevServer.appRef.val = app
+    if (app == null)
+      throw Err("App was not loaded due to error (see log)") // TODO output this error
     return false // pass through to next protocol
   }
   
@@ -60,7 +60,7 @@ const class AppReloadProtocol : Protocol {
       loadedPod := loadedPodObj as Pod
       if (loadedPod !== RunDevServer.activePod) {
         startApp(loadedPod)
-        RunDevServer.setActivePod(loadedPod)
+        RunDevServer.activePodRef.val = loadedPod
       }
     } catch(build::FatalBuildErr err) {
       log.err("App compilation error: ${podDir}build.fan", err)
@@ -76,8 +76,8 @@ const class AppReloadProtocol : Protocol {
     if (settingsType == null)
       throw Err("Cannot find spectre::Settings implementation in ${podDir}")
     
-    Settings settings := settingsType.make([podDir])
-    RunDevServer.setApp(settings)
+    Settings app := settingsType.make([podDir])
+    RunDevServer.appRef.val = app
   }
 }
 

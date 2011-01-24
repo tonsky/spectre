@@ -2,7 +2,7 @@
  Sessions
 ==========
 
-:class:`Session` provides a name/value map associated with a specific browser "connection" to the web server. You can inject session to your view using ``Session session`` view arg (recommended) or access it as ``req.context["session"]``.
+:class:`Session` provides a name/value map associated with a specific browser "connection" to the web server. You can inject session to your view using ``Session session`` view arg (recommended) or get it from ``req`` via ``req.context("session")``.
 
 .. note::
    Sessions will only be avaliable after :class:`SessionMiddleware` was executed (see below).
@@ -30,14 +30,12 @@ To set up sessions, wrap your app with :class:`SessionMiddleware` and specify :a
 
 Example::
 
-  sessionMiddlware := SessionMiddleware {
+  sessionMiddlware := SessionMiddleware(router) {
     sessionStore = InmemorySessionStore { 
       maxSessionAge = Duration.fromStr("14day")
       cleanupPeriod = Duration.fromStr("1hr")
     }
   }
-  
-  sessionMiddlware.wrap(router)
 
 
 .. class:: SessionMiddleware

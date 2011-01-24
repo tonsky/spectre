@@ -2,27 +2,23 @@
 **
 ** A unit of request processing hierarchy
 ** 
-mixin Turtle {
+const mixin Turtle {
   abstract Res? dispatch(Req req)
+
+  @Operator
+  Turtle plusTurtle(Turtle t) {
+    Selector([,].addAll(this is Selector ? this->children : [this])
+                .addAll(t    is Selector ? t->children    : [t]))
+  }
 }
 
 **
 ** Returns first not-null result obtained from children 
 ** 
-class Selector : Turtle {
-  Turtle[] children := [,]
+const class Selector : Turtle {
+  const Turtle[] children := [,]
 
-  **
-  ** This class accepts Turtles only, but children may support other argument types
-  ** 
-  @Operator
-  virtual This add(Obj obj) {
-    if (obj is Turtle)
-      children.add(obj)
-    else
-      throw ArgErr("${obj.typeof} cannot be added, Turtle required")
-    return this
-  }
+  new make(Turtle[] children, |This|? f := null) { this.children = children; f?.call(this) }
   
   override Res? dispatch(Req req) { return children.eachWhile { it.dispatch(req) } }
 }
@@ -31,10 +27,9 @@ class Selector : Turtle {
 ** Base class for middlewares: a turtles that wrap another turtle (`child`),
 ** and do something before and/or after child's dispatch.
 ** 
-abstract class Middleware : Turtle {
-  Turtle? child
-
-  virtual This wrap(Turtle child) { this.child = child; return this }
+abstract const class Middleware : Turtle {
+  const Turtle? child
+  new make(Turtle child) { this.child = child }
   
   override Res? dispatch(Req req) {
     modifiedReq := before(req)
@@ -59,7 +54,9 @@ const class Http404 : Err {
 **
 ** `Http404` error barrier, catch `Http404` and render error message to `Res`
 ** 
-class Handler404 : Middleware {
+const class Handler404 : Middleware {
+  new make(Turtle child, |This|? f := null) : super(child) { f?.call(this) }
+  
   override Res? dispatch(Req req) {
     try {
       return child.dispatch(req) ?: dispatchEmptyResponse(req)
@@ -100,7 +97,9 @@ class Handler404 : Middleware {
 **
 ** Top-level error barrier, catch any `Err` and render error message to `Res`
 ** 
-class Handler500 : Middleware {
+const class Handler500 : Middleware {
+  new make(Turtle child, |This|? f := null) : super(child) { f?.call(this) }
+
   override Res? dispatch(Req req) {
     try {
       return child.dispatch(req)

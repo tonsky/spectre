@@ -5,44 +5,40 @@ const class InvalidPatternErr : Err {
     : super.make("Cannot parse urlpattern '$pattern': $msg", cause) {}
 }
 
-class Router : Selector {
-  virtual Turtle asRoute(Obj route) { route is Str ? any(route) : route as Turtle }
+const class Router : Selector {
+  new make(Obj[][] routes, |This|? f := null): super([,]) {
+    children = routes.map |route| {
+      if (route is Turtle) return route
+      if (route is Obj[] && route->size >= 2) return bind(route->get(0), route->get(1))
+      throw ArgErr("${route.typeof} cannot be added, [path, view] or Turtle required")
+    }
+    f?.call(this)
+  }
+  
+  virtual Turtle asRoute(Str route, Turtle view) {
+    UrlMatcherTurtle(UrlMatcher(route), view)
+  }
+
+  virtual Turtle bind(Str route, Obj target) {
+    asRoute(route, asView(target))
+  }
   
   virtual Turtle? asView(Obj target) {
     if (target is Turtle)
       return target
     else if (target is Func)
-      return FuncView { func = target }
+      return FuncView(target)
     else if (target is Method) {
       m := target as Method
       if (m.isStatic)
-        return FuncView { func = m.func }
+        return FuncView(m.func)
       else
         return MethodView(m)
     } 
     return null
   }
   
-  virtual Turtle any(Str path) { UrlMatcherTurtle(UrlMatcher(path)) }
-  
   virtual Void routes(Obj[][] arg) { arg.each { bind(it[0], it[1]) } }
-  
-  virtual Void bind(Obj route, Obj target) {
-    route = asRoute(route)
-    route->child = asView(target)
-    children.add(route)
-  }
-  
-  @Operator
-  override This add(Obj obj) {
-    if (obj is Turtle)
-      return super.add(obj) as Router
-    else if (obj is Obj[] && obj->size >= 2)
-      bind(obj->get(0), obj->get(1))
-    else
-      throw ArgErr("${obj.typeof} cannot be added, Turtle or [path, view] required")
-    return this
-  }
 }
 
 
@@ -141,11 +137,11 @@ const class UrlMatcher {
   }
 }
 
-class UrlMatcherTurtle : Turtle {
-  UrlMatcher matcher
-  Turtle? child
+const class UrlMatcherTurtle : Turtle {
+  const UrlMatcher matcher
+  const Turtle? child
   
-  new make(UrlMatcher matcher, Turtle? child := null) { this.matcher = matcher; this.child = child }
+  new make(UrlMatcher matcher, Turtle child) { this.matcher = matcher; this.child = child }
   
   override Res? dispatch(Req req) {
     [Str:Str]? match := matcher.match(req.pathInfo.path)

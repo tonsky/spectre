@@ -15,7 +15,7 @@ Let’s create your first Spectre application. Create a folder where you’ll ke
 
 The only thing mandatory here is the ``build.fan`` file, it must exists in the root folder of your app. Everything else may be changed to better fit your needs.
 
-In ``build.fan``, specify dependency on Spectre v.0.8::
+In ``build.fan``, specify dependency on Spectre v.1.0::
     
     using build
     class Build : build::BuildPod {
@@ -23,7 +23,7 @@ In ``build.fan``, specify dependency on Spectre v.0.8::
         podName = "demo_app"
         summary = ""
         srcDirs = [`fan/`]
-        depends = ["sys 1.0", "spectre 0.8"]
+        depends = ["sys 1.0", "spectre 1.0"]
       }
     }
 
@@ -45,15 +45,11 @@ To add routes we create :class:`Router` class and pass a list of ``[route path, 
 
   class DemoApp : Settings {
     new make(File appDir) : super() {
-      routes := Router {
+      routes := Router([
         ["/", IndexView#index],
-      }
+      ])
       
-      root = Handler500().wrap(
-               Handler404().wrap(
-                 routes
-               )
-             )
+      root = Handler500(Handler404(routes))
     }
   }
   
@@ -108,24 +104,16 @@ Syntax used here is the "mustache" template language. You can find a really shor
 
 For this template to work, we should wrap routes with :class:`MustacheRenderer`. :class:`TemplateRes` will then be properly intercepted and rendered. Add this to :class:`DemoApp` constructor::
 
-  tempalteRenderer := MustacheRenderer { 
-    templateDirs = [appDir + `templates/`]
-  }
+  tempalteRenderer := MustacheRenderer(routes, [appDir + `templates/`])
 
-  root = Handler500().wrap(
-           Handler404().wrap(
-             tempalteRenderer.wrap(
-               routes
-             )
-           )
-         )
+  root = Handler500(Handler404(tempalteRenderer))
 
 And don’t forget to add a route to our brand-new :class:`ItemsView` class::
 
-  routes := Router {
+  routes := Router([
     ["/", IndexView#index],
     ["/items/", ItemsView#list],
-  }
+  ])
 
 Switch back to your browser, find a link on the index page and click it. You should be redirected to view we’ve just implemented. Have you noticed that without restarting the server you still could see new changes? That’s a feature, not a bug (see :doc:`devserver` for more details. You also will find out how to put static files into your project — css, js, images. This can make your app much prettier).
 
@@ -141,10 +129,10 @@ But we’re not using any request parameters yet. Let’s fix it by creating a p
 
 now add a route::
 
-  routes := Router {
+  routes := Router([
     ...
     ["/items/{itemId}/", ItemsView#edit],
-  }
+  ])
 
 ``itemId`` parameter will be captured in url and passed to your view as an :class:`Str` argument with the same name. Finally you create a template::
   

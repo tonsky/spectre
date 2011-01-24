@@ -52,19 +52,20 @@ const class HttpProtocol : Protocol {
         _req.in = WebUtil.makeContentInStream(_req.headers, in)
         res := process.call(_req)
         keepAlive = writeResponse(res, _req, out)
-
-        try {
-          out.flush
-          
-          // if the listener didn’t finishing reading the content
-          // stream then don’t attempt to reuse this connection,
-          // safest thing is to just close the socket
-          if (!req.isAllRead) {
-            keepAlive = false
-          }
-        } catch (IOErr e) {
+  
+        
+        out.flush
+        
+        // if the listener didn’t finishing reading the content
+        // stream then don’t attempt to reuse this connection,
+        // safest thing is to just close the socket
+        if (!req.isAllRead) {
           keepAlive = false
         }
+      } catch (IOErr e) {
+        if (log.isDebug)
+          log.debug("Error processing request:\n $_req", e)
+        keepAlive = false
       } catch(Err e) {
         log.err("Error processing request:\n $_req", e)
         keepAlive = false

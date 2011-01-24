@@ -6,7 +6,7 @@ using concurrent
 ** This session store is optimized for read, all session data are const objects,
 ** and `ImmutableSession` uses copy-on-write for 'session.map'.
 ** 
-class InmemorySessionStore : SessionStore {
+const class InmemorySessionStore : SessionStore {
   internal static const InmemorySessionActor actor := InmemorySessionActor(ActorPool())
   
   new make(|This|? f := null) {

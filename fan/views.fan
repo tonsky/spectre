@@ -2,10 +2,10 @@
 using web
 using mustache
 
-mixin View {
+const mixin View {
 
   ** Used in error reporting
-  abstract Obj caller
+  abstract Obj caller()
   
   virtual Obj? tryMake(Type type, Req req) {
     constructor := type.method("make").func
@@ -44,9 +44,9 @@ mixin View {
   }
 }
 
-class MethodView : View, Turtle {
-  Method method
-  override Obj caller { get { method } }
+const class MethodView : View, Turtle {
+  const Method method
+  override Obj caller() { method }
   
   new make(Method method) { this.method = method }
   
@@ -56,10 +56,12 @@ class MethodView : View, Turtle {
   }
 }
 
-class FuncView : View, Turtle {
-  Func? func
-  override Obj caller { get { func } }
-  
+const class FuncView : View, Turtle {
+  const Func? func
+  override Obj caller() { func }
+
+  new make(Func func, |This|? f := null) { this.func = func.toImmutable; f?.call(this) }
+
   override Res? dispatch(Req req) {
     return tryCall(func, req)
   }

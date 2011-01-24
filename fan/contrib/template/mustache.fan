@@ -25,7 +25,7 @@ const class TemplateLoader {
   }
 }
 
-class MustacheRenderer : Middleware {
+const class MustacheRenderer : Middleware {
   const Str otag := "{{"
   const Str ctag := "}}"
   const TemplateLoader loader
@@ -35,7 +35,8 @@ class MustacheRenderer : Middleware {
   ** Avaliable options: 
   ** * useCache: true/false
   ** 
-  new make(File[] templateDirs, Str:Obj? options := [:], |This|? f := null) : super() { 
+  new make(Turtle child, 
+    File[] templateDirs, Str:Obj? options := [:], |This|? f := null) : super(child) { 
     loader = TemplateLoader(templateDirs)
     if (options.get("useCache", false))
       templatesCache := Cache(ActorPool())

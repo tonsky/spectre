@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Forms &mdash; Spectre v0.8 documentation</title>
+    <title>Forms &mdash; Spectre v1.0 documentation</title>
     <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.8',
+        VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
+    <link rel="top" title="Spectre v1.0 documentation" href="index.html" />
     <link rel="next" title="Sessions" href="sessions.html" />
     <link rel="prev" title="Templates" href="templates.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="templates.html" title="Templates"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
 
@@ -103,7 +103,7 @@ if (myForm.bind(["name": "Ilya", "bio": "Have layed for 33 years"])) {
 </div>
 <div class="section" id="rendering-form-and-fields">
 <h2>Rendering form and fields<a class="headerlink" href="#rendering-form-and-fields" title="Permalink to this headline">¶</a></h2>
-<p><tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt> can be rendered with <tt class="xref py py-func docutils literal"><span class="pre">asTable()</span></tt> method. It will return <tt class="xref py py-class docutils literal"><span class="pre">SafeStr</span></tt> html snippet with fields’ labels, widgets in their current state and error messages, wrapped with <tt class="docutils literal"><span class="pre">&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;</span></tt>. It won’t contain <tt class="docutils literal"><span class="pre">table</span></tt> tag, you should write it by yourself.:</p>
+<p><tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt> can be rendered with <tt class="xref py py-func docutils literal"><span class="pre">asTable()</span></tt> method. It will return <tt class="xref py py-class docutils literal"><span class="pre">SafeStr</span></tt> html snippet with fields’ labels, widgets in their current state and error messages, wrapped with <tt class="docutils literal"><span class="pre">&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;</span></tt>. It won’t contain the <tt class="docutils literal"><span class="pre">&lt;table&gt;</span></tt> tag, you should write it by yourself:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">myForm</span><span class="o">.</span><span class="n">asTable</span>
 
 <span class="go">&lt;tr&gt;</span>
@@ -158,13 +158,13 @@ if (myForm.bind(["name": "Ilya", "bio": "Have layed for 33 years"])) {
 <li>running fields validators;</li>
 <li>running form validtaion.</li>
 </ol>
-<p>All errors occured on these steps are stored in <tt class="xref py py-attr docutils literal"><span class="pre">Field.errors</span></tt> (1, 2) and <tt class="xref py py-attr docutils literal"><span class="pre">Form.errors</span></tt> (3) slots. If there is at least one error, form became invalid and its <tt class="xref py py-attr docutils literal"><span class="pre">Form.cleanedData</span></tt> cannot be accessed.</p>
+<p>All errors occured on these steps are stored in <tt class="xref py py-attr docutils literal"><span class="pre">Field.errors</span></tt>&nbsp;(1,&nbsp;2) and <tt class="xref py py-attr docutils literal"><span class="pre">Form.errors</span></tt>&nbsp;(3) slots. If there is at least one error, form became invalid and its <tt class="xref py py-attr docutils literal"><span class="pre">Form.cleanedData</span></tt> cannot be accessed.</p>
 <p>Field’s validators can be passed to field’s constructor:</p>
 <div class="highlight-python"><pre>StrField name := StrField("name", "Your name", [Required(), MinLength(10), MaxLength(25)])</pre>
 </div>
 <p>There are a bunch of field validators built-in with Spectre: <tt class="xref py py-class docutils literal"><span class="pre">Required</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MinLength</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MaxLength</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MinValue</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MaxValue</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MatchesRegex</span></tt> and <tt class="xref py py-class docutils literal"><span class="pre">MatchesFunc</span></tt>.</p>
 <p>All errors found during individual field’s validation are stored in <tt class="xref py py-attr docutils literal"><span class="pre">Field.errors</span></tt> slot.</p>
-<p>When fields validation isn’t enough, or you have conditions involving more than one field, you redefine <tt class="xref py py-func docutils literal"><span class="pre">Form.validate()</span></tt> method (3) and store results of your validation in <tt class="xref py py-attr docutils literal"><span class="pre">Form.errors</span></tt> slot as plain <tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">SafeStr</span></tt>.:</p>
+<p>When fields validation isn’t enough, or you have conditions involving more than one field, you redefine <tt class="xref py py-func docutils literal"><span class="pre">Form.validate()</span></tt>&nbsp;method&nbsp;(3) and store results of your validation in <tt class="xref py py-attr docutils literal"><span class="pre">Form.errors</span></tt> slot as plain <tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">SafeStr</span></tt>.:</p>
 <div class="highlight-python"><pre>class MyForm : Form {
   StrField name := StrField("name", "Your name")
   TextareaField bio := TextareaField("bio", "About yourself")
@@ -176,7 +176,7 @@ if (myForm.bind(["name": "Ilya", "bio": "Have layed for 33 years"])) {
   }
 }</pre>
 </div>
-<p><tt class="xref py py-func docutils literal"><span class="pre">Form.validate()</span></tt> method will only be invoked if form has no field-specific errors (1, 2).</p>
+<p><tt class="xref py py-func docutils literal"><span class="pre">Form.validate()</span></tt> method will only be invoked if form has no field-specific errors&nbsp;(1,&nbsp;2).</p>
 </div>
 <div class="section" id="list-of-build-in-fields">
 <h2>List of build-in fields<a class="headerlink" href="#list-of-build-in-fields" title="Permalink to this headline">¶</a></h2>
@@ -308,11 +308,11 @@ if (myForm.bind(["name": "Ilya", "bio": "Have layed for 33 years"])) {
         <li class="right" >
           <a href="templates.html" title="Templates"
              >previous</a> |</li>
-        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010, Nikita Prokopov (xored.com).
+        &copy; Copyright 2010—2011, Nikita Prokopov (xored.com).
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

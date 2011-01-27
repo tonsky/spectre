@@ -89,6 +89,8 @@ const class WebServerAcceptor : DynActor {
       // After connection has been processed or no processors found
       if (found == null)
         throw Err("No listeners to process connection:\n $req")
+    } catch(IOErr e) {
+      log.debug("Error processing connection", e);
     } catch(Err e) {
       log.err("Error processing connection", e);
     } finally {

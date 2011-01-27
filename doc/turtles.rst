@@ -15,6 +15,16 @@ Turtles are unified building blocks of any Spectre application. The name "Turtle
    .. function:: Res? dispatch(Req req)
 
       Process request. Turtles may process request by themselves, skip processing to subsequent turtles or delegate processing to inherited turtles and do some pre/post processing job for them.
+      
+   .. function:: plusTurtle(Turtle t)
+	
+      Combines this and `t` into a :class:`Selector`. Example::
+	
+        app1Routes := Router([...])
+        app2Routes := Router([...])
+
+        routes := app1Routes + app2Routes
+
 
 Unified contract makes application parts rearrangeable, interchangable, easy to understand and reuse. For now, the following parts are implemented as turtles:
 
@@ -69,4 +79,5 @@ Basic turtles implementations
 
 .. note::
 
-   Usually a single instance of turtle will be constructed for each actor processing requests in web server, so you cannot rely on any local variables or actor’s locals inside turtle instances.
+   Usually a single :class:`Turtle`-s hierarchy is constructed for the whole application, not for each request, and that single hierarchy will process all requests in paraller, so you cannot rely on any local slots or ``Actor.locals`` data in :class:`Turtle`-s after its construction. Also, web servers are allowed to re-initialize your app at any time, so you should not rely on the fact when and how you :class:`Turtle`-s will be instantiated. 
+

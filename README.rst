@@ -7,16 +7,22 @@ Spectre is a general-purpose web application framework for `Fantom <http://fanto
 Main features
 -------------
 
-* MVC architecture;
-* Web forms processing library;
-* Mustache templates for presentation layer;
-* Development server with instant app reload;
-* WebSocket Protocol draft 76 support.
+* higly customizable;
+* flexible url router;
+* mustache templates for presentation layer;
+* cookies & pluggable session store support;
+* full-featured forms processing library;
+* development server with:
+
+  * instant app reload;
+  * WebSocket protocol draft 76 support;
+  * static files serve ability.
+
 
 Documentation
 -------------
 
-**Please take a look at doc/build/html/index.html**. It’s pretty complete and really nice actually.
+**Please take a look at doc/build/html/index.html**. It’s a complete documentation pack including usage examples, and it’s pretty nice, actually.
 
 Sample application
 ------------------

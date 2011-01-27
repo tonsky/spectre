@@ -17,14 +17,17 @@ DirectToTemplate shortcut
 WebSockets: Routing
 Setting infrastructure:
 
-  (+) Settings link in Req
-  (+) No static Settings instance
-  Settings to const
-  (+) Populate context with settings attrs 
+  (v) Settings link in Req
+  (v) No static Settings instance
+  (-)Settings to const
+  (v) Populate context with settings attrs 
 
 Flash messages
+reverse url lookup
+autodiscovering of routes via facets (and sorting thus)
 Review multithreading (make Settings class const)
 Report app’s compilation errors
+Cookie session & signing it
 (-) WebSockets: Actor’s interoperability
 (v) Cookies
 (v) Session
@@ -43,17 +46,12 @@ Form fields screenshots
 Router
 ------
 * includes
-* reverse url lookup
-* autodiscovering of routes via facets (and sorting thus)
 * additional checks (http method, headers, arbitrary functions) http://routes.groovie.org/setting_up.html#conditions
-
-
 * path_info and routing to sub-apps (http://routes.groovie.org/setting_up.html#magic-path-info)
 ? allow strings as a key when mapping request handler classes
 (v) short-circuiting routes
 * differentiate request method
 (v) pass additional params to controller
-
 
 Middlewares
 -----------

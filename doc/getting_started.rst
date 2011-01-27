@@ -15,7 +15,7 @@ Let’s create your first Spectre application. Create a folder where you’ll ke
 
 The only thing mandatory here is the ``build.fan`` file, it must exists in the root folder of your app. Everything else may be changed to better fit your needs.
 
-In ``build.fan``, specify dependency on Spectre v.0.8::
+In ``build.fan``, specify dependency on Spectre v.1.0::
     
     using build
     class Build : build::BuildPod {
@@ -23,7 +23,7 @@ In ``build.fan``, specify dependency on Spectre v.0.8::
         podName = "demo_app"
         summary = ""
         srcDirs = [`fan/`]
-        depends = ["sys 1.0", "spectre 0.8"]
+        depends = ["sys 1.0", "spectre 1.0"]
       }
     }
 

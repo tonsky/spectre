@@ -45,14 +45,10 @@ class SessionMiddleware : Middleware {
   Str? cookiePath
   Bool? cookieSecure
   
-  **
   ** Name to store session in context
-  **   
   Str contextAttrName := "session"
   
-  **
   ** If set to 'true', cookie will be refreshed each time session is accessed
-  ** 
   Bool saveEveryRequest := false
   
   new make(|This|? f := null) { f?.call(this) }
@@ -76,24 +72,18 @@ class SessionMiddleware : Middleware {
     return res
   }
   
-  **
   ** Load session cookie data and decode it
-  ** 
   virtual Str? loadCookieData(Req req) {
     encodedCookieData := req.cookies[cookieName]
     return encodedCookieData == null ? null : decode(encodedCookieData)
   }
 
-  **
   ** Decode untrusted cookie data from client
-  ** 
   virtual Str decode(Str encoded) {
     return encoded//FIXME check string signature
   }
 
-  **
   ** Refresh session cookie
-  ** 
   virtual Void saveCookie(Str data, Res res) {
     encoded := encode(data)
     res.setCookie(Cookie { 
@@ -106,9 +96,7 @@ class SessionMiddleware : Middleware {
     })
   }
   
-  **
   ** Encode cookie data to be stored on the client securely
-  ** 
   virtual Str encode(Str decoded) {
     return decoded//FIXME sign string
   }
@@ -118,34 +106,26 @@ class SessionMiddleware : Middleware {
 ** Base class for session storing strategies
 ** 
 abstract class SessionStore {
-  **
   ** Sessions will expire after this period passed. If set to null,
   ** sessions will last until browser window close.
-  ** 
-  virtual Duration? maxSessionAge := Duration.fromStr("14day")
+  virtual Duration? maxSessionAge := 14day
   
-  **
   ** Interval store should run cleaner (removing of expired sessions) on itself.
-  ** 
-  virtual Duration? cleanupPeriod := Duration.fromStr("1hr")
+  virtual Duration? cleanupPeriod := 1hr
 
   // TODO should sessionId be specified from view?
   virtual Str newSessionId() {
     return Uuid().toStr //TODO is it both effective and secure?
   }
 
-  **
   ** Is called in SessionMiddleware before request dispatching starts. 
   ** Data stored in cookie is passed to this method (e.g. session key), or
   ** null if the client doesn't have session cookie yet.
   ** Session returned by this method will be made avaliable to subsequent views.
-  **
   abstract Session load(Str? cookieData)
   
-  **
   ** This method is called after request dispatch. It should perform session
   ** saving (if changed) and return data to store in cookie (e.g. session key), 
   ** or null if cookie should be removed
-  **
   abstract Str? save(Session session, Str? oldCookieData, Bool forceSave := true)
 }

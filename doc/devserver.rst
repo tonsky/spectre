@@ -10,12 +10,12 @@ Spectre comes with built-in development server. Its main purpose is to monitor s
 Running devserver
 -----------------
 
-To run development server, you’ll need both Fantom 1.0.56 and Spectre installed (see :doc:`installation`). Execute the following in your command prompt::
+To run development server, you’ll need both Fantom 1.0.57 and Spectre installed (see :doc:`installation`). Execute the following in your command prompt::
 
   >>> fan spectre::RunDevServer <path_to_your_app_folder>
   [20:09:47 23-Nov-10] [info] [spectre] Watching <path_to_your_app_folder>/ for modifications
-  [20:09:47 23-Nov-10] [info] [spectre] Rebuildind pod spectre_demo_app as file:<...>
-  [20:09:47 23-Nov-10] [info] [spectre] Restarting pod <...>_reloaded_1
+  [20:09:47 23-Nov-10] [info] [spectre] Rebuildind pod <your_app_name> as file:<...>
+  [20:09:47 23-Nov-10] [info] [spectre] Starting pod <...>_reloaded_1
   [20:09:47 23-Nov-10] [info] [web] spectre::WebServer started on port 8080
   
 To bind on specific port use::

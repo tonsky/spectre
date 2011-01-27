@@ -11,17 +11,17 @@ Routing scheme of spectre app is defined as one or more :class:`Router` :class:`
 
    Take a list of ``[<route path>, <view function>]`` tuples. All routes are matched in the order they are defined until matched route is found. On the first match corresponding :doc:`view function <views>` will be invoked, and if it returns not-null value, this value is returned from :class:`Router` itself. If view returned ``null`` result, matching will be continued until the next matched route is found.
 
-   .. rubric:: Example
+.. rubric:: Example
 
-   ::
+::
 
-       router := Router {
-         ["/", ViewClass#index],
-         ["/items/", ViewClass#itemsList],
-         ["/item/{idx:\\d{4}}", ViewClass#itemByIdx],
-         ["/item/{id}/", |Req req->Res?| { return Res("Item " + req.context("id") + " requested" }],
-         ["/item/{method}/{id}/", IndexView#]    
-       }
+  router := Router {
+    ["/", ViewClass#index],
+    ["/items/", ViewClass#itemsList],
+    ["/item/{idx:\\d{4}}", ViewClass#itemByIdx],
+    ["/item/{id}/", |Req req->Res?| { return Res("Item " + req.context("id") + " requested" }],
+    ["/item/{method}/{id}/", IndexView#]    
+  }
 
 There are three types of matching:
 

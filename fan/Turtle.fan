@@ -4,6 +4,12 @@
 ** 
 mixin Turtle {
   abstract Res? dispatch(Req req)
+  
+  @Operator
+  Turtle plusTurtle(Turtle t) {
+    Selector { children = [,].addAll(this is Selector ? this->children : [this])
+                             .addAll(t    is Selector ? t->children    : [t]) }
+  }
 }
 
 **

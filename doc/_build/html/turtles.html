@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Understanding basics &mdash; Spectre v0.8 documentation</title>
+    <title>Understanding basics &mdash; Spectre v1.0 documentation</title>
     <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.8',
+        VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
+    <link rel="top" title="Spectre v1.0 documentation" href="index.html" />
     <link rel="next" title="Routing" href="routing.html" />
     <link rel="prev" title="Spectre development server" href="devserver.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="devserver.html" title="Spectre development server"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
 
@@ -57,6 +57,17 @@
 <dt>
 <tt class="descname">Res? dispatch(Req req)</tt></dt>
 <dd><p>Process request. Turtles may process request by themselves, skip processing to subsequent turtles or delegate processing to inherited turtles and do some pre/post processing job for them.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Turtle.plusTurtle">
+<tt class="descname">plusTurtle</tt><big>(</big><em>Turtle t</em><big>)</big><a class="headerlink" href="#Turtle.plusTurtle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combines this and <cite>t</cite> into a <a class="reference internal" href="#Selector" title="Selector"><tt class="xref py py-class docutils literal"><span class="pre">Selector</span></tt></a>. Example:</p>
+<div class="highlight-python"><pre>app1Routes := Router([...])
+app2Routes := Router([...])
+
+routes := app1Routes + app2Routes</pre>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -118,7 +129,7 @@
 
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Usually a single instance of turtle will be constructed for each actor processing requests in web server, so you cannot rely on any local variables or actor’s locals inside turtle instances.</p>
+<p class="last">Usually a single <a class="reference internal" href="#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a>-s hierarchy is constructed for the whole application, not for each request, and that single hierarchy will process all requests in paraller, so you cannot rely on any local slots or <tt class="docutils literal"><span class="pre">Actor.locals</span></tt> data in <a class="reference internal" href="#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a>-s after its construction. Also, web servers are allowed to re-initialize your app at any time, so you should not rely on the fact when and how you <a class="reference internal" href="#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a>-s will be instantiated.</p>
 </div>
 </div>
 </div>
@@ -137,11 +148,11 @@
         <li class="right" >
           <a href="devserver.html" title="Spectre development server"
              >previous</a> |</li>
-        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010, Nikita Prokopov (xored.com).
+        &copy; Copyright 2010–2011, Nikita Prokopov (xored.com).
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

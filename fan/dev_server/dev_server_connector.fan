@@ -49,6 +49,8 @@ const class AppReloadProtocol : Protocol {
     app := activeApp
     if (app != null && app !== RunDevServer.app)
       RunDevServer.setApp(app)
+    if (app == null)
+      throw Err("App was not loaded due to error (see log)") // TODO output this error
     return false // pass through to next protocol
   }
   

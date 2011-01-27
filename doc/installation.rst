@@ -22,7 +22,7 @@ Installing Spectre
 
      >>> fan printf/build.fan
 
-4. Download Spectre from `private bitbucket repository <https://bitbucket.org/xored/spectre/src>`_::
+4. Download Spectre from `private bitbucket repository <https://bitbucket.org/xored/spectre/src>`_ (mail `prokopov@xored.com <mailto:prokopov@xored.com>`_ if you need access)::
 
      >>> hg clone https://<your_username>@bitbucket.org/xored/spectre
 
@@ -30,4 +30,4 @@ Installing Spectre
 
      >>> fan spectre/build.fan
   
-Congratulations! You now have Spectre installed. Move onto :doc:`getting_started` section.
+Congratulations! You now have Spectre installed. Proceed to the :doc:`getting_started` section.

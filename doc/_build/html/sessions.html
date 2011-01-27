@@ -77,16 +77,16 @@
 
 <div class="section" id="setting-up">
 <h2>Setting up<a class="headerlink" href="#setting-up" title="Permalink to this headline">¶</a></h2>
-<p>To set up sessions, wrap your app with <a class="reference internal" href="#SessionMiddleware" title="SessionMiddleware"><tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt></a> and specify <a class="reference internal" href="#SessionMiddleware.sessionStore" title="SessionMiddleware.sessionStore"><tt class="xref py py-attr docutils literal"><span class="pre">sessionStore</span></tt></a> attribute. For now, spectre offers only one type of store: <a class="reference internal" href="#InmemorySessionStore" title="InmemorySessionStore"><tt class="xref py py-class docutils literal"><span class="pre">InmemorySessionStore</span></tt></a>.</p>
+<p>To set up sessions, create a <a class="reference internal" href="#SessionMiddleware" title="SessionMiddleware"><tt class="xref py py-class docutils literal"><span class="pre">SessionMiddleware</span></tt></a> instance, specify its <a class="reference internal" href="#SessionMiddleware.sessionStore" title="SessionMiddleware.sessionStore"><tt class="xref py py-attr docutils literal"><span class="pre">sessionStore</span></tt></a> attribute and add it to the <tt class="xref py py-attr docutils literal"><span class="pre">Setting.middlewares</span></tt> list. For now, spectre offers only one type of store: <a class="reference internal" href="#InmemorySessionStore" title="InmemorySessionStore"><tt class="xref py py-class docutils literal"><span class="pre">InmemorySessionStore</span></tt></a>.</p>
 <p>Example:</p>
 <div class="highlight-python"><pre>sessionMiddlware := SessionMiddleware {
   sessionStore = InmemorySessionStore {
-    maxSessionAge = Duration.fromStr("14day")
-    cleanupPeriod = Duration.fromStr("1hr")
+    maxSessionAge = 14day
+    cleanupPeriod = 1hr
   }
 }
 
-sessionMiddlware.wrap(router)</pre>
+middlewares = [sessionMiddlware]</pre>
 </div>
 <dl class="class">
 <dt id="SessionMiddleware">

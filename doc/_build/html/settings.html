@@ -1,0 +1,116 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Defining an app &mdash; Spectre v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Spectre v1.0 documentation" href="index.html" />
+    <link rel="next" title="Spectre development server" href="devserver.html" />
+    <link rel="prev" title="Getting started" href="getting_started.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="devserver.html" title="Spectre development server"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="getting_started.html" title="Getting started"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="defining-an-app">
+<h1>Defining an app<a class="headerlink" href="#defining-an-app" title="Permalink to this headline">¶</a></h1>
+<p>To define an app, you:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Create a proper Fantom pod with <tt class="docutils literal"><span class="pre">build.fan</span></tt> file in it. This file will be used by Spectre to build your app.</li>
+<li>In this pod you create a class extending <a class="reference internal" href="#Settings" title="Settings"><tt class="xref py py-class docutils literal"><span class="pre">Settings</span></tt></a>. There should be only one such class. This class will be an entry point to your application.</li>
+<li>In the constructor of your <a class="reference internal" href="#Settings" title="Settings"><tt class="xref py py-class docutils literal"><span class="pre">Settings</span></tt></a> class you define:<ul>
+<li>routes (by assigning <a class="reference internal" href="routing.html#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> to the <tt class="xref py py-attr docutils literal"><span class="pre">Settings.routes</span></tt>),</li>
+<li>middlewares (by assigning list of <a class="reference internal" href="turtles.html#Middleware" title="Middleware"><tt class="xref py py-class docutils literal"><span class="pre">Middleware</span></tt></a>-s to the <tt class="xref py py-attr docutils literal"><span class="pre">Settings.middlewares</span></tt>), if any,</li>
+<li>template renderer (by assigning <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt> to the <tt class="xref py py-attr docutils literal"><span class="pre">Settings.renderer</span></tt>).</li>
+</ul>
+</li>
+<li>If you are going to serve WebSockets, see <cite>websockets</cite> for how to define WebSockets handler.</li>
+</ol>
+</div></blockquote>
+<dl class="class">
+<dt id="Settings">
+<em class="property">class </em><tt class="descname">Settings</tt><a class="headerlink" href="#Settings" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="Settings.appDir">
+<tt class="descname">appDir</tt><a class="headerlink" href="#Settings.appDir" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">File</span></tt>. Will be set in <tt class="docutils literal"><span class="pre">make</span></tt> from <tt class="docutils literal"><span class="pre">params</span></tt>. Use this to set up templates dir relative to appDir, for example.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Settings.debug">
+<tt class="descname">debug</tt><a class="headerlink" href="#Settings.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether your app is in debug mode or not.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Settings.wsProcessor">
+<tt class="descname">wsProcessor</tt><big>(</big><em>WsHandshakeReq req</em><big>)</big><a class="headerlink" href="#Settings.wsProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method should return <a class="reference internal" href="websockets.html#WsProcessor" title="WsProcessor"><tt class="xref py py-class docutils literal"><span class="pre">WsProcessor</span></tt></a> instance that will process this WebSocket connection. See <a class="reference internal" href="websockets.html#WsActor" title="WsActor"><tt class="xref py py-class docutils literal"><span class="pre">WsActor</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Settings.root">
+<tt class="descname">root</tt><big>(</big><big>)</big><a class="headerlink" href="#Settings.root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override this to construct <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a>-s hierarchy all by yourself.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="devserver.html" title="Spectre development server"
+             >next</a></li>
+        <li class="right" >
+          <a href="getting_started.html" title="Getting started"
+             >previous</a> |</li>
+        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010–2011, Nikita Prokopov (xored.com).
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

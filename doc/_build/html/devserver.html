@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Spectre v1.0 documentation" href="index.html" />
     <link rel="next" title="Understanding basics" href="turtles.html" />
-    <link rel="prev" title="Getting started" href="getting_started.html" /> 
+    <link rel="prev" title="Defining an app" href="settings.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
           <a href="turtles.html" title="Understanding basics"
              accesskey="N">next</a></li>
         <li class="right" >
-          <a href="getting_started.html" title="Getting started"
+          <a href="settings.html" title="Defining an app"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
       </ul>
@@ -66,7 +66,7 @@
 <div class="section" id="serving-static-files">
 <h2>Serving static files<a class="headerlink" href="#serving-static-files" title="Permalink to this headline">¶</a></h2>
 <p>When developing app, you’ll probably want to serve static files from the same devserver as the rest of the app. Spectre includes <tt class="xref py py-class docutils literal"><span class="pre">StaticView</span></tt> turtle for that purpose. Just include it into your app’s routing scheme:</p>
-<div class="highlight-python"><pre>router := Router {
+<div class="highlight-python"><pre>router = Router {
   ...
 
   ["/css/*", StaticView(appDir + `static/styles/`)],
@@ -89,7 +89,7 @@
           <a href="turtles.html" title="Understanding basics"
              >next</a></li>
         <li class="right" >
-          <a href="getting_started.html" title="Getting started"
+          <a href="settings.html" title="Defining an app"
              >previous</a> |</li>
         <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
       </ul>

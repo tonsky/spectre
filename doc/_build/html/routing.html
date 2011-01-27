@@ -47,7 +47,7 @@
   <img alt="_images/routing.png" class="article-cover cover-routing" src="_images/routing.png" />
 <div class="section" id="routing">
 <h1>Routing<a class="headerlink" href="#routing" title="Permalink to this headline">¶</a></h1>
-<p>Routing scheme of spectre app is defined as one or more <a class="reference internal" href="#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">turtles</span></tt></a>.</p>
+<p>Routing scheme of spectre app is defined as one or more <a class="reference internal" href="#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">turtles</span></tt></a>. Usually a top-level <a class="reference internal" href="#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> will be assigned to the <tt class="xref py py-attr docutils literal"><span class="pre">Settings.routes</span></tt> attr of your app.</p>
 <dl class="class">
 <dt id="Router">
 <em class="property">class </em><tt class="descname">Router</tt><a class="headerlink" href="#Router" title="Permalink to this definition">¶</a></dt>
@@ -55,7 +55,7 @@
 </dd></dl>
 
 <p class="rubric">Example</p>
-<div class="highlight-python"><pre>router := Router {
+<div class="highlight-python"><pre>router = Router {
   ["/", ViewClass#index],
   ["/items/", ViewClass#itemsList],
   ["/item/{idx:\\d{4}}", ViewClass#itemByIdx],
@@ -95,14 +95,14 @@
 <div class="section" id="where-to-route">
 <h2>Where to route?<a class="headerlink" href="#where-to-route" title="Permalink to this headline">¶</a></h2>
 <p>You can pass any <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a> instead of view function:</p>
-<div class="highlight-python"><pre>router := Router {
+<div class="highlight-python"><pre>router = Router {
   ["/", ViewClass#index],
   ["/comments", commentsAppTurtle],
   ...
 }</pre>
 </div>
 <p>or you can include any turtle <em>instead</em> of route-view tuple:</p>
-<div class="highlight-python"><pre>router := Router {
+<div class="highlight-python"><pre>router = Router {
   ["/", ViewClass#index],
   commentsAppTurtle,
   ...

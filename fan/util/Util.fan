@@ -1,8 +1,7 @@
 
 using concurrent
 
-abstract class Util
-{
+abstract class Util {
   const static Log log := Util#.pod.log
   
   **
@@ -54,8 +53,5 @@ abstract class Util
     return str.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;")
   }
   
-  static Bool supports(Obj obj, Str slot) {
-    return obj.typeof.slots.find { it.name == slot } != null
-  }
 }
 

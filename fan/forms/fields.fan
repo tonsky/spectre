@@ -347,7 +347,7 @@ class MultiCheckboxField: spectre::SelectField {
   
   override Obj? parseData(Obj dataMap) {
     Str[]? selectedKeys
-    if (Util.supports(dataMap, "getList"))
+    if (TypeUtil.supports(dataMap, "getList"))
       selectedKeys = dataMap->getList(name, null)
     else {
       selectedKeys = dataMap->get(name, null)

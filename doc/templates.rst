@@ -16,10 +16,9 @@ How to use templates
 
 First, create ``templates/`` folder somewhere inside your app’s folder (it’s just a convention, you are free to choose any name you want).
 
-Set up renderer by wrapping your app with :class:`MustacheRenderer`::
+Set up renderer by assigning :class:`MustacheRenderer` instance to :attr:`Settings.rendered` field::
 
-  tempalteRenderer := MustacheRenderer { templateDirs = [appDir + `templates/`] }
-  tempalteRenderer.wrap(router)
+  renderer = MustacheRenderer([appDir + `templates/`])
 
 Then, create a template file inside ``templates/`` folder, for example ``index.html``::
 

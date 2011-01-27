@@ -26,18 +26,18 @@
 Setting up
 ----------
 
-To set up sessions, wrap your app with :class:`SessionMiddleware` and specify :attr:`~SessionMiddleware.sessionStore` attribute. For now, spectre offers only one type of store: :class:`InmemorySessionStore`.
+To set up sessions, create a :class:`SessionMiddleware` instance, specify its :attr:`~SessionMiddleware.sessionStore` attribute and add it to the :attr:`Setting.middlewares` list. For now, spectre offers only one type of store: :class:`InmemorySessionStore`.
 
 Example::
 
   sessionMiddlware := SessionMiddleware {
     sessionStore = InmemorySessionStore { 
-      maxSessionAge = Duration.fromStr("14day")
-      cleanupPeriod = Duration.fromStr("1hr")
+      maxSessionAge = 14day
+      cleanupPeriod = 1hr
     }
   }
   
-  sessionMiddlware.wrap(router)
+  middlewares = [sessionMiddlware]
 
 
 .. class:: SessionMiddleware

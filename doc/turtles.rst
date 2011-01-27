@@ -23,7 +23,8 @@ Turtles are unified building blocks of any Spectre application. The name "Turtle
         app1Routes := Router([...])
         app2Routes := Router([...])
 
-        routes := app1Routes + app2Routes
+        // creates a Selector([app1Routes, app2Routes])
+        routes := app1Routes + app2Routes         
 
 
 Unified contract makes application parts rearrangeable, interchangable, easy to understand and reuse. For now, the following parts are implemented as turtles:

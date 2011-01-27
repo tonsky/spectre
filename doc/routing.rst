@@ -5,7 +5,7 @@
  Routing
 =========
 
-Routing scheme of spectre app is defined as one or more :class:`Router` :class:`turtles <Turtle>`.
+Routing scheme of spectre app is defined as one or more :class:`Router` :class:`turtles <Turtle>`. Usually a top-level :class:`Router` will be assigned to the :attr:`Settings.routes` attr of your app.
 
 .. class:: Router
 
@@ -15,7 +15,7 @@ Routing scheme of spectre app is defined as one or more :class:`Router` :class:`
 
 ::
 
-  router := Router {
+  router = Router {
     ["/", ViewClass#index],
     ["/items/", ViewClass#itemsList],
     ["/item/{idx:\\d{4}}", ViewClass#itemByIdx],
@@ -60,7 +60,7 @@ Where to route?
 
 You can pass any :class:`Turtle` instead of view function::
 
-  router := Router {
+  router = Router {
     ["/", ViewClass#index],
     ["/comments", commentsAppTurtle],
     ...
@@ -68,7 +68,7 @@ You can pass any :class:`Turtle` instead of view function::
 
 or you can include any turtle *instead* of route-view tuple::
 
-  router := Router {
+  router = Router {
     ["/", ViewClass#index],
     commentsAppTurtle,
     ...

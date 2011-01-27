@@ -78,7 +78,7 @@ const class AppReloadProtocol : Protocol {
     if (settingsType == null)
       throw Err("Cannot find spectre::Settings implementation in ${podDir}")
     
-    Settings settings := settingsType.make([podDir])
+    Settings settings := settingsType.make([["appDir": podDir]])
     RunDevServer.setApp(settings)
   }
 }

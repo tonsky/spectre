@@ -27,7 +27,7 @@ Serving static files
 
 When developing app, you’ll probably want to serve static files from the same devserver as the rest of the app. Spectre includes :class:`StaticView` turtle for that purpose. Just include it into your app’s routing scheme::
 
-  router := Router {
+  router = Router {
     ...
     
     ["/css/*", StaticView(appDir + `static/styles/`)],

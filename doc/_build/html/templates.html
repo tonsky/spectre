@@ -53,9 +53,8 @@
 <div class="section" id="how-to-use-templates">
 <h2>How to use templates<a class="headerlink" href="#how-to-use-templates" title="Permalink to this headline">¶</a></h2>
 <p>First, create <tt class="docutils literal"><span class="pre">templates/</span></tt> folder somewhere inside your app’s folder (it’s just a convention, you are free to choose any name you want).</p>
-<p>Set up renderer by wrapping your app with <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt>:</p>
-<div class="highlight-python"><pre>tempalteRenderer := MustacheRenderer { templateDirs = [appDir + `templates/`] }
-tempalteRenderer.wrap(router)</pre>
+<p>Set up renderer by assigning <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt> instance to <tt class="xref py py-attr docutils literal"><span class="pre">Settings.rendered</span></tt> field:</p>
+<div class="highlight-python"><pre>renderer = MustacheRenderer([appDir + `templates/`])</pre>
 </div>
 <p>Then, create a template file inside <tt class="docutils literal"><span class="pre">templates/</span></tt> folder, for example <tt class="docutils literal"><span class="pre">index.html</span></tt>:</p>
 <div class="highlight-python"><pre>&lt;h1&gt;Hello from other world, {{name}}!&lt;/h1&gt;

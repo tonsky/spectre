@@ -6,6 +6,7 @@ Spectre web framework
 
    installation
    getting_started
+   settings
    devserver
 
    turtles

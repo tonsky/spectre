@@ -32,7 +32,7 @@ In ``fan/`` create your root application’s class::
   using spectre
 
   class DemoApp : Settings {
-    new make(File appDir) : super() {
+    new make(Str:Obj? params) : super(params) {
     
     }  
   }
@@ -44,20 +44,12 @@ To add routes we create :class:`Router` class and pass a list of ``[route path, 
   using spectre
 
   class DemoApp : Settings {
-    new make(File appDir) : super() {
-      routes := Router {
+    new make(Str:Obj? params) : super() {
+      routes = Router {
         ["/", IndexView#index],
       }
-      
-      root = Handler500().wrap(
-               Handler404().wrap(
-                 routes
-               )
-             )
     }
   }
-  
-Also we’ve added two error barriers (:class:`Handler500`, :class:`Handler404`) which will catch errors in our app and show error messages to user explaning what happened. As you can see, our router is wrapped by this barriers, so all the errors in the router will be captured and processed properly. It’s recommended to set these barriers as top-level middlewares of your app.
 
 Our route still points at an unimplemented class method (view). To implement it, we just create a class with ``index`` method returning :class:`Res`::
 
@@ -106,23 +98,13 @@ By returning :class:`TemplateRes`, we are sending data obtained in view (``items
 
 Syntax used here is the "mustache" template language. You can find a really short introduction to musatche syntax `on their website <http://mustache.github.com/mustache.5.html>`_.
 
-For this template to work, we should wrap routes with :class:`MustacheRenderer`. :class:`TemplateRes` will then be properly intercepted and rendered. Add this to :class:`DemoApp` constructor::
+For this template to work, we should set up template renderer, in our case it will be :class:`MustacheRenderer` class. After that, :class:`TemplateRes` will then be properly intercepted by it and rendered to the proper HTML. Add this to :class:`DemoApp` constructor::
 
-  tempalteRenderer := MustacheRenderer { 
-    templateDirs = [appDir + `templates/`]
-  }
-
-  root = Handler500().wrap(
-           Handler404().wrap(
-             tempalteRenderer.wrap(
-               routes
-             )
-           )
-         )
+  renderer = MustacheRenderer([appDir + `templates/`])
 
 And don’t forget to add a route to our brand-new :class:`ItemsView` class::
 
-  routes := Router {
+  routes = Router {
     ["/", IndexView#index],
     ["/items/", ItemsView#list],
   }
@@ -141,7 +123,7 @@ But we’re not using any request parameters yet. Let’s fix it by creating a p
 
 now add a route::
 
-  routes := Router {
+  routes = Router {
     ...
     ["/items/{itemId}/", ItemsView#edit],
   }
@@ -195,7 +177,7 @@ Now on `<http://localhost:8080/items/1/>`_ you should see a form, but the button
 
 Here we detect form posting via :attr:`Req.method` attribute, and then access form data through :attr:`Req.post` which is a map-like object containing all POST parameters.
 
-"Save changes" button should work now. If you were watching close enough you’ll see that changes are not actually persisted, but hey, it’s just a demo. You should get the general idea.
+“Save changes” button should work now. If you were watching close enough you’ll see that changes are not actually persisted, but hey, it’s just a demo. You should get the general idea.
 
 Last thing is missing: we should redirect back to page using GET after processing POST request to avoid form reposting on page refresh. Let’s see how we can do this::
 
@@ -217,6 +199,6 @@ Last thing is missing: we should redirect back to page using GET after processin
                                           "message": message])
   }
   
-Here we just return :class:`ResRedirect` from view that will issue 302 FOUND http redirect. We also :func:`~Util.encode` message value: if it contains any of ``&``, ``=`` or ``;`` characters they will be backslash-escaped.
+Here we just return :class:`ResRedirect` from view that will issue 302 FOUND http redirect. We also :func:`~Util.encode` message value, so if it contains any of ``&``, ``=`` or ``;`` characters they will be backslash-escaped.
 
 Congratulations! You’ve just completed this tutorial and should have basic undestanding of how to build applications with Spectre. You may now continue by reading :doc:`turtles` to get a deeper understanding of how these things actually work. Wish you good luck!

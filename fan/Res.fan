@@ -21,11 +21,9 @@ class Res {
   virtual Obj? content
   virtual Charset charset := Charset.utf8
   
-  **
   ** Supported options:
   **   - "statusCode": Int. Http status code of this response
   **   - "contentType": Str
-  **
   new make(Obj? content, Str:Obj options := [:]) {
     this.content = content
     this.statusCode = options.get("statusCode", 200)

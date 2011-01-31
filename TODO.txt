@@ -13,13 +13,13 @@ Dev/Production modes
  
 Spectre
 -------
-DirectToTemplate shortcut
+(v) ToTemplate shortcut
 WebSockets: Routing
 Setting infrastructure:
 
   (v) Settings link in Req
   (v) No static Settings instance
-  (-)Settings to const
+  (-) Settings to const
   (v) Populate context with settings attrs 
 
 Flash messages

@@ -7,18 +7,7 @@ using concurrent
 ** 
 abstract class Settings {
   new make(Str:Obj? params) {
-    params.each |v,k| { 
-      f := Settings#.field(k)
-      if (f != null) {
-        if (v == null || v.typeof.fits(f.type))
-          f.set(this, v)
-        else if (v.typeof == Str#)
-          f.set(this, TypeUtil.createFromStr(f.type, v))
-        else
-          throw Err("Cannot assign $v of type $v.typeof to field $f of type $f.type")
-      }
-    }
-    
+    TypeUtil.assignFields(this, params)    
     renderer = MustacheRenderer([appDir + `templates/`], ["useCache": debug])
   }
   

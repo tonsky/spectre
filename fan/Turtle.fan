@@ -1,3 +1,4 @@
+using printf
 
 **
 ** A unit of request processing hierarchy
@@ -107,6 +108,22 @@ class Handler404 : Middleware {
 ** Top-level error barrier, catch any `Err` and render error message to `Res`
 ** 
 class Handler500 : Middleware {
+  static const Str template := 
+      """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+         <html>
+           <head><title>%s — %s</title></head>
+           <body style="margin: 0; padding: 0"> 
+             <h1 style="font: normal 24px sans-serif; padding: 32px 32px 16px; margin: 0; 
+                        background-color: #444; color: #FFB266; border-bottom: 1px solid #AAA">
+               %s
+             </h1>
+             <pre style="margin: 32px; font: 13px/1.5em monospace">
+         %s
+             </pre>
+           </body>
+         </html>""" 
+      
   override Res? dispatch(Req req) {
     try {
       return child.dispatch(req)
@@ -116,21 +133,11 @@ class Handler500 : Middleware {
   }
   
   virtual Res? dispatchErr(Req req, Err err) {
-    return ResServerError(
-      """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-         <html>
-           <head><title>$err.msg — 500 Internal server error</title></head>
-           <body style="margin: 0; padding: 0"> 
-             <h1 style="font: normal 24px sans-serif; padding: 32px 32px 16px; margin: 0; 
-                        background-color: #444; color: #FFB266; border-bottom: 1px solid #AAA">
-               500 Internal server error
-             </h1>
-             <pre style="margin: 32px; font: 13px/1.5em monospace">
-         ${Util.traceToStr(err)}
-             </pre>
-           </body>
-         </html>""")
+    return ResServerError(formatText(err))
+  }
+  
+  static Str formatText(Err err, Str msg := "500 Internal Server Error") {
+    Format.printf(template, [err.msg, msg, msg, Util.traceToStr(err)])
   }
   //TODO implement virtual get/renderTemplate
 }

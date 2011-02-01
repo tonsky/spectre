@@ -15,18 +15,17 @@ Spectre
 -------
 (v) ToTemplate shortcut
 WebSockets: Routing
-Setting infrastructure:
+(v) Setting infrastructure:
 
-  (v) Settings link in Req
-  (v) No static Settings instance
-  (-) Settings to const
-  (v) Populate context with settings attrs 
+   (v) Settings link in Req
+   (v) No static Settings instance
+   (-) Settings to const
+   (v) Populate context with settings attrs 
 
 Flash messages
 reverse url lookup
 autodiscovering of routes via facets (and sorting thus)
-Review multithreading (make Settings class const)
-Report app’s compilation errors
+(v) Report app’s compilation errors
 Cookie session & signing it
 (-) WebSockets: Actor’s interoperability
 (v) Cookies

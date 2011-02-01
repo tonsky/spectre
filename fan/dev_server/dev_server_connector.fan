@@ -12,12 +12,10 @@ class RunDevServer : AbstractMain {
   File? appDir
   
   static const AtomicRef appRef := AtomicRef()
-  static Settings? app() { (appRef.val as Unsafe)?.val as Settings }
-  static Void setApp(Settings s) { appRef.val = Unsafe(s) }
+  static Obj? app() { (appRef.val as Unsafe)?.val }
   
   static const AtomicRef activePodRef := AtomicRef()
-  static Pod? activePod() { (activePodRef.val as Unsafe)?.val as Pod }
-  static Void setActivePod(Pod s) { activePodRef.val = Unsafe(s) }
+  static Pod? activePod() { activePodRef.val as Pod }
   
   override Int run() {
     return runServices([ WebServer {
@@ -25,7 +23,7 @@ class RunDevServer : AbstractMain {
       it.port = this.port
       httpProcessor := SpectreHttpProcessor(appDir)
       protocols = [AppReloadProtocol(appDir),
-                   WsProtocol { RunDevServer.app.wsProcessor(it) },
+                   WsProtocol { (app as Settings)?.wsProcessor(it) },
                    HttpProtocol { httpProcessor.onRequest(it) }] 
     } ])
   }
@@ -40,46 +38,36 @@ const class AppReloadProtocol : Protocol {
     watchPodActor = WatchPodActor.make(pool, podDir)
     
     // trying to load app
-    app := activeApp
-    if (app !== RunDevServer.app)
-      RunDevServer.setApp(app)
+    reloadApp
   }
   
   override Bool onConnection(HttpReq req, TcpSocket socket) {
-    app := activeApp
-    if (app != null && app !== RunDevServer.app)
-      RunDevServer.setApp(app)
-    if (app == null)
-      throw Err("App was not loaded due to error (see log)") // TODO output this error
+    reloadApp
     return false // pass through to next protocol
   }
   
   File podDir() { watchPodActor.podDir }
   
-  virtual Settings? activeApp() {
+  virtual Void reloadApp() {
+    Pod? loadedPod
     try {
-      Obj? loadedPodObj := watchPodActor.send(null).get
-      loadedPod := loadedPodObj as Pod
-      if (loadedPod !== RunDevServer.activePod) {
-        startApp(loadedPod)
-        RunDevServer.setActivePod(loadedPod)
-      }
-    } catch(build::FatalBuildErr err) {
-      log.err("App compilation error: ${podDir}build.fan", err)
-    } catch(Err err) {
-      log.err("Error occured", err)
-    }
-    return RunDevServer.app
-  }
-  
-  virtual Void startApp(Pod appPod) {
-    log.info("Starting pod $appPod")
-    Type? settingsType := appPod.types.find { it.fits(Settings#) }
-    if (settingsType == null)
-      throw Err("Cannot find spectre::Settings implementation in ${podDir}")
+      loadedPod = watchPodActor.send(null).get
+      if (loadedPod === RunDevServer.activePod)
+        return
     
-    Settings settings := settingsType.make([["appDir": podDir]])
-    RunDevServer.setApp(settings)
+      RunDevServer.activePodRef.val = loadedPod
+      log.info("Starting pod $loadedPod")
+      Type? appType := loadedPod.types.find { it.fits(Settings#) }
+      if (appType == null) {
+        RunDevServer.appRef.val = Unsafe(Err("Cannot find spectre::Settings implementation in ${podDir}"))
+        return
+      }
+      
+      Settings app := appType.make([["appDir": podDir]])
+      RunDevServer.appRef.val = Unsafe(app)
+    } catch (Err e) {
+      RunDevServer.appRef.val = Unsafe(e)
+    }
   }
 }
 
@@ -90,23 +78,23 @@ const class SpectreHttpProcessor {
   new make(File podDir) { this.podDir = podDir }
   
   HttpRes onRequest(HttpReq httpReq) {
+    if (RunDevServer.app is build::FatalBuildErr) {
+      err := RunDevServer.app as build::FatalBuildErr
+      return httpRes(ResServerError(Handler500.formatText(err, "500 App Compilation Error")))
+    } else if (RunDevServer.app is Err) {
+      err := RunDevServer.app as Err
+      return httpRes(ResServerError(Handler500.formatText(err)))
+    }
+    
     try {
       Req req := SpectreReq(httpReq, RunDevServer.app)
-      Res? response := RunDevServer.app.root.dispatch(req)
-      
+      Res? response := (RunDevServer.app as Settings).root.dispatch(req)
       if(response != null)
         return httpRes(response)
       else
         throw Err("App returned empty response")
-    } catch (build::FatalBuildErr err) {
-      log.err("App compilation error: ${podDir}build.fan", err)
-      return httpRes(ResServerError("<h1>500 App compilation error</h1>"
-                                  + "<pre>App path: ${podDir}build.fan\n\n"
-                                  + "${Util.traceToStr(err)}</pre>"))
     } catch (Err err) {
-      log.err("Error occured", err)
-      return httpRes(ResServerError("<h1>500 Internal server error</h1>"
-                                  + "<pre>${Util.traceToStr(err)}</pre>"))
+      return httpRes(ResServerError(Handler500.formatText(err)))
     }
   }
   

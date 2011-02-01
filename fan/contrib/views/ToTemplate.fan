@@ -6,9 +6,9 @@ class ToTemplate : Turtle {
   
   new make(Str templateName, Str:Obj? context := [:], Str:Obj resOptions := [:]) {
     this.templateName = templateName
-    this.context = context
-    this.resOptions = resOptions
+    this.context = context.ro
+    this.resOptions = resOptions.ro
   }
   
-  override Res? dispatch(Req req) { TemplateRes(templateName, context, resOptions) }
+  override Res? dispatch(Req req) { TemplateRes(templateName, context.dup, resOptions.dup) }
 }

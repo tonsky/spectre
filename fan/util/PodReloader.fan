@@ -3,32 +3,25 @@ using web
 using concurrent
 using build
 
-const class WatchPodActor : Actor {
+class PodReloader {
   const File podDir
   const Uri buildFileName
   const Regex wathedFiles := Regex <|.*\.fan|>
-  const static Log log := WatchPodActor#.pod.log
+  private const static Log log := Log.get("spectre")
   
-  new make(ActorPool p, File podDir, Uri buildFileName := `build.fan`): super(p) {
-    log.info("Watching $podDir for modifications")
-    
+  new make(File podDir, Uri buildFileName := `build.fan`) {
+    log.info("Watching $podDir for modifications")    
     this.podDir = podDir.normalize
     this.buildFileName = buildFileName
   }
 
-  DateTime lastModified { get { Actor.locals["spectre.watch_pod.last_modified"] ?: DateTime.makeTicks(0) }
-                          set { Actor.locals["spectre.watch_pod.last_modified"] = it } }
+  DateTime lastModified := DateTime.makeTicks(0)
+  Int ver := 1
+  Pod? pod
   
-  Int ver { get{ Actor.locals.getOrAdd("spectre.watch_pod.ver") { 1 } }
-            set{ Actor.locals["spectre.watch_pod.ver"] = it } }
-  
-  Pod? pod { get{ Actor.locals["spectre.watch_pod.pod"] }
-             set{ Actor.locals["spectre.watch_pod.pod"] = it } }
-  **
   ** Returns cached instance of Pod's App instance
-  ** Invalidates cache and reloads Pod if any *.fan files were changed in podDir
-  ** 
-  protected override Obj? receive(Obj? msg) {
+  ** Invalidates cache and reloads Pod if any of *.fan files were changed in podDir
+  Pod getLatest() {
     File? modified := Util.findFirstFile(podDir) |f| {
       wathedFiles.matches(f.name) && f.modified > lastModified 
     }

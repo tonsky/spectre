@@ -13,6 +13,7 @@ Dev/Production modes
  
 Spectre
 -------
+(v) App load/unload hooks
 (v) ToTemplate shortcut
 WebSockets: Routing
 (v) Setting infrastructure:

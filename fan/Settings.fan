@@ -8,9 +8,10 @@ using concurrent
 abstract class Settings {
   new make(Str:Obj? params) {
     TypeUtil.assignFields(this, params)    
-    renderer = MustacheRenderer([appDir + `templates/`], ["useCache": debug])
+    renderer = MustacheRenderer([appDir + `templates/`], ["useCache": !debug])
   }
-  
+
+  Void onUnload() {}
 //////////////////////////////////////////////////////////////////////////
 // Settings
 //////////////////////////////////////////////////////////////////////////
@@ -39,7 +40,6 @@ abstract class Settings {
     }
     return handler500.wrap(handler404.wrap(renderer))
   }
-  
   
 //////////////////////////////////////////////////////////////////////////
 // WebSockets

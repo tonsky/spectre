@@ -11,84 +11,112 @@ class RunDevServer : AbstractMain {
   @Arg { help = "path to app dir (must contains build.fan and spectre::App implementation)" }
   File? appDir
   
-  static const AtomicRef appRef := AtomicRef()
-  static Obj? app() { (appRef.val as Unsafe)?.val }
-  
-  static const AtomicRef activePodRef := AtomicRef()
-  static Pod? activePod() { activePodRef.val as Pod }
+  const Duration reloadTimeout := 1000ms
   
   override Int run() {
     return runServices([ WebServer {
       processorPool = ActorPool { maxThreads = 101 }
       it.port = this.port
-      httpProcessor := SpectreHttpProcessor(appDir)
-      protocols = [AppReloadProtocol(appDir),
-                   WsProtocol { (app as Settings)?.wsProcessor(it) },
-                   HttpProtocol { httpProcessor.onRequest(it) }] 
+
+      appHolder := AppHolder(appDir)
+      httpProcessor := SpectreHttpProcessor()
+      appHolder->sendGetLatest->get
+
+      onWs := |WsHandshakeReq req->WsProcessor?| {
+        app := appHolder->sendGetLatest->get->val
+        if (app is Err)
+          throw (app as Err) ?: Err("I can’t believe it")
+        return (app as Settings).wsProcessor(req)
+      }
+  
+      onHttp := |HttpReq req->HttpRes| {
+        try {
+          app := appHolder->sendGetLatest->get(reloadTimeout)->val
+          return httpProcessor.onRequest(req, app)
+        } catch(TimeoutErr e) {
+          return httpProcessor.onRequest(req, null)
+        }
+      }
+      
+      protocols = [WsProtocol(onWs),
+                   HttpProtocol(onHttp)] 
     } ])
   }
 }
 
-const class AppReloadProtocol : Protocol {
+const class AppHolder : DynActor {
   private const static Log log := Log.get("spectre")
-  const WatchPodActor watchPodActor
-
-  new make(File podDir) {
-    pool := ActorPool { maxThreads = 1 }
-    watchPodActor = WatchPodActor.make(pool, podDir)
-    
-    // trying to load app
-    reloadApp
+  
+  private const File appDir
+  
+  private static const Str pr := "spectre.app_holder"
+  private Obj? app { get { Actor.locals["${pr}.app"] }
+                     set { Actor.locals["${pr}.app"] = it } }
+  private Pod? appPod { get { Actor.locals["${pr}.app_pod"] }
+                       set { Actor.locals["${pr}.app_pod"] = it } }
+  private PodReloader podReloader { get { Actor.locals.getOrAdd("${pr}.pod_reloader") { PodReloader(appDir) } }
+                                    set { Actor.locals["${pr}.pod_reloader"] = it } }
+  
+  new make(File appDir) : super(ActorPool { maxThreads = 1 }) { 
+    this.appDir = appDir
   }
   
-  override Bool onConnection(HttpReq req, TcpSocket socket) {
-    reloadApp
-    return false // pass through to next protocol
+  protected virtual Void tryUnload() {
+    if (app is Settings) {
+      log.info("Unloading ‘$appPod’")
+      (app as Settings).onUnload()
+      app = null
+    }
   }
   
-  File podDir() { watchPodActor.podDir }
-  
-  virtual Void reloadApp() {
-    Pod? loadedPod
+  protected Obj _getLatest() {
     try {
-      loadedPod = watchPodActor.send(null).get
-      if (loadedPod === RunDevServer.activePod)
-        return
-    
-      RunDevServer.activePodRef.val = loadedPod
-      log.info("Starting pod $loadedPod")
-      Type? appType := loadedPod.types.find { it.fits(Settings#) }
-      if (appType == null) {
-        RunDevServer.appRef.val = Unsafe(Err("Cannot find spectre::Settings implementation in ${podDir}"))
-        return
+      t0 := DateTime.now
+      reloadedPod := podReloader.getLatest
+      if (reloadedPod === appPod && app is Settings) {
+        if (log.isDebug) log.debug("App is up to date: ‘$appPod’")
+        return Unsafe(app)
       }
-      
-      Settings app := appType.make([["appDir": podDir]])
-      RunDevServer.appRef.val = Unsafe(app)
+
+      tryUnload
+      appPod = reloadedPod
+      log.info("Loading new version of ‘$appPod’")
+      Type? appType := appPod.types.find { it.fits(Settings#) }
+      if (appType == null)
+        throw Err("Cannot find spectre::Settings implementation in ${appDir}")
+
+      app = appType.make([["appDir": appDir]])
+      log.info("App reloaded in " + (DateTime.now-t0) + ": ‘$appPod’")
+      return Unsafe(app)
     } catch (Err e) {
-      RunDevServer.appRef.val = Unsafe(e)
+      log.err("Err", e)
+      try tryUnload; catch(Err e2) log.err("Err unloading old app", e2)
+      app = e
+      return Unsafe(e)
     }
   }
 }
 
 const class SpectreHttpProcessor {
   private const static Log log := Log.get("spectre")
-  private const File podDir
-  
-  new make(File podDir) { this.podDir = podDir }
-  
-  HttpRes onRequest(HttpReq httpReq) {
-    if (RunDevServer.app is build::FatalBuildErr) {
-      err := RunDevServer.app as build::FatalBuildErr
+
+  HttpRes onRequest(HttpReq httpReq, Obj? app) {
+    if (app == null) {
+      err := Err("App is reloading now, please try again later")
+      response := ResServerError(Handler500.formatText(err, "503 Service Unavailable"), ["statusCode": 503])
+      response.headers.add("Retry-After", "1") //1sec
+      return httpRes(response)
+    } else if (app is build::FatalBuildErr) {
+      err := app as build::FatalBuildErr
       return httpRes(ResServerError(Handler500.formatText(err, "500 App Compilation Error")))
-    } else if (RunDevServer.app is Err) {
-      err := RunDevServer.app as Err
+    } else if (app is Err) {
+      err := app as Err
       return httpRes(ResServerError(Handler500.formatText(err)))
     }
     
     try {
-      Req req := SpectreReq(httpReq, RunDevServer.app)
-      Res? response := (RunDevServer.app as Settings).root.dispatch(req)
+      Req req := SpectreReq(httpReq, app)
+      Res? response := (app as Settings).root.dispatch(req)
       if(response != null)
         return httpRes(response)
       else

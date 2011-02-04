@@ -2,7 +2,7 @@
 using web
 
 abstract class Req {
-  const static Log log := WatchPodActor#.pod.log
+  const static Log log := Log.get("spectre")
 
   ** Map of arbitrary values usually populated by `Middleware`s to prepare values for views. 
   ** All values presented in `#context` can be used as view arguments (resolved by name).

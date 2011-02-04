@@ -11,7 +11,7 @@ class RunDevServer : AbstractMain {
   @Arg { help = "path to app dir (must contains build.fan and spectre::App implementation)" }
   File? appDir
   
-  const Duration reloadTimeout := 1000ms
+  static const Duration reloadTimeout := 1000ms
   
   override Int run() {
     return runServices([ WebServer {

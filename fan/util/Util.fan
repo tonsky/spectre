@@ -20,6 +20,15 @@ abstract class Util {
     return duplicates
   }
 
+  static [Obj:Obj?[]] group(Obj?[] list, |Obj?->Obj| groupKey) {
+    [Obj:Obj[]] result := [:]
+    list.each { 
+      gKey := groupKey.call(it)
+      result.getOrAdd(gKey) { Obj[,] }.add(it)        
+    }
+    return result
+  }
+  
   **
   ** Find first file in dir (deep scanning) matching predicate
   ** 

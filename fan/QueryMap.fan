@@ -2,7 +2,7 @@
 ** A map with support of multiple values for key, [Str:Str[]]
 ** 
 class QueryMap {
-  const static Log log := WatchPodActor#.pod.log
+  const static Log log := Log.get("spectre")
   internal [Str:Str[]] impl
 
 //////////////////////////////////////////////////////////////////////////

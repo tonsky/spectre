@@ -1,7 +1,7 @@
 
 using concurrent
 
-abstract class Util {
+mixin Util {
   const static Log log := Util#.pod.log
   
   **
@@ -20,13 +20,40 @@ abstract class Util {
     return duplicates
   }
 
-  static [Obj:Obj?[]] group(Obj?[] list, |Obj?->Obj| groupKey) {
+  
+  static [Obj:Obj?[]] groupby(Obj?[] list, |Obj?->Obj| groupKey) {
     [Obj:Obj[]] result := [:]
     list.each { 
       gKey := groupKey.call(it)
       result.getOrAdd(gKey) { Obj[,] }.add(it)        
     }
     return result
+  }
+  
+  ** This function returns a list of tuples, where the i-th tuple contains 
+  ** the i-th element from each of the argument sequences or iterables. 
+  ** The returned list is truncated in length to the length of the shortest argument sequence. 
+  ** With a single sequence argument, it returns a list of 1-tuples. 
+  ** With no arguments, it returns an empty list.
+  static Obj?[][] zip(Obj?[][] listOfLists) {
+    i := 0
+    res := Obj?[,]
+    outOfEls := false
+    
+    while(true) {
+      tuple := Obj?[,]
+      for (x:=0; x<listOfLists.size; ++x) {
+        if (i >= listOfLists[x].size) {
+          outOfEls = true
+          break
+        }
+        tuple.add((listOfLists[x])[i])
+      }
+      if (outOfEls) break
+      res.add(tuple)
+      ++i
+    }    
+    return res 
   }
   
   **

@@ -40,7 +40,7 @@ abstract class Req {
   ** HTTP request headers
   abstract Str:Str headers()
   
-  ** HTTP request method ('"get"' or '"post"' or another).
+  ** HTTP request method ('"GET"' or '"POST"' or another).
   abstract Str method()
   
   ** Raw HTTP request input stream.

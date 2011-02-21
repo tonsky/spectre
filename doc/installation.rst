@@ -8,7 +8,7 @@ Installing Spectre
 1. Setup Fantom 1.0.57 or newer `from official site <http://fantom.org/doc/docIntro/StartHere.html#quickStart>`_;
 2. Download mustache templates from `public github repository <https://github.com/tonsky/mustache>`_::
 
-     >>> git clone https://github.com/tonsky/mustache.git
+     >>> hg clone https://bitbucket.org/xored/mustache
    
    and build it::
    

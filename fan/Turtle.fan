@@ -31,7 +31,7 @@ class Selector : Turtle {
     return this
   }
   
-  override Res? dispatch(Req req) { return children.eachWhile { it.dispatch(req) } }
+  override Res? dispatch(Req req) { children.eachWhile { it.dispatch(req) } }
 }
 
 **

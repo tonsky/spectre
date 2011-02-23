@@ -30,6 +30,14 @@ mixin Util {
     return result
   }
   
+//  static [Str:Obj?][] flat(Obj:Obj? map, Str key := "key", Str value := "value") {
+//    return map.map |v,k| { [key: k, value: v] }.vals
+//  }
+  
+  static Obj?[] sortby(Obj?[] vals, |Obj->Obj| key) {
+    vals.rw.sort |a,b| { key(a) <=> key(b) }
+  }
+  
   ** This function returns a list of tuples, where the i-th tuple contains 
   ** the i-th element from each of the argument sequences or iterables. 
   ** The returned list is truncated in length to the length of the shortest argument sequence. 

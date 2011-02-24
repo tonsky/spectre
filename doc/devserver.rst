@@ -21,7 +21,7 @@ To run development server, you’ll need both Fantom 1.0.57 and Spectre installe
 To bind on specific port use::
 
   >>> fan spectre::RunDevServer -port 8000 <path_to_your_app_folder>
-  
+ 
 Serving static files
 --------------------
 
@@ -34,4 +34,14 @@ When developing app, you’ll probably want to serve static files from the same 
     ["/js/*", StaticView(appDir + `static/scripts/`)],
     ["/favicon.ico", StaticView(appDir + `static/img/favicon.ico`)]
   }
+
+.. _devserver-production-mode:
   
+Production mode
+---------------
+
+To run server in production mode, use ``RunServer`` class::
+
+  >>> fan spectre::RunServer <path_to_your_app_folder>
+
+It will disable hot app reloading, enable usage of mustache templates cache, so your app will perform faster. If you want to change something in your application depending of server mode, use :attr:`Settings.debug` attribute which will be set to ``false`` when in production mode.

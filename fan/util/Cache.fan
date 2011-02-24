@@ -10,7 +10,7 @@ const class Cache : DynActor {
   new make(ActorPool pool) : super(pool) {}
   
   internal Obj? _getOrAdd(Obj key, |->Obj?| valGenerator) {
-    Unsafe(values.getOrAdd(key, valGenerator))
+    return Unsafe(values.getOrAdd(key, valGenerator))
   }
   
   Obj? getOrAdd(Obj key, |->Obj?| valGenerator) {

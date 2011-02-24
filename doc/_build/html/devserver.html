@@ -75,6 +75,14 @@
 }</pre>
 </div>
 </div>
+<div class="section" id="production-mode">
+<span id="devserver-production-mode"></span><h2>Production mode<a class="headerlink" href="#production-mode" title="Permalink to this headline">¶</a></h2>
+<p>To run server in production mode, use <tt class="docutils literal"><span class="pre">RunServer</span></tt> class:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fan</span> <span class="n">spectre</span><span class="p">::</span><span class="n">RunServer</span> <span class="o">&lt;</span><span class="n">path_to_your_app_folder</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>It will disable hot app reloading, enable usage of mustache templates cache, so your app will perform faster. If you want to change something in your application depending of server mode, use <a class="reference internal" href="settings.html#Settings.debug" title="Settings.debug"><tt class="xref py py-attr docutils literal"><span class="pre">Settings.debug</span></tt></a> attribute which will be set to <tt class="docutils literal"><span class="pre">false</span></tt> when in production mode.</p>
+</div>
 </div>
 
 

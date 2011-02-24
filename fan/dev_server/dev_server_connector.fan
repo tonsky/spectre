@@ -4,6 +4,10 @@ using inet
 using util
 using web
 
+class RunServer : RunDevServer {
+  override Str mode := "production"
+}
+
 class RunDevServer : AbstractMain {
   @Opt { help = "http port" }
   Int port := 8080
@@ -11,17 +15,19 @@ class RunDevServer : AbstractMain {
   @Arg { help = "path to app dir (must contains build.fan and spectre::App implementation)" }
   File? appDir
   
-  static const Duration reloadTimeout := 1000ms
+  virtual Str mode := "development"
+  
+  static const Duration reloadTimeout := 2000ms
   
   override Int run() {
     return runServices([ WebServer {
       processorPool = ActorPool { maxThreads = 101 }
       it.port = this.port
 
-      appHolder := AppHolder(appDir)
+      appHolder := AppHolder(appDir, mode)
       httpProcessor := SpectreHttpProcessor()
       appHolder->sendGetLatest->get
-
+      
       onWs := |WsHandshakeReq req->WsProcessor?| {
         app := appHolder->sendGetLatest->get->val
         if (app is Err)
@@ -39,7 +45,9 @@ class RunDevServer : AbstractMain {
       }
       
       protocols = [WsProtocol(onWs),
-                   HttpProtocol(onHttp)] 
+                   HttpProtocol(onHttp)]
+      
+      this.log.info("Server started in " + (mode.equalsIgnoreCase("development") ? "DEVELOPMENT MODE" : "PRODUCTION MODE"))
     } ])
   }
 }
@@ -48,6 +56,7 @@ const class AppHolder : DynActor {
   private const static Log log := Log.get("spectre")
   
   private const File appDir
+  private const Str mode
   
   private static const Str pr := "spectre.app_holder"
   private Obj? app { get { Actor.locals["${pr}.app"] }
@@ -57,8 +66,9 @@ const class AppHolder : DynActor {
   private PodReloader podReloader { get { Actor.locals.getOrAdd("${pr}.pod_reloader") { PodReloader(appDir) } }
                                     set { Actor.locals["${pr}.pod_reloader"] = it } }
   
-  new make(File appDir) : super(ActorPool { maxThreads = 1 }) { 
+  new make(File appDir, Str mode) : super(ActorPool { maxThreads = 1 }) { 
     this.appDir = appDir
+    this.mode = mode.lower
   }
   
   protected virtual Void tryUnload() {
@@ -70,6 +80,9 @@ const class AppHolder : DynActor {
   }
   
   protected Obj _getLatest() {
+    if (app is Settings && mode == "production") // skip reloading then
+      return Unsafe(app)
+    
     try {
       t0 := DateTime.now
       reloadedPod := podReloader.getLatest
@@ -85,7 +98,10 @@ const class AppHolder : DynActor {
       if (appType == null)
         throw Err("Cannot find spectre::Settings implementation in ${appDir}")
 
-      app = appType.make([["appDir": appDir]])
+      [Str:Obj?][] args := [["appDir": appDir]]
+      if (mode == "production")
+        args[0]["debug"] = false
+      app = appType.make(args)
       log.info("App reloaded in " + (DateTime.now-t0) + ": ‘$appPod’")
       return Unsafe(app)
     } catch (Err e) {

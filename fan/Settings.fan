@@ -7,7 +7,7 @@ using concurrent
 ** 
 abstract class Settings {
   new make(Str:Obj? params) {
-    TypeUtil.assignFields(this, params)    
+    TypeUtil.assignFields(this, params)
     renderer = MustacheRenderer([appDir + `templates/`], ["useCache": !debug])
   }
 

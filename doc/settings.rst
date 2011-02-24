@@ -23,7 +23,7 @@ To define an app, you:
       
    .. attribute:: debug
    
-      Whether your app is in debug mode or not.
+      Whether your app is in development mode or not. ``true`` by default, will be set to ``false`` when running in the :ref:`production mode <devserver-production-mode>`.
 
    .. function:: wsProcessor(WsHandshakeReq req)
    

@@ -35,8 +35,9 @@ class MustacheRenderer : Middleware {
   ** * useCache: true/false
   new make(File[] templateDirs, Str:Obj? options := [:], |This|? f := null) : super() { 
     loader = TemplateLoader(templateDirs)
+    Log.get("spectre").info("Mustache templates are " + (options.get("useCache", false) ? "CACHED" : "NOT CACHED"))
     if (options.get("useCache", false))
-      templatesCache := Cache(ActorPool())
+      templatesCache = Cache(ActorPool())
     f?.call(this)
   }
   

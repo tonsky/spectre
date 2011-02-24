@@ -50,7 +50,7 @@ const class WebServerListener : DynActor {
         Actor.sleep(10sec)
       }
     }
-    log.info("spectre::WebServer started on port ${server.port}")
+    log.info("spectre::WebServer is listening on port ${server.port}")
 
     // loop until stopped accepting incoming TCP connections
     while (!pool.isStopped) {

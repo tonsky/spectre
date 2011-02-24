@@ -8,7 +8,7 @@ class SessionMessageStore : MessageStoreImpl {
   
   override Message[] get(Req req) {
     Session session := req.context(sessionContextAttr)
-    Message[] messages := session.get(msgSessionKey)
+    Message[] messages := session.get(msgSessionKey, [,])
     return messages
   }
   
@@ -21,6 +21,7 @@ class SessionMessageStore : MessageStoreImpl {
     Session session := req.context(sessionContextAttr)
     Message[] stored := session.get(msgSessionKey, [,])->rw
     stored.addAll(messages)
-    session.set(msgSessionKey, stored)
+    if (stored.size > 0)
+      session.set(msgSessionKey, stored)
   }
 }

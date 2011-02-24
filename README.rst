@@ -10,7 +10,9 @@ Main features
 * higly customizable;
 * flexible url router;
 * mustache templates for presentation layer;
-* cookies & pluggable session store support;
+* cookies;
+* messages;
+* pluggable session store support;
 * full-featured forms processing library;
 * development server with:
 
@@ -89,5 +91,5 @@ Requirements
 
 * `fantom 1.0.57 <http://fantom.org>`_
 * `printf <https://bitbucket.org/prokopov/printf>`_
-* `mustache <https://github.com/tonsky/mustache>`_
+* `mustache <https://bitbucket.org/xored/mustache>`_
 

@@ -49,6 +49,8 @@ class InmemorySession : Session {
   
   @Operator
   override This set(Str k, Obj? v) { map = map.rw; super.set(k, v); return this }
+  
+  override Obj? remove(Str k) { map = map.rw; return super.remove(k) }
 }
 
 internal const class InmemorySessionInfo {

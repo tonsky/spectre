@@ -5,21 +5,19 @@
 ** You can inject session to your view as 'Session session' view arg.  
 **
 class Session {
-  **
   ** This is a map of values stored in the current session.  Note that this
   ** field will usually be read-only, use `set` to set/change value in session.
-  ** 
   Str:Obj? map
  
   @Operator
-  virtual Obj? get(Str k) { map[k] }
+  virtual Obj? get(Str k, Obj? def := null) { map.get(k, def) }
   
   @Operator
   virtual This set(Str k, Obj? v) { map[k] = v; return this }
+  
+  virtual Obj? remove(Str k) { map.remove(k) }
 
-  **
   ** Clean up session and remove session cookie
-  ** 
   virtual Void delete() { map = [:] }
   
   new make(|This|? f) { f?.call(this) }

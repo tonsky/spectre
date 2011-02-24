@@ -26,7 +26,7 @@
 Setting up
 ----------
 
-To set up sessions, create a :class:`SessionMiddleware` instance, specify its :attr:`~SessionMiddleware.sessionStore` attribute and add it to the :attr:`Setting.middlewares` list. For now, spectre offers only one type of store: :class:`InmemorySessionStore`.
+To set up sessions, create a :class:`SessionMiddleware` instance, specify its :attr:`~SessionMiddleware.sessionStore` attribute and add it to the :attr:`Setting.middlewares` list. For now, Spectre offers only one type of store: :class:`InmemorySessionStore`.
 
 Example::
 

@@ -6,7 +6,7 @@ class Build : build::BuildPod
     version = Version.fromStr("1.0")
     podName = "spectre"
     summary = ""
-    srcDirs = [`test/`, `test/util/`, `test/forms/`, `test/dev_server/`, `fan/`, `fan/util/`, `fan/forms/`, `fan/dev_server/`, `fan/contrib/`, `fan/contrib/views/`, `fan/contrib/template/`, `fan/contrib/sessions/`]
+    srcDirs = [`test/`, `test/util/`, `test/forms/`, `test/dev_server/`, `fan/`, `fan/util/`, `fan/forms/`, `fan/dev_server/`, `fan/contrib/`, `fan/contrib/views/`, `fan/contrib/template/`, `fan/contrib/sessions/`, `fan/contrib/messages/`]
     depends = ["sys 1.0",
                "build 1.0",
                "compiler 1.0",

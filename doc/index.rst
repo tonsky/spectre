@@ -18,6 +18,7 @@ Spectre web framework
    forms
    sessions
    Cookie
+   messages
    websockets
 
 .. Indices and tables

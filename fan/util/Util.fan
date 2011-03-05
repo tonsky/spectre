@@ -30,9 +30,15 @@ mixin Util {
     return result
   }
   
-//  static [Str:Obj?][] flat(Obj:Obj? map, Str key := "key", Str value := "value") {
-//    return map.map |v,k| { [key: k, value: v] }.vals
-//  }
+  static [Str:Obj?][] flat(Obj:Obj? map, Str key := "key", Str value := "value") {
+    return map.map |v,k| { [key: k, value: v] }.vals
+  }
+  
+  static Map map(Obj?[][] list) {
+    [Obj:Obj?] result := [:]
+    list.each { result[it[0]] = it.size > 1 ? it[1] : null }
+    return result
+  }
   
   static Obj?[] sortby(Obj?[] vals, |Obj->Obj| key) {
     vals.rw.sort |a,b| { key(a) <=> key(b) }

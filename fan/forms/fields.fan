@@ -45,7 +45,7 @@ abstract class Field: SafeStrUtil {
   
   ** Converted data that has passed all the validataions. Can be accessed only on
   ** bound valid fields. See `bind`, `isValid`, `isBound`.
-  readonly Obj? cleanedData {
+  Obj? cleanedData {
     get { 
       if (isBound && isValid)
         return &cleanedData;
@@ -54,6 +54,7 @@ abstract class Field: SafeStrUtil {
       else
         throw Err("Cannot access cleanedData in unbound form")
       }
+    private set
   }
   
   virtual Bool isValid := false

@@ -47,7 +47,7 @@ class PodReloader {
     BuildPod buildPod := buildPodType.make()
     
     // customizing temporary build
-    buildPod.outDir = Env.cur.tempDir.uri
+    buildPod.outPodDir = Env.cur.tempDir.uri
     buildPod.podName = tmpPodName(buildPod)
     buf := StrBuf().add("\n")
     buildPod.log = BuildLog(buf.out)
@@ -58,14 +58,14 @@ class PodReloader {
     try {
       // building and loading rebuilded pod
       buildPod.compile()
-      File f := buildPod.outDir.toFile + Uri.fromStr(buildPod.podName + ".pod")
+      File f := buildPod.outPodDir.toFile + Uri.fromStr(buildPod.podName + ".pod")
       log.info("Rebuildind pod $podDir.name as $f")
       loadedPod := Pod.load(f.in)
       if (log.isDebug)
         log.debug("Pod loaded: $f")
       try {
         f.delete
-      }catch(IOErr err) {
+      } catch(IOErr err) {
         f.deleteOnExit
       }
       if (log.isDebug)

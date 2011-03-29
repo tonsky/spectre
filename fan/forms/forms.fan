@@ -88,7 +88,7 @@ class Form: SafeStrUtil {
   ** Read-only list of active form’s fields. To manage fields’ list dynamically, 
   ** override this method.
   ** 
-  protected virtual once spectre::Field[] fields() {
+  virtual once spectre::Field[] fields() {
     this.typeof.fields.findAll { it.type.fits(spectre::Field#) && isIncluded(it.name) }.map { it.get(this) }.ro
   }
   

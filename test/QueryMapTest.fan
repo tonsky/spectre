@@ -169,6 +169,11 @@ class QueryMapTest : Test {
     
     verifyDecode("x=Hello%3Dworld", ["x": "Hello=world"])
     verifyDecode("x=Hello+world", ["x": "Hello world"])
+
+    // do not treat %5C as escape symbol
+    verifyDecode("a=b%5C&c\\=d", ["a": "b\\", "c=d": ""])
+    verifyDecode("x=Hello%5Cworld", ["x": "Hello\\world"])
+    verifyDecode("x=Hello%5C%5Cworld", ["x": "Hello\\\\world"])
   }
 
   Void testEncode() {

@@ -326,22 +326,23 @@ class QueryMap {
 //    if (!hasEscapes)
 //      return q[start..<end]
     s := StrBuf.make(end-start)
-    prev := 0
+    escaping := false
     for (i := start; i < end;) {
-      Obj[] res := nextChar(q, i)
+      Int[] res := nextChar(q, i)
       Int c := res[0]
-      i = res[1]
       
-      if (c != '\\') {
-        s.addChar(c)
-        prev = c
-      } else {
-        if (prev == '\\') {
+      if (c == '\\' && res[1] - i == 1) {
+        if (escaping) {
           s.addChar(c)
-          prev = 0
+          escaping = false
         } else
-          prev = c
+          escaping = true
+      } else {
+        s.addChar(c)
+        escaping = false
       }
+      
+      i = res[1]
     }
     return s.toStr
   }

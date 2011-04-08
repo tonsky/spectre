@@ -54,7 +54,7 @@ class Form: SafeStrUtil {
     if (!fields.map { it.bind(dataMap) }.all { it })
       return false
     validate
-    return errors.isEmpty
+    return isValid
   }
   
   **

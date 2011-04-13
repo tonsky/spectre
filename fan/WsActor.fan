@@ -22,7 +22,7 @@ using concurrent
 ** because socket is already closed when they are called.
 ** 
 const class WsActor : DynActor, WsProcessor {
-  private static const Log log := Log.get("spectre")
+  override protected const Log log := Log.get("spectre")
   
   new make(ActorPool pool) : super(pool) {}
   

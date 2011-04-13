@@ -53,7 +53,7 @@ class RunDevServer : AbstractMain {
 }
 
 const class AppHolder : DynActor {
-  private const static Log log := Log.get("spectre")
+  override protected const Log log := Log.get("spectre")
   
   private const File appDir
   private const Str mode

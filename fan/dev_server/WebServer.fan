@@ -34,7 +34,7 @@ const class WebServer : Service {
 }
 
 const class WebServerListener : DynActor {
-  private static const Log log := WebServerListener#.pod.log
+  override protected const Log log := Log.get("spectre")
   const WebServer server
   
   new make(WebServer server, ActorPool pool) : super(pool) { this.server = server }
@@ -70,7 +70,7 @@ const class WebServerListener : DynActor {
 }
 
 const class WebServerAcceptor : DynActor {
-  private static const Log log := WebServerAcceptor#.pod.log
+  override protected const Log log := Log.get("spectre")
    
   new make(ActorPool pool) : super(pool) {}
   

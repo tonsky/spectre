@@ -42,18 +42,24 @@ using concurrent
 **   actor.send |->Int| { this.x + 2 } 
 ** 
 const class DynActor : Actor {
+  virtual protected Log log() { Log.get("spectre.DynActor") }
   new make(ActorPool pool, |This|? f := null) : super(pool) { f?.call(this) }
   
   override Obj? receive(Obj? msg) {
-    if (msg is Unsafe)
-      msg = (msg as Unsafe).val
+    try {
+      if (msg is Unsafe)
+        msg = (msg as Unsafe).val
     
-    if (msg is DynActorCommand)
-      return (msg as DynActorCommand).invoke(this)
-    else if (msg is Func)
-      return (msg as Func).call
-    else
-      throw UnsupportedErr("You should pass either DynActorCommand or Func")
+      if (msg is DynActorCommand)
+        return (msg as DynActorCommand).invoke(this)
+      else if (msg is Func)
+        return (msg as Func).call
+      else
+        throw UnsupportedErr("You should pass either DynActorCommand or Func")
+    } catch(Err e) {
+      log.err("Error in actor $this", e)
+      throw e
+    }
   }
   
   virtual Str toMethodName(Str trappedName) {
@@ -65,8 +71,7 @@ const class DynActor : Actor {
   
   override Obj? trap(Str name, Obj?[]? args) {
     Str methodName := toMethodName(name)
-    Method method := this.typeof.method(methodName)
-    
+    Method method := this.typeof.method(methodName, true) //checked
     return this.send(DynActorCommand(method, args))
   }
 }
@@ -100,7 +105,7 @@ const class DynActorCommand {
       else
         return arg
     }
-    
+  
     return method.isStatic ? method.callList(deserializedArgs) 
       : method.callOn(instance, deserializedArgs)
   }

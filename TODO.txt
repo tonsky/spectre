@@ -9,10 +9,12 @@ Other
 WebServer
 ---------
 (v) Process app’s response via special class, do not give OutputStream to user’s app
-Dev/Production modes
+(v) Dev/Production modes
+(v) Non-blocking server
  
 Spectre
 -------
+( ) Cannot remove __utmz and __utma google cookies
 (v) App load/unload hooks
 (v) ToTemplate shortcut
 WebSockets: Routing
@@ -23,7 +25,7 @@ WebSockets: Routing
    (-) Settings to const
    (v) Populate context with settings attrs 
 
-Flash messages
+(v) Flash messages
 reverse url lookup
 autodiscovering of routes via facets (and sorting thus)
 (v) Report app’s compilation errors

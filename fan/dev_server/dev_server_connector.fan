@@ -21,7 +21,7 @@ class RunDevServer : AbstractMain {
   
   override Int run() {
     return runServices([ WebServer {
-      processorPool = ActorPool { maxThreads = 101 }
+      processorPool = ActorPool { maxThreads = 10 }
       it.port = this.port
 
       appHolder := AppHolder(appDir, mode)

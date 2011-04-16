@@ -1,6 +1,5 @@
-
 using concurrent
-using inet
+using inet::IpAddr
 
 **
 ** Web socket protocol (draft 76) implementation.
@@ -13,60 +12,83 @@ const class WsProtocol : Protocol {
   const |WsHandshakeReq->WsProcessor?| processorFunc
   new make(|WsHandshakeReq->WsProcessor?| processorFunc) { this.processorFunc = processorFunc }
   
-  override Bool onConnection(HttpReq httpReq, TcpSocket socket) {
+  WsConnImpl? _conn { get { Actor.locals["spectre.WsProtocol._conn"] }
+                      set { Actor.locals["spectre.WsProtocol._conn"] = it } }
+  
+  WsProcessor? _processor { get { Actor.locals["spectre.WsProtocol._processor"] }
+                            set { Actor.locals["spectre.WsProtocol._processor"] = it } }
+  
+  override ProtocolRes onFirstConnection(HttpReq httpReq, TcpSocket socket) {
     // check if we support this connection
     if (!httpReq.headers.get("Connection", "").equalsIgnoreCase("upgrade") ||
         !httpReq.headers.get("Upgrade", "").equalsIgnoreCase("websocket"))
-      return false
+      return ProtocolRes.skip
 
     in := socket.in
     out := socket.out
-    
-    handshakeReq := WsHandshakeReq(httpReq)
-    WsProcessor? processor := processorFunc.call(handshakeReq)
-    if (processor == null)
-      return true // connection has been processed
-    WsHandshakeRes handshakeRes := processor.onHandshake(handshakeReq)
-
-    /*  We need to send the 101 response immediately when using Draft 76 with
-        a load balancing proxy, such as HAProxy.  In order to protect an
-        unsuspecting non-websocket HTTP server, HAProxy will not send the
-        8-byte nonce through the connection until the Upgrade: WebSocket
-        request has been confirmed by the WebSocket server by a 101 response
-        indicating that the server can handle the upgraded protocol.  We
-        therefore must send the 101 response immediately, and then wait for
-        the nonce to be forwarded to us afterward in order to finish the
-        Draft 76 handshake.
-    */
-    out.writeChars("HTTP/1.1 101 WebSocket Protocol Handshake\r\n")
-    out.writeChars("Upgrade: WebSocket\r\n")
-       .writeChars("Connection: Upgrade\r\n")
-       .writeChars("Sec-WebSocket-Location: " + handshakeRes.location + "\r\n")
-       .writeChars("Sec-WebSocket-Origin: " + handshakeRes.origin + "\r\n")
-    if (handshakeRes.protocol != null)
-       out.writeChars("Sec-WebSocket-Protocol: " + handshakeRes.protocol + "\r\n")
-    out.writeChars("\r\n").flush
-    
-    key3 := in.readBufFully(null, 8)
-    out.writeBuf(handshakeRes.challenge(key3)).flush
-
-    conn := WsConnImpl(handshakeReq, socket, this)
     try {
-      processor.onReady(conn)
-      while (!conn.closed.val) {
-        msg := conn.read
-        if (msg == null || conn.closed.val)
-          break
-        processor.onMsg(conn, msg)
-      }
-    } catch(IOErr e) { // IOErrs are just ok
-      log.debug("Error in web socket communication", e)      
+      handshakeReq := WsHandshakeReq(httpReq)
+      _processor = processorFunc.call(handshakeReq)
+      if (_processor == null)
+        return ProtocolRes.close // connection has been processed
+      WsHandshakeRes handshakeRes := _processor.onHandshake(handshakeReq)
+
+      /*  We need to send the 101 response immediately when using Draft 76 with
+          a load balancing proxy, such as HAProxy.  In order to protect an
+          unsuspecting non-websocket HTTP server, HAProxy will not send the
+          8-byte nonce through the connection until the Upgrade: WebSocket
+          request has been confirmed by the WebSocket server by a 101 response
+          indicating that the server can handle the upgraded protocol.  We
+          therefore must send the 101 response immediately, and then wait for
+          the nonce to be forwarded to us afterward in order to finish the
+          Draft 76 handshake.
+      */
+      out.writeChars("HTTP/1.1 101 WebSocket Protocol Handshake\r\n")
+      out.writeChars("Upgrade: WebSocket\r\n")
+         .writeChars("Connection: Upgrade\r\n")
+         .writeChars("Sec-WebSocket-Location: " + handshakeRes.location + "\r\n")
+         .writeChars("Sec-WebSocket-Origin: " + handshakeRes.origin + "\r\n")
+      if (handshakeRes.protocol != null)
+         out.writeChars("Sec-WebSocket-Protocol: " + handshakeRes.protocol + "\r\n")
+      out.writeChars("\r\n").flush
+
+      key3 := in.readBufFully(null, 8)
+      out.writeBuf(handshakeRes.challenge(key3)).flush
+
+      _conn = WsConnImpl(handshakeReq, socket, this)
+
+      _processor.onReady(_conn)
+      return ProtocolRes.keep
+    } catch(IOErr e) {
+      log.debug("Error in web socket communication", e) // IOErrs are just ok
     } catch(Err e) {
       log.err("Error in WebSocket communication", e)
     }
-    conn.closed.val = true
-    try processor.onClose(conn); catch(Err e) log.err("Error closing WebSocket", e)
-    return true
+    // if error happened, close everything
+    if (_conn != null) {
+      _conn.closed.val = true
+      try _processor.onClose(_conn); catch(Err e2) log.err("Error closing WebSocket", e2)
+    }
+    return ProtocolRes.close
+  }
+  
+  override ProtocolRes onNextConnections(TcpSocket socket) {
+    try {      
+      if (!_conn.closed.val) {
+        msg := _conn.read
+        if (msg != null && !_conn.closed.val) {
+          _processor.onMsg(_conn, msg)
+          return ProtocolRes.keep
+        }
+      }
+    } catch(IOErr e) { // IOErrs are just ok
+      log.debug("Error in web socket communication", e)
+    } catch(Err e) {
+      log.err("Error in WebSocket communication", e)
+    }
+    _conn.closed.val = true
+    try _processor.onClose(_conn); catch(Err e) log.err("Error closing WebSocket", e)
+    return ProtocolRes.close
   }
 }
 
@@ -90,7 +112,7 @@ const mixin WsConn {
   abstract Void close()
 }
 
-internal const class WsConnImpl : WsConn {
+const class WsConnImpl : WsConn {
   override const WsHandshakeReq req
   
   const Unsafe     socketUnsafe
@@ -126,8 +148,8 @@ internal const class WsConnImpl : WsConn {
   }
   
   override Void writeStr(Str msg) {
-    if (closed.val) throw CancelledErr("Attemt to write to socket already closed")
-    WsFrame_HIXIE_76 { data = msg.toBuf }.write(socket.out)
+    if (!closed.val && !socket.isClosed)
+      WsFrame_HIXIE_76 { data = msg.toBuf }.write(socket.out)
   }
   
   override Void close() {

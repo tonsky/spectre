@@ -1,4 +1,4 @@
-using inet
+using inet::IpAddr
 using web
 
 class HttpReq {
@@ -41,47 +41,46 @@ const class HttpProtocol : Protocol {
   const |HttpReq->HttpRes| process
   new make(|HttpReq->HttpRes| process) { this.process = process }
 
-  override Bool onConnection(HttpReq req, TcpSocket socket) {
+  override ProtocolRes onFirstConnection(HttpReq req, TcpSocket socket) {
+    return _onConnection(req, socket)
+  }
+  
+  override ProtocolRes onNextConnections(TcpSocket socket) {
+    _req := parseReq(socket)
+    return _req == null ? ProtocolRes.close : _onConnection(_req, socket)
+  }
+  
+  ProtocolRes _onConnection(HttpReq _req, TcpSocket socket) {
     in := socket.in
     out := socket.out
     
-    HttpReq? _req := req
-    while(_req != null) {
-      keepAlive := false
-      try {
-        _req.in = WebUtil.makeContentInStream(_req.headers, in)
-        res := process.call(_req)
-        keepAlive = writeResponse(res, _req, out)
+    keepAlive := false
+    try {
+      _req.in = WebUtil.makeContentInStream(_req.headers, in)
+      res := process.call(_req)
+      keepAlive = writeResponse(res, _req, out)
 
-        out.flush
-        
-        // if the listener didn’t finishing reading the content
-        // stream then don’t attempt to reuse this connection,
-        // safest thing is to just close the socket
-        if (!req.isAllRead) {
-          keepAlive = false
-        }
-      } catch (IOErr e) {
-        keepAlive = false
-        if (log.isDebug)
-          log.debug("Error processing request:\n $_req", e)
-      } catch(Err e) {
-        log.err("Error processing request:\n $_req", e)
-        keepAlive = false
-      }
-
-      if (!keepAlive)
-        break
+      out.flush
       
-      _req = parseReq(socket)
+      // if the listener didn’t finishing reading the content
+      // stream then don’t attempt to reuse this connection,
+      // safest thing is to just close the socket
+      if (!_req.isAllRead)
+        keepAlive = false
+    } catch (IOErr e) {
+      keepAlive = false
+      if (log.isDebug)
+        log.debug("Error processing request:\n $_req", e)
+    } catch(Err e) {
+      log.err("Error processing request:\n $_req", e)
+      keepAlive = false
     }
-    return true
+
+    return keepAlive ? ProtocolRes.keep : ProtocolRes.close
   }
 
-  **
   ** Parse the first request line and request headers.
   ** Return null on failure.
-  **
   static HttpReq? parseReq(TcpSocket socket) {
     try {
       // skip leading CRLF (4.1)
@@ -118,6 +117,7 @@ const class HttpProtocol : Protocol {
         it.remotePort = socket.remotePort
       }
     } catch (Err e) {
+      log.debug("Error parsing HttpReq", e)
       return null
     }
   }

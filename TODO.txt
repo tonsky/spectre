@@ -5,6 +5,7 @@ Other
 (v) Report compilation errors
 (v) StaticView: serve single files like favicon.ico, not "pathTail" only.
 ( ) django/http/utils.py response fixes
+( ) ./spectre command
 
 WebServer
 ---------
@@ -14,6 +15,8 @@ WebServer
  
 Spectre
 -------
+( ) TESTING
+( ) Display broken file when reporting compilation errors
 ( ) Cannot remove __utmz and __utma google cookies
 (v) App load/unload hooks
 (v) ToTemplate shortcut

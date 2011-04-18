@@ -1,0 +1,57 @@
+{{> basic/header.html }}
+
+<div style="float: right; vertical-align: middle; padding: 8px 12px 6px; background-color: #FFF; border: 1px solid #CCC">
+	Feel the power of the HTML<img src="/i/HTML5_Badge_32.png" style="height: 30px; vertical-align: middle"/>
+</div>
+<h2>WebSocket Test</h2>
+<style type="text/css">
+  a.button { height: 20px; line-height: 20px; vertical-align: middle }
+  a.button img { vertical-align: middle; margin: 0 4px 0 0 }
+</style>
+<a href="#" class="button" onclick="testWebSocket(); return false"><img src="/i/dial.png"/>Звонить</a>
+<a href="#" class="button" onclick="doSend('Титька!'); return false"><img src="/i/say.png"/>Послать</a>
+<a href="#" class="button" onclick="websocket.close(); return false"><img src="/i/cancel.png"/>Повесить трубку</a>
+<pre id="output" style="height: 400px; overflow-y: scroll; font-size: 15px"></pre>
+
+<script type="text/javascript">
+  var wsUri = "ws://" + window.location.host + "/";
+  var output;
+  function init() {
+    output = document.getElementById("output");
+    testWebSocket();
+  }
+  
+  function testWebSocket() {
+    websocket = new WebSocket(wsUri);
+    websocket.onopen = function(evt) { onOpen(evt) };
+    websocket.onclose = function(evt) { onClose(evt) };
+    websocket.onmessage = function(evt) { onMessage(evt) };
+    websocket.onerror = function(evt) { onError(evt) };
+  }
+    
+  function onOpen(evt) { writeToScreen("Дозвонились"); }  
+  function onClose(evt) { writeToScreen("Обрыв связи"); }
+  
+  function onMessage(evt) {
+    writeToScreen('<span style="color: #D85300;"><em>Там:</em> ' + evt.data+'</span>');
+  }
+  
+  function onError(evt) {
+    writeToScreen('<span style="color: red;"><em>Ошибка</em>:</span> ' + evt.data);
+  }
+  
+  function doSend(message) {
+    writeToScreen("<em>Вы:</em> " + message);
+    websocket.send(message);
+  }
+  
+  function writeToScreen(message) {
+  	$('#output').append(message + "\n")
+  	            .attr({ scrollTop: $("#output").attr("scrollHeight") });
+  }
+  
+  window.addEventListener("load", init, false);
+</script>
+
+
+{{> basic/footer.html }}

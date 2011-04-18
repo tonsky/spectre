@@ -1,0 +1,34 @@
+{{> basic/header.html }}
+    
+<h2>Печеньки</h2>
+  <dl class="cookies">
+  {{#cookies}}
+    <dt><a href="delete-cookie/?cookie-name={{name}}">×</a>&nbsp;{{name}}</dt>
+    <dd>{{value}}</dd>
+  {{/cookies}}
+  </dl>
+  
+  {{^cookies}}
+    <span class="warn">No cookies, sorry</span><br/><br/>
+  {{/cookies}}
+
+<h2>Добавить</h2>
+<form action="set-cookie/" method="get">
+  <table class="edit">
+    <tr><th>Name</th><td><input type="text" name="cookie-name" value="test-cookie"/></td></tr>
+    <tr><th>Value</th><td><input type="text" name="cookie-value" value="some value например"/></td></tr>
+    <tr><th></th><td><input type="submit" value="Установить куку"/></td>
+  </table>
+</form>
+
+<h2>JS cookie</h2>
+<pre><span id="jscookies"></span></pre>
+
+
+<script type="text/javascript">
+  $(function() {
+    $('#jscookies').text(document.cookie);
+  });
+</script>
+
+{{> basic/footer.html }}

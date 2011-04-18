@@ -1,0 +1,17 @@
+<h2>Сессия</h2>
+<a href="init-session/" class="button">Init</a>
+<a href="change-session/" class="button">Change</a>
+<a href="clear-session/" class="button">Clear</a>
+
+<dl class="cookies">
+  {{#session}}
+    <dt>{{name}}</dt>
+    <dd>{{value}}</dd>
+  {{/session}}
+</dl>
+  
+{{^session}}
+  <span class="warn">Session is empty</span><br/><br/>
+{{/session}}
+
+<br style="clear: both"/><br/>

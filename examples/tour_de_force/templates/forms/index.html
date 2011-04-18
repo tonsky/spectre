@@ -1,0 +1,15 @@
+{{> basic/header.html }}
+    
+<table><tr><td>
+  <form method="post">
+    <table class="edit">
+      {{ form }}
+      <tr><th></th><td style="padding-top: 32px"><input type="submit" value="Послать" /></td>
+    </table>
+  </form>
+</td>
+<td style="vertical-align: top">
+  <span class="{{message_class}}" style="float: left; white-space: pre; line-height: 24px">{{ message }}</span>
+</td></tr></table>
+
+{{> basic/footer.html }}

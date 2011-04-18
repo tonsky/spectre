@@ -1,0 +1,22 @@
+<h2>Stored messages</h2>
+
+{{#messages?}}
+ <dl class="cookies">
+  {{#messages}}
+    <dt>{{text}}</dt>
+    <dd>tags:{{#tags}} {{.}}{{/tags}}</dd>
+  {{/messages}}
+  </dl>
+{{/messages?}}
+{{^messages?}}
+<span class="warn">No messages.</span>
+{{/messages?}}
+
+<h2>Store message</h2>
+<form method="get">
+  <table class="edit">
+    <tr><th>Text</th><td><input type="text" name="msg" value="Message stored!" size="30"/></td></tr>
+    <tr><th>Tags</th><td><input type="text" name="tags" value="info IMPORTANT" size="20"/></td></tr>
+    <tr><th></th><td><input type="submit" value="Store it"/></td>
+  </table>
+</form>

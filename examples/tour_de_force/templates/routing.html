@@ -1,0 +1,64 @@
+{{> basic/header.html }}
+
+<style type="text/css">
+  dl a { padding: 3px 5px; margin: 0 }
+  a.selected, dl a:hover { color: #000; background-color: #EDF3FE}
+  a.selected { text-decoration: none; cursor: default; }
+</style>
+
+<script type="text/javascript">
+  $(function(){
+    $('a').each(function(){
+      if ($(this).attr('href') == window.location.pathname)
+        $(this).addClass("selected")
+    })
+  })
+</script>
+
+<h2>Articles</h2>
+
+<dl>
+  <dt style="width: 6em">&nbsp;</dt>
+  <dd><a href="/routing/">All</a></dd>
+  <dt style="width: 6em">By group:</dt>
+  <dd>
+    <a href="/routing/it/">IT</a>
+    <a href="/routing/photo/">Photo</a>
+    <a href="/routing/unknown/">Unknown</a>
+  </dd>
+
+  <dt style="width: 6em">By year:</dt>
+  <dd>
+    <a href="/routing/2009/">2009</a>
+    <a href="/routing/2010/">2010</a>
+    <a href="/routing/2011/">2011</a>
+  </dd>
+
+  <dt style="width: 6em">By id:</dt>
+  <dd>
+    <a href="/routing/it/1/">1</a>
+    <a href="/routing/it/2/">2</a>
+    <a href="/routing/photo/3/">3</a>
+    <a href="/routing/photo/4/">4</a>
+    <a href="/routing/it/5/">5</a><br/>
+  </dd>
+</dl>
+
+<table class="datatable">
+  <thead><tr><th>Id</th><th>Name</th><th>Group</th><th>Year</th></tr></thead>
+  <tbody>
+    {{#articles}}
+      <tr>
+        <td>{{ id }}</td>
+        <td>{{ name }}</td>
+        <td>{{ group }}</td>
+        <td>{{ year }}</td>
+      </tr>
+    {{/articles}}
+    {{^articles}}
+      <tr><td colspan="4"><span class="warn">No articles found</span></td></tr>
+    {{/articles}}
+  </tbody>
+</table>
+
+{{> basic/footer.html }}

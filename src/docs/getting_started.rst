@@ -7,7 +7,7 @@
 
 Let’s create your first Spectre application. Create a folder where you’ll keep all your app files::
 
-  demo_app/
+  getting_started/
     fan/
     static/
     templates/    
@@ -20,7 +20,7 @@ In ``build.fan``, specify dependency on Spectre v.1.0::
     using build
     class Build : build::BuildPod {
       new make() {
-        podName = "demo_app"
+        podName = "getting_started"
         summary = ""
         srcDirs = [`fan/`]
         depends = ["sys 1.0", "spectre 1.0"]
@@ -82,7 +82,9 @@ What we’ve done is the simplest possible way to implement view: just return :c
   
 By returning :class:`TemplateRes`, we are sending data obtained in view (``items``) to be rendered in :attr:`~TemplateRes.template` ``items_list.html`` with :attr:`~TemplateRes.context` ``["items": items]``. Let’s create ``items_list.html`` template in ``templates`` folder::
 
-  <html> 
+  <html>
+    <head><meta http-equiv="Content-Type"
+                content="text/html; charset=utf-8" /></head>
     <body>
       <h1>Items:</h1>
       <ul>
@@ -131,6 +133,8 @@ now add a route::
 ``itemId`` parameter will be captured in url and passed to your view as an :class:`Str` argument with the same name. Finally you create a template::
   
   <html> 
+    <head><meta http-equiv="Content-Type"
+                content="text/html; charset=utf-8" /></head>
     <body>
       <h1>{{name}}</h1>
 

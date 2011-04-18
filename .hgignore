@@ -4,6 +4,7 @@
 .DS_Store
 bin
 docs/_sources
+docs/doctrees
 docs/objects.inv
 docs/.buildinfo
 docs/searchindex.js

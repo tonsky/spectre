@@ -1,6 +1,10 @@
-doc/_build/doctrees
 .buildpath
 .classpath
 .project
+.DS_Store
 bin
-doc/_build/html/_sources
+docs/_sources
+docs/objects.inv
+docs/.buildinfo
+docs/searchindex.js
+src/docs/_build

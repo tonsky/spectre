@@ -1,9 +1,9 @@
 .. image:: _images/cookies.png
    :class: article_cover cover_cookies
 
-========
- Cookie
-========
+==========
+ Cookies
+==========
 
 Cookie models an HTTP cookie used to pass data between the server and brower as defined by the original Netscape cookie specification and `RFC 2109 <http://tools.ietf.org/html/rfc2109.html>`_. Note the newer RFC 2965 is unsupported by most browsers, and even 2109 isn’t really supported by some of the major browsers.
 

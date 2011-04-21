@@ -17,7 +17,7 @@ Spectre web framework
    templates
    forms
    sessions
-   Cookie
+   cookies
    messages
    websockets
 

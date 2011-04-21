@@ -6,6 +6,7 @@ class Build : build::BuildPod {
     summary = ""
     srcDirs = [`fan/`,
                `fan/asyncio/`,
+               `fan/commands/`,
                `fan/contrib/messages/`,
                `fan/contrib/sessions/`,
                `fan/contrib/template/`,
@@ -20,6 +21,7 @@ class Build : build::BuildPod {
                `test/util/`,
                ]
     javaDirs = [`java/`]
+    resDirs = [`res/startapp/`]
     
     depends = ["sys 1.0",
                "build 1.0",

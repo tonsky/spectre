@@ -32,7 +32,8 @@ class Res {
       if (!ct.contains("charset"))
         ct = "$ct; charset=$charset"
       this.headers["Content-Type"] = ct
-    }
+    } else
+      this.headers["Content-Type"] = "text/html; charset=$charset" // TODO to Settings.defaultContentType
   }
   
   **

@@ -8,7 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>Getting started &mdash; Spectre v1.0 documentation</title>
-    <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
+    <link rel="stylesheet" href="_static/standalone.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -87,7 +87,7 @@ class DemoApp : Settings {
   }
 }</pre>
 </div>
-<p>Our route still points at an unimplemented class method (view). To implement it, we just create a class with <tt class="docutils literal"><span class="pre">index</span></tt> method returning <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a>:</p>
+<p>Our route still points at an unimplemented class method (view). To implement it, we just create a class with <tt class="docutils literal"><span class="pre">index</span></tt> method returning <a class="reference internal" href="res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a>:</p>
 <div class="highlight-python"><pre>class IndexView {
   Res index() {
     return Res("&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello from the other world!&lt;/h1&gt;"
@@ -100,7 +100,7 @@ class DemoApp : Settings {
 </pre></div>
 </div>
 <p>and point your browser at <a class="reference external" href="http://localhost:8080/">http://localhost:8080/</a>. You should see your hello message. Relax, take a cup of coffee, take a deep breath. We’re just in the beginning.</p>
-<p>What we’ve done is the simplest possible way to implement view: just return <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> instance with all the content of html page. However, we are not using any power of templates at all. Let’s fix that in <tt class="xref py py-class docutils literal"><span class="pre">ItemsView</span></tt>:</p>
+<p>What we’ve done is the simplest possible way to implement view: just return <a class="reference internal" href="res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> instance with all the content of html page. However, we are not using any power of templates at all. Let’s fix that in <tt class="xref py py-class docutils literal"><span class="pre">ItemsView</span></tt>:</p>
 <div class="highlight-python"><pre>class ItemsView {
   [Str:Obj][] items() {
     [["id": 1, "name": "Item 1"],
@@ -203,7 +203,7 @@ class DemoApp : Settings {
                                         "message": message])
 }</pre>
 </div>
-<p>Here we detect form posting via <a class="reference internal" href="Req.html#Req.method" title="Req.method"><tt class="xref py py-attr docutils literal"><span class="pre">Req.method</span></tt></a> attribute, and then access form data through <a class="reference internal" href="Req.html#Req.post" title="Req.post"><tt class="xref py py-attr docutils literal"><span class="pre">Req.post</span></tt></a> which is a map-like object containing all POST parameters.</p>
+<p>Here we detect form posting via <a class="reference internal" href="req.html#Req.method" title="Req.method"><tt class="xref py py-attr docutils literal"><span class="pre">Req.method</span></tt></a> attribute, and then access form data through <a class="reference internal" href="req.html#Req.post" title="Req.post"><tt class="xref py py-attr docutils literal"><span class="pre">Req.post</span></tt></a> which is a map-like object containing all POST parameters.</p>
 <p>“Save changes” button should work now. If you were watching close enough you’ll see that changes are not actually persisted, but hey, it’s just a demo. You should get the general idea.</p>
 <p>Last thing is missing: we should redirect back to page using GET after processing POST request to avoid form reposting on page refresh. Let’s see how we can do this:</p>
 <div class="highlight-python"><pre>Res edit(Str itemId, Req req) {
@@ -224,7 +224,7 @@ class DemoApp : Settings {
                                         "message": message])
 }</pre>
 </div>
-<p>Here we just return <a class="reference internal" href="Res.html#ResRedirect" title="ResRedirect"><tt class="xref py py-class docutils literal"><span class="pre">ResRedirect</span></tt></a> from view that will issue 302 FOUND http redirect. We also <tt class="xref py py-func docutils literal"><span class="pre">encode()</span></tt> message value, so if it contains any of <tt class="docutils literal"><span class="pre">&amp;</span></tt>, <tt class="docutils literal"><span class="pre">=</span></tt> or <tt class="docutils literal"><span class="pre">;</span></tt> characters they will be backslash-escaped.</p>
+<p>Here we just return <a class="reference internal" href="res.html#ResRedirect" title="ResRedirect"><tt class="xref py py-class docutils literal"><span class="pre">ResRedirect</span></tt></a> from view that will issue 302 FOUND http redirect. We also <tt class="xref py py-func docutils literal"><span class="pre">encode()</span></tt> message value, so if it contains any of <tt class="docutils literal"><span class="pre">&amp;</span></tt>, <tt class="docutils literal"><span class="pre">=</span></tt> or <tt class="docutils literal"><span class="pre">;</span></tt> characters they will be backslash-escaped.</p>
 <p>Congratulations! You’ve just completed this tutorial and should have basic undestanding of how to build applications with Spectre. You may now continue by reading <a class="reference internal" href="turtles.html"><em>Understanding basics</em></a> to get a deeper understanding of how these things actually work. Wish you good luck!</p>
 </div>
 

@@ -8,7 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>Understanding basics &mdash; Spectre v1.0 documentation</title>
-    <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
+    <link rel="stylesheet" href="_static/standalone.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -89,7 +89,7 @@ routes := app1Routes + app2Routes</pre>
 <dl class="class">
 <dt id="Selector">
 <em class="property">class </em><tt class="descname">Selector</tt><a class="headerlink" href="#Selector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Group a bunch of turtles and choose first that returns not-null <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a>:</p>
+<dd><p>Group a bunch of turtles and choose first that returns not-null <a class="reference internal" href="res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a>:</p>
 <div class="highlight-python"><pre>Selector {
   turtle1,
   turtle2,
@@ -101,7 +101,7 @@ routes := app1Routes + app2Routes</pre>
 <dl class="class">
 <dt id="Middleware">
 <em class="property">class </em><tt class="descname">Middleware</tt><a class="headerlink" href="#Middleware" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wrap another <a class="reference internal" href="#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a> and do pre- or post-processing work on <a class="reference internal" href="Req.html#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a>/<a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> objects.</p>
+<dd><p>Wrap another <a class="reference internal" href="#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a> and do pre- or post-processing work on <a class="reference internal" href="req.html#Req" title="Req"><tt class="xref py py-class docutils literal"><span class="pre">Req</span></tt></a>/<a class="reference internal" href="res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> objects.</p>
 <dl class="function">
 <dt>
 <tt class="descname">This wrap(Turtle child)</tt></dt>
@@ -123,7 +123,7 @@ routes := app1Routes + app2Routes</pre>
 <dl class="function">
 <dt>
 <tt class="descname">Res? safeAfter(Req req, Res res)</tt></dt>
-<dd><p>Is called when child’s <tt class="xref py py-func docutils literal"><span class="pre">dispatch()</span></tt> has returned not-null <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a>, otherwise <tt class="docutils literal"><span class="pre">null</span></tt> will be returned from middleware without invoking <tt class="xref py py-func docutils literal"><span class="pre">safeAfter()</span></tt>.</p>
+<dd><p>Is called when child’s <tt class="xref py py-func docutils literal"><span class="pre">dispatch()</span></tt> has returned not-null <a class="reference internal" href="res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a>, otherwise <tt class="docutils literal"><span class="pre">null</span></tt> will be returned from middleware without invoking <tt class="xref py py-func docutils literal"><span class="pre">safeAfter()</span></tt>.</p>
 </dd></dl>
 
 </dd></dl>

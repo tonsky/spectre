@@ -12,8 +12,8 @@ Spectre web framework
    turtles
    routing
    views
-   Req
-   Res
+   req
+   res
    templates
    forms
    sessions

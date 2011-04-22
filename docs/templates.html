@@ -8,7 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>Templates &mdash; Spectre v1.0 documentation</title>
-    <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
+    <link rel="stylesheet" href="_static/standalone.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Spectre v1.0 documentation" href="index.html" />
     <link rel="next" title="Forms" href="forms.html" />
-    <link rel="prev" title="Res" href="Res.html" /> 
+    <link rel="prev" title="Res" href="res.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
           <a href="forms.html" title="Forms"
              accesskey="N">next</a></li>
         <li class="right" >
-          <a href="Res.html" title="Res"
+          <a href="res.html" title="Res"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
       </ul>
@@ -63,7 +63,7 @@ You have just won ${{value}}!&lt;br/&gt;
 Well, ${{taxed_value}}, after taxes.
 {{/in_ca}}</pre>
 </div>
-<p>Finally, return <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> instead of <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> from view:</p>
+<p>Finally, return <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> instead of <a class="reference internal" href="res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> from view:</p>
 <div class="highlight-python"><pre>Res index(Req req, Session session) {
   context := ["name": session["current_user"].name,
               "value": 200,
@@ -72,7 +72,7 @@ Well, ${{taxed_value}}, after taxes.
   return TemplateRes("index.html", context)
 }</pre>
 </div>
-<p>When intercepted by <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will be rendered using <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.template</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.context</span></tt>, and result will be stored in <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.content</span></tt>. After that, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will be used as a typical <a class="reference internal" href="Res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> instance — returned from app, its content will be sent to the client.</p>
+<p>When intercepted by <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will be rendered using <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.template</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.context</span></tt>, and result will be stored in <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.content</span></tt>. After that, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will be used as a typical <a class="reference internal" href="res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> instance — returned from app, its content will be sent to the client.</p>
 </div>
 <div class="section" id="differences-to-mustache">
 <h2>Differences to mustache<a class="headerlink" href="#differences-to-mustache" title="Permalink to this headline">¶</a></h2>
@@ -99,7 +99,7 @@ Well, ${{taxed_value}}, after taxes.
           <a href="forms.html" title="Forms"
              >next</a></li>
         <li class="right" >
-          <a href="Res.html" title="Res"
+          <a href="res.html" title="Res"
              >previous</a> |</li>
         <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
       </ul>

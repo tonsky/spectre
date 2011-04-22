@@ -8,7 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>Routing &mdash; Spectre v1.0 documentation</title>
-    <link rel="stylesheet" href="_static/spectre.css" type="text/css" />
+    <link rel="stylesheet" href="_static/standalone.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -78,7 +78,7 @@
 <span class="s">&quot;/orders/{id}/{action}/&quot;</span>
 </pre></div>
 </div>
-<p>In this case all urls starting with <tt class="docutils literal"><span class="pre">&quot;orders&quot;</span></tt> followed by one or two pathterms (any strings) will match (i.e. <tt class="docutils literal"><span class="pre">&quot;/orders/1234/&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;/orders/camcoder/&quot;</span></tt> or <tt class="docutils literal"><span class="pre">&quot;orders/x56/edit&quot;</span></tt>). Actual value for each capture arg will be stored in <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> under name specified in curly braces.</p>
+<p>In this case all urls starting with <tt class="docutils literal"><span class="pre">&quot;orders&quot;</span></tt> followed by one or two pathterms (any strings) will match (i.e. <tt class="docutils literal"><span class="pre">&quot;/orders/1234/&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;/orders/camcoder/&quot;</span></tt> or <tt class="docutils literal"><span class="pre">&quot;orders/x56/edit&quot;</span></tt>). Actual value for each capture arg will be stored in <a class="reference internal" href="req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> under name specified in curly braces.</p>
 <p>Additional regex may be specified to narrow match criteria:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;/articles-by-year/{year:</span><span class="se">\\</span><span class="s">d{4}}/&quot;</span>
 </pre></div>
@@ -89,7 +89,7 @@
 <dd><div class="first highlight-python"><div class="highlight"><pre><span class="s">&quot;/files/*&quot;</span>
 </pre></div>
 </div>
-<p class="last">If you specify <tt class="docutils literal"><span class="pre">/*</span></tt> at the end of URL, only beginnig of URL will be matched. The value of pathtail will be stored in <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> under the name <tt class="docutils literal"><span class="pre">&quot;pathTail&quot;</span></tt>. <tt class="docutils literal"><span class="pre">/*</span></tt> is allowed at the end of route only.</p>
+<p class="last">If you specify <tt class="docutils literal"><span class="pre">/*</span></tt> at the end of URL, only beginnig of URL will be matched. The value of pathtail will be stored in <a class="reference internal" href="req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> under the name <tt class="docutils literal"><span class="pre">&quot;pathTail&quot;</span></tt>. <tt class="docutils literal"><span class="pre">/*</span></tt> is allowed at the end of route only.</p>
 </dd>
 </dl>
 <div class="section" id="where-to-route">
@@ -112,8 +112,8 @@
 <p class="first admonition-title">Note</p>
 <p>Behind the scenes, <a class="reference internal" href="#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> is a <a class="reference internal" href="turtles.html#Selector" title="Selector"><tt class="xref py py-class docutils literal"><span class="pre">Selector</span></tt></a>. It converts each tuple to <tt class="xref py py-class docutils literal"><span class="pre">UrlMatcherTurtle</span></tt> which does exactly following:</p>
 <ol class="arabic simple">
-<li>checks if current <a class="reference internal" href="Req.html#Req.pathInfo" title="Req.pathInfo"><tt class="xref py py-attr docutils literal"><span class="pre">Req.pathInfo</span></tt></a> matches specified route path;</li>
-<li>if yes, populates <a class="reference internal" href="Req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> with capture args from route path (if any), and calls view function;</li>
+<li>checks if current <a class="reference internal" href="req.html#Req.pathInfo" title="Req.pathInfo"><tt class="xref py py-attr docutils literal"><span class="pre">Req.pathInfo</span></tt></a> matches specified route path;</li>
+<li>if yes, populates <a class="reference internal" href="req.html#Req.context" title="Req.context"><tt class="xref py py-attr docutils literal"><span class="pre">Req.context</span></tt></a> with capture args from route path (if any), and calls view function;</li>
 <li>if no, returns <tt class="docutils literal"><span class="pre">null</span></tt>, so next route may be tested.</li>
 </ol>
 <p class="last">If there is a <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a> instead of tuple in array, its <tt class="xref py py-func docutils literal"><span class="pre">dispatch()</span></tt> will be called directly.</p>

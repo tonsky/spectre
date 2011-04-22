@@ -2,11 +2,11 @@
  Forms
 =======
 
-Forms are Spetre’s approach to handling user-submitted forms. Forms are resropsible for:
+Forms are Spectre’s approach for handling user-submitted forms. Forms are resropsible for:
 
 * rendering HTML with automatically generated widgets and basic layouts;
 * converting submitted data to corresponding Fantom types;
-* checking subbmited data against a set of validation rules;
+* checking submitted data against a set of validation rules;
 * rendering form with error messages back to user if validation fails.
 
 To define a form, create a class extending :class:`Form` and define form fields
@@ -60,12 +60,12 @@ Form fields
 
 :class:`Field` is a part of :class:`Form` representing single value requested from user. 
 
-It is also possible to use single :class:`Field` on its own. :class:`Field`s have same bound/unbound valid/invalid states as :class:`Form`s, :attr:`~Field.cleanedData`, :attr:`~Field.errrors` and so on.
+It is also possible to use single :class:`Field` on its own. :class:`Field` have same bound/unbound valid/invalid states as :class:`Form`, including :attr:`~Field.cleanedData`, :attr:`~Field.errors` and so on.
 
 Rendering form and fields
 -------------------------
 
-:class:`Form` can be rendered with :func:`~Form.asTable` method. It will return :class:`SafeStr` html snippet with fields’ labels, widgets in their current state and error messages, wrapped with ``<tr><th></th><td></td></tr>``. It won’t contain the ``<table>`` tag, you should write it by yourself.::
+:class:`Form` can be rendered with :func:`~Form.asTable` method. It will return :class:`SafeStr` html snippet with fields’ labels, widgets in their current state and error messages, wrapped with ``<tr><th></th><td></td></tr>``. It won’t contain the ``<table>`` tag, you should write it by yourself::
 
   >>> myForm.asTable
   
@@ -120,11 +120,11 @@ Form validation consist of three steps:
 2. running fields validators;
 3. running form validtaion.
 
-All errors occured on these steps are stored in :attr:`Field.errors` (1, 2) and :attr:`Form.errors` (3) slots. If there is at least one error, form became invalid and its :attr:`Form.cleanedData` cannot be accessed.
+All errors occured on these steps are stored in :attr:`Field.errors` (1, 2) and :attr:`Form.errors` (3) slots. If there is at least one error, form become invalid and its :attr:`~Form.cleanedData` won’t be accessible.
 
-Field’s validators can be passed to field’s constructor::
+:class:`Field` validators can be passed to field’s constructor::
 
-  StrField name := StrField("name", "Your name", [Required(), MinLength(10), MaxLength(25)])  
+  nameField := StrField("name", "Your name", [Required(), MinLength(10), MaxLength(25)])  
 
 There are a bunch of field validators built-in with Spectre: :class:`Required`, :class:`MinLength`, :class:`MaxLength`, :class:`MinValue`, :class:`MaxValue`, :class:`MatchesRegex` and :class:`MatchesFunc`.
 
@@ -231,7 +231,7 @@ List of build-in fields
 Advanced techniques
 -------------------
 
-By default, all :class:`Form` slots which extend :class:`Field` are included to form. If you need to specify, which fields to exclude from form rendering/processing, or enumerate which to include, please override ``Str[]?`` :attr:`Form.exclude` and :attr:`Form.include` slots.
+By default, all :class:`Form` slots which extend :class:`Field` are included to form. If you need to  exclude some fields from form rendering/processing, or enumerate which to include, override ``Str[]?`` :attr:`Form.exclude` and :attr:`Form.include` slots.
 
 If you need to generate fields list dynamically, override :func:`Form.fields` method. It should return list of :class:`spectre::Field` instances that form will contain::
 

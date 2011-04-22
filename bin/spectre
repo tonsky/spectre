@@ -1,0 +1,35 @@
+#!/bin/bash
+
+PRG="$0"
+while [ -h "$PRG" ] ; do
+   ls=`ls -ld "$PRG"`
+   link=`expr "$ls" : '.*-> \(.*\)$'`
+   if expr "$link" : '/.*' > /dev/null; then
+     PRG="$link"
+   else
+     PRG=`dirname "$PRG"`"/$link"
+   fi
+done
+SAVED="`pwd`"
+cd "`dirname \"$PRG\"`/.."
+SPECTRE_HOME="`pwd -P`"
+cd $SAVED
+
+#echo $SPECTRE_HOME
+
+export FAN_ENV=util::PathEnv
+export FAN_ENV_PATH=$SPECTRE_HOME
+
+CMD=$1
+shift
+
+case "$CMD" in
+startapp) fan spectre::StartApp "$@"
+    ;;
+rundevserver) fan spectre::RunDevServer "$@"
+    ;;
+runserver) fan spectre::RunServer "$@"
+    ;;
+*) echo "Use 'spectre (startapp|rundevserver|runserver) <arg>'"
+   ;;
+esac

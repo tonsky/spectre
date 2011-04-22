@@ -2,7 +2,7 @@
  WebSocket support
 ===================
 
-Spectre currently supports `draft 76 <http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76>`_ of WebSocket Protocol specification, the same that’s implemented in browsers for now. WebSocket client API documentation can be found `here <http://dev.w3.org/html5/websockets/>`_.
+Spectre currently supports `draft 76 <http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76>`_ of WebSocket Protocol specification, the same that’s implemented in latest browsers for now. WebSocket client API documentation can be found `here <http://dev.w3.org/html5/websockets/>`_.
 
 To process WebSocket connections in Spectre, your app instance must override :func:`~Settings.wsProcessor` factory method::
 

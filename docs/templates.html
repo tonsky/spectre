@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Templates &mdash; Spectre v1.0 documentation</title>
+    <title>Templates &mdash; Spectre v0.8 documentation</title>
     <link rel="stylesheet" href="_static/standalone.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.0',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Spectre v1.0 documentation" href="index.html" />
+    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
     <link rel="next" title="Forms" href="forms.html" />
     <link rel="prev" title="Res" href="res.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="res.html" title="Res"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
 
@@ -47,7 +47,7 @@
   <div class="section" id="templates">
 <h1>Templates<a class="headerlink" href="#templates" title="Permalink to this headline">¶</a></h1>
 <p>Usually you’ll need pages a little bit more complex than just a <tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt> with substitution variables. That’s where you’ll need templates.</p>
-<p>Templates are simple text files (html, xml, csv, etc.) with special instructions in them. For now, spectre comes with built-in support for mustache templates only. You can find a really short introduction to musatche syntax <a class="reference external" href="http://mustache.github.com/mustache.5.html">on its website</a>.</p>
+<p>Templates are simple text files (html, xml, csv, etc.) with special instructions in them. For now, Spectre comes with built-in support for Mustache templates only. You can find a really short introduction to Musatche syntax <a class="reference external" href="http://mustache.github.com/mustache.5.html">on their website</a>.</p>
 <img alt="_images/mustache.png" class="cover-mustache" src="_images/mustache.png" />
 <p>The recommended way to deal with templating is to return <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> object from the view and then intercept it and render in template rendering middleware. This decouples view from presentation details and leaves you a place to do something site-wide with <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> after it was returned from view (e.g. populate <tt class="xref py py-attr docutils literal"><span class="pre">context</span></tt> with some site-wide attributes like current user’s name, or change path to <tt class="xref py py-class docutils literal"><span class="pre">template</span></tt> basing on client’s platform, moving this logic out of view).</p>
 <div class="section" id="how-to-use-templates">
@@ -75,7 +75,7 @@ Well, ${{taxed_value}}, after taxes.
 <p>When intercepted by <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will be rendered using <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.template</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.context</span></tt>, and result will be stored in <tt class="xref py py-attr docutils literal"><span class="pre">TemplateRes.content</span></tt>. After that, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will be used as a typical <a class="reference internal" href="res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> instance — returned from app, its content will be sent to the client.</p>
 </div>
 <div class="section" id="differences-to-mustache">
-<h2>Differences to mustache<a class="headerlink" href="#differences-to-mustache" title="Permalink to this headline">¶</a></h2>
+<h2>Differences to Mustache<a class="headerlink" href="#differences-to-mustache" title="Permalink to this headline">¶</a></h2>
 <p>Value in inclusion tag is first looked up against context, and, if not found, is used as-is. Following template:</p>
 <div class="highlight-python"><pre>{{&gt; content }}</pre>
 </div>
@@ -101,11 +101,11 @@ Well, ${{taxed_value}}, after taxes.
         <li class="right" >
           <a href="res.html" title="Res"
              >previous</a> |</li>
-        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010–2011, Nikita Prokopov (xored.com).
+        &copy; Copyright 2010–2011, Nikita Prokopov, Xored Software Inc.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

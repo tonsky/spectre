@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Res &mdash; Spectre v1.0 documentation</title>
+    <title>Res &mdash; Spectre v0.8 documentation</title>
     <link rel="stylesheet" href="_static/standalone.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.0',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Spectre v1.0 documentation" href="index.html" />
+    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
     <link rel="next" title="Templates" href="templates.html" />
     <link rel="prev" title="Req" href="req.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="req.html" title="Req"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
 
@@ -47,12 +47,13 @@
   <img alt="_images/response.png" class="article-cover cover-response" src="_images/response.png" />
 <div class="section" id="res">
 <h1>Res<a class="headerlink" href="#res" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference internal" href="#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> is your way to tell spectre what it should send to the client in response to his request. <a class="reference internal" href="#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> may be returned by view or any middleware. Moreover, middlewares are allowed to change returned <a class="reference internal" href="#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> as they need, or return their own instead.</p>
+<p><a class="reference internal" href="#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> is your way to tell Spectre what it should send to the client in response to his request. <a class="reference internal" href="#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> may be returned by view or by any middleware. Moreover, middlewares are allowed to change returned <a class="reference internal" href="#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> as they need, or return their own instead.</p>
 <p>Typical usage is to pass the content of the page to constructor as a <tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">Res</span><span class="p">(</span><span class="s">&quot;&lt;h1&gt;Hello world!&lt;/h1&gt;&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can also pass <tt class="xref py py-class docutils literal"><span class="pre">InStream</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">File</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">List</span></tt> (merged content of list elements, converted to strings, will be sent), or any other <tt class="xref py py-class docutils literal"><span class="pre">Obj</span></tt> that supports <tt class="xref py py-func docutils literal"><span class="pre">toStr()</span></tt>.</p>
+<p>Also see <a class="reference internal" href="templates.html"><em>Templates</em></a>.</p>
 <dl class="class">
 <dt id="Res">
 <em class="property">class </em><tt class="descname">Res</tt><a class="headerlink" href="#Res" title="Permalink to this definition">¶</a></dt>
@@ -200,11 +201,11 @@
         <li class="right" >
           <a href="req.html" title="Req"
              >previous</a> |</li>
-        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010–2011, Nikita Prokopov (xored.com).
+        &copy; Copyright 2010–2011, Nikita Prokopov, Xored Software Inc.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

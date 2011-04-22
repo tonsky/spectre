@@ -4,6 +4,6 @@ class Build : build::BuildPod {
     podName = "newappname"
     summary = ""
     srcDirs = [`fan/`]
-    depends = ["spectre 1.0", "sys 1.0"]
+    depends = ["spectre 0.8", "sys 1.0"]
   }
 }

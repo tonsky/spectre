@@ -5,7 +5,15 @@
  Getting started
 =================
 
-Let’s create your first Spectre application. Create a folder where you’ll keep all your app files::
+Once you have Spectre installed, use::
+
+    >>> spectre startapp <appname>
+    
+to create an application stub. For example, let’s create ``getting_started`` app. Type::
+
+    >>> spectre startapp getting_started
+
+You’ll see a folder created for you:::
 
   getting_started/
     fan/
@@ -13,9 +21,13 @@ Let’s create your first Spectre application. Create a folder where you’ll ke
     templates/    
     build.fan
 
-The only thing mandatory here is the ``build.fan`` file, it must exists in the root folder of your app. Everything else may be changed to better fit your needs.
+You can test you app by starting development server::
 
-In ``build.fan``, specify dependency on Spectre v.1.0::
+    >>> spectre rundevserver getting_started
+
+and pointing your browser at `<http://localhost:8080/>`_. You should see Spectre stub page. Let’s see how it works.
+
+The only thing mandatory in stub app is the ``build.fan`` file, it must exists in the root folder of your app. Anything else may be changed to better fit your needs. In ``build.fan`` you can see a dependency on Spectre specified::
     
     using build
     class Build : build::BuildPod {
@@ -23,27 +35,27 @@ In ``build.fan``, specify dependency on Spectre v.1.0::
         podName = "getting_started"
         summary = ""
         srcDirs = [`fan/`]
-        depends = ["sys 1.0", "spectre 1.0"]
+        depends = ["sys 1.0", "spectre 0.8"]
       }
     }
 
-In ``fan/`` create your root application’s class::
+In ``fan/app.fan`` you’ll see a root application’s class::
 
   using spectre
 
-  class DemoApp : Settings {
+  class Getting_startedApp : Settings {
     new make(Str:Obj? params) : super(params) {
-    
+      ...
     }  
   }
   
 You’ll need one and only one :class:`Settings` implementation in your app, it will be used as a root of your application. For application to work, you set :attr:`Settings.root` property to the root :class:`Turtle` of your application.
 
-To add routes we create :class:`Router` class and pass a list of ``[route path, view method]`` tuples to it::
+You also should see a couple of routes specified. Routes are specified by creating :class:`Router` class and passing a list of ``[route path, view method]`` tuples to it. Let’s change it a little::
 
   using spectre
 
-  class DemoApp : Settings {
+  class Getting_startedApp : Settings {
     new make(Str:Obj? params) : super() {
       routes = Router {
         ["/", IndexView#index],
@@ -60,11 +72,7 @@ Our route still points at an unimplemented class method (view). To implement it,
     }
   }
 
-Now you can run::
-
-  >>> fan spectre::RunDevServer path/to/demo_app/
-
-and point your browser at `<http://localhost:8080/>`_. You should see your hello message. Relax, take a cup of coffee, take a deep breath. We’re just in the beginning.
+If you refresh `<http://localhost:8080/>`_ in browser, you should see your hello message. Relax, take a cup of coffee, take a deep breath. We’re just in the beginning.
 
 What we’ve done is the simplest possible way to implement view: just return :class:`Res` instance with all the content of html page. However, we are not using any power of templates at all. Let’s fix that in :class:`ItemsView`::
 
@@ -98,9 +106,9 @@ By returning :class:`TemplateRes`, we are sending data obtained in view (``items
     </body>
   </html>
 
-Syntax used here is the "mustache" template language. You can find a really short introduction to musatche syntax `on their website <http://mustache.github.com/mustache.5.html>`_.
+Syntax used here is the Mustache template language. You can find a really short introduction to Musatche syntax `on their website <http://mustache.github.com/mustache.5.html>`_.
 
-For this template to work, we should set up template renderer, in our case it will be :class:`MustacheRenderer` class. After that, :class:`TemplateRes` will then be properly intercepted by it and rendered to the proper HTML. Add this to :class:`DemoApp` constructor::
+For this template to work, we should set up template renderer, in our case it will be :class:`MustacheRenderer` class. After that, :class:`TemplateRes` will then be properly intercepted by it and rendered to the proper HTML. Add this to :class:`Getting_startedApp` constructor::
 
   renderer = MustacheRenderer([appDir + `templates/`])
 
@@ -206,3 +214,7 @@ Last thing is missing: we should redirect back to page using GET after processin
 Here we just return :class:`ResRedirect` from view that will issue 302 FOUND http redirect. We also :func:`~Util.encode` message value, so if it contains any of ``&``, ``=`` or ``;`` characters they will be backslash-escaped.
 
 Congratulations! You’ve just completed this tutorial and should have basic undestanding of how to build applications with Spectre. You may now continue by reading :doc:`turtles` to get a deeper understanding of how these things actually work. Wish you good luck!
+
+.. note::
+
+   Full source code of this tutorial can be found in ``examples/getting_started`` dir inside Spectre distribution.

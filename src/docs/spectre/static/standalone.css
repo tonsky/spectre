@@ -20,3 +20,6 @@ h1, h2, h3 { font-family: 'Helvetica Neue', Helvetica, Arial, 'sans serif'; }
 }
 
 .body { padding: 1.5em 3em 3em }
+
+ul, ol { padding: 0px 0 0px 2em; margin: 0; }
+ul li { list-style-type: square; }

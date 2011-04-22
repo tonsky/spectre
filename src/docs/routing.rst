@@ -5,11 +5,11 @@
  Routing
 =========
 
-Routing scheme of spectre app is defined as one or more :class:`Router` :class:`turtles <Turtle>`. Usually a top-level :class:`Router` will be assigned to the :attr:`Settings.routes` attr of your app.
+Routing scheme of spectre app is defined as one or more :class:`Router` :class:`turtles <Turtle>`. Usually a top-level :class:`Router` will be assigned to the :attr:`Settings.routes` slot of your app.
 
 .. class:: Router
 
-   Take a list of ``[<route path>, <view function>]`` tuples. All routes are matched in the order they are defined until matched route is found. On the first match corresponding :doc:`view function <views>` will be invoked, and if it returns not-null value, this value is returned from :class:`Router` itself. If view returned ``null`` result, matching will be continued until the next matched route is found.
+   Takes a list of ``[<route path>, <view function>]`` tuples. All routes are matched in the order they are defined until matched route is found. On the first match corresponding :doc:`view function <views>` will be invoked, and if it returns not-null value, this value is returned from :class:`Router` itself. If view returned ``null`` result, matching will be continued until the next matched route is found.
 
 .. rubric:: Example
 

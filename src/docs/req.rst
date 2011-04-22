@@ -40,10 +40,10 @@ Represents incoming http request. A new instance of :class:`Req` will be created
  
       Standart resolvable options are:
 
-      + ``"req"`` is resovled to current :class:`Req` instance, if not overriden;
-      + :class:`Router` puts url path capture values to context if url matches this route;
-      + ``"session"`` is resolved to :class:`Session` if :class:`SessionMiddleware` is active.
-      + ``"debug"`` is resolved to :attr:`Settings.debug` value.
+      * ``"req"`` is resovled to current :class:`Req` instance, if not overriden;
+      * :class:`Router` puts url path capture values to context if url matches this route;
+      * ``"session"`` is resolved to :class:`Session` if :class:`SessionMiddleware` is active.
+      * ``"debug"`` is resolved to :attr:`Settings.debug` value.
 
       See :func:`~Req.dup`.
 

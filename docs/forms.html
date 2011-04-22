@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Forms &mdash; Spectre v1.0 documentation</title>
+    <title>Forms &mdash; Spectre v0.8 documentation</title>
     <link rel="stylesheet" href="_static/standalone.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.0',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Spectre v1.0 documentation" href="index.html" />
+    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
     <link rel="next" title="Sessions" href="sessions.html" />
     <link rel="prev" title="Templates" href="templates.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="templates.html" title="Templates"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
 
@@ -46,11 +46,11 @@
             
   <div class="section" id="forms">
 <h1>Forms<a class="headerlink" href="#forms" title="Permalink to this headline">¶</a></h1>
-<p>Forms are Spetre’s approach to handling user-submitted forms. Forms are resropsible for:</p>
+<p>Forms are Spectre’s approach for handling user-submitted forms. Forms are resropsible for:</p>
 <ul class="simple">
 <li>rendering HTML with automatically generated widgets and basic layouts;</li>
 <li>converting submitted data to corresponding Fantom types;</li>
-<li>checking subbmited data against a set of validation rules;</li>
+<li>checking submitted data against a set of validation rules;</li>
 <li>rendering form with error messages back to user if validation fails.</li>
 </ul>
 <p>To define a form, create a class extending <tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt> and define form fields
@@ -99,11 +99,11 @@ if (myForm.bind(["name": "Ilya", "bio": "Have layed for 33 years"])) {
 <div class="section" id="form-fields">
 <h2>Form fields<a class="headerlink" href="#form-fields" title="Permalink to this headline">¶</a></h2>
 <p><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt> is a part of <tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt> representing single value requested from user.</p>
-<p>It is also possible to use single <tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt> on its own. <tt class="xref py py-class docutils literal"><span class="pre">Field`s</span> <span class="pre">have</span> <span class="pre">same</span> <span class="pre">bound/unbound</span> <span class="pre">valid/invalid</span> <span class="pre">states</span> <span class="pre">as</span> <span class="pre">:class:`Form`s,</span> <span class="pre">:attr:`~Field.cleanedData</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">errrors</span></tt> and so on.</p>
+<p>It is also possible to use single <tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt> on its own. <tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt> have same bound/unbound valid/invalid states as <tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt>, including <tt class="xref py py-attr docutils literal"><span class="pre">cleanedData</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">errors</span></tt> and so on.</p>
 </div>
 <div class="section" id="rendering-form-and-fields">
 <h2>Rendering form and fields<a class="headerlink" href="#rendering-form-and-fields" title="Permalink to this headline">¶</a></h2>
-<p><tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt> can be rendered with <tt class="xref py py-func docutils literal"><span class="pre">asTable()</span></tt> method. It will return <tt class="xref py py-class docutils literal"><span class="pre">SafeStr</span></tt> html snippet with fields’ labels, widgets in their current state and error messages, wrapped with <tt class="docutils literal"><span class="pre">&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;</span></tt>. It won’t contain the <tt class="docutils literal"><span class="pre">&lt;table&gt;</span></tt> tag, you should write it by yourself.:</p>
+<p><tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt> can be rendered with <tt class="xref py py-func docutils literal"><span class="pre">asTable()</span></tt> method. It will return <tt class="xref py py-class docutils literal"><span class="pre">SafeStr</span></tt> html snippet with fields’ labels, widgets in their current state and error messages, wrapped with <tt class="docutils literal"><span class="pre">&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;</span></tt>. It won’t contain the <tt class="docutils literal"><span class="pre">&lt;table&gt;</span></tt> tag, you should write it by yourself:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">myForm</span><span class="o">.</span><span class="n">asTable</span>
 
 <span class="go">&lt;tr&gt;</span>
@@ -158,9 +158,9 @@ if (myForm.bind(["name": "Ilya", "bio": "Have layed for 33 years"])) {
 <li>running fields validators;</li>
 <li>running form validtaion.</li>
 </ol>
-<p>All errors occured on these steps are stored in <tt class="xref py py-attr docutils literal"><span class="pre">Field.errors</span></tt> (1, 2) and <tt class="xref py py-attr docutils literal"><span class="pre">Form.errors</span></tt> (3) slots. If there is at least one error, form became invalid and its <tt class="xref py py-attr docutils literal"><span class="pre">Form.cleanedData</span></tt> cannot be accessed.</p>
-<p>Field’s validators can be passed to field’s constructor:</p>
-<div class="highlight-python"><pre>StrField name := StrField("name", "Your name", [Required(), MinLength(10), MaxLength(25)])</pre>
+<p>All errors occured on these steps are stored in <tt class="xref py py-attr docutils literal"><span class="pre">Field.errors</span></tt> (1, 2) and <tt class="xref py py-attr docutils literal"><span class="pre">Form.errors</span></tt> (3) slots. If there is at least one error, form become invalid and its <tt class="xref py py-attr docutils literal"><span class="pre">cleanedData</span></tt> won’t be accessible.</p>
+<p><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt> validators can be passed to field’s constructor:</p>
+<div class="highlight-python"><pre>nameField := StrField("name", "Your name", [Required(), MinLength(10), MaxLength(25)])</pre>
 </div>
 <p>There are a bunch of field validators built-in with Spectre: <tt class="xref py py-class docutils literal"><span class="pre">Required</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MinLength</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MaxLength</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MinValue</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MaxValue</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">MatchesRegex</span></tt> and <tt class="xref py py-class docutils literal"><span class="pre">MatchesFunc</span></tt>.</p>
 <p>All errors found during individual field’s validation are stored in <tt class="xref py py-attr docutils literal"><span class="pre">Field.errors</span></tt> slot.</p>
@@ -279,7 +279,7 @@ if (myForm.bind(["name": "Ilya", "bio": "Have layed for 33 years"])) {
 </div>
 <div class="section" id="advanced-techniques">
 <h2>Advanced techniques<a class="headerlink" href="#advanced-techniques" title="Permalink to this headline">¶</a></h2>
-<p>By default, all <tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt> slots which extend <tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt> are included to form. If you need to specify, which fields to exclude from form rendering/processing, or enumerate which to include, please override <tt class="docutils literal"><span class="pre">Str[]?</span></tt> <tt class="xref py py-attr docutils literal"><span class="pre">Form.exclude</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">Form.include</span></tt> slots.</p>
+<p>By default, all <tt class="xref py py-class docutils literal"><span class="pre">Form</span></tt> slots which extend <tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt> are included to form. If you need to  exclude some fields from form rendering/processing, or enumerate which to include, override <tt class="docutils literal"><span class="pre">Str[]?</span></tt> <tt class="xref py py-attr docutils literal"><span class="pre">Form.exclude</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">Form.include</span></tt> slots.</p>
 <p>If you need to generate fields list dynamically, override <tt class="xref py py-func docutils literal"><span class="pre">Form.fields()</span></tt> method. It should return list of <tt class="xref py py-class docutils literal"><span class="pre">spectre::Field</span></tt> instances that form will contain:</p>
 <div class="highlight-python"><pre>class DynForm : Form {
   ... // usual fields’ definitions
@@ -308,11 +308,11 @@ if (myForm.bind(["name": "Ilya", "bio": "Have layed for 33 years"])) {
         <li class="right" >
           <a href="templates.html" title="Templates"
              >previous</a> |</li>
-        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010–2011, Nikita Prokopov (xored.com).
+        &copy; Copyright 2010–2011, Nikita Prokopov, Xored Software Inc.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

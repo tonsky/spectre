@@ -30,7 +30,7 @@ View must return :class:`Res` instance, or ``null``. Returning ``null``, Spectre
 Examples
 --------
 
-Having following route: ::
+Having this route: ::
 
   "/orders/{id}/{action}/"
 

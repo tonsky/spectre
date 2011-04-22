@@ -33,9 +33,6 @@ p, tt, .higlight-python {
   font-weight: normal;
 }
 
-ul, ol { padding: 0px 0 0px 2em; margin: 0; }
-
-ul li { list-style-type: square; }
 li { padding: 0;}
 
 dl { margin: 1em 0;}

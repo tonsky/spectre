@@ -10,9 +10,9 @@ Spectre comes with built-in development server. Its main purpose is to monitor s
 Running devserver
 -----------------
 
-To run development server, you’ll need both Fantom 1.0.57 and Spectre installed (see :doc:`installation`). Execute the following in your command prompt::
+To run development server, you’ll need Spectre installed (see :doc:`installation`). Execute the following in your command prompt::
 
-  >>> fan spectre::RunDevServer <path_to_your_app_folder>
+  >>> spectre rundevserver <path_to_your_app_folder>
   [20:09:47 23-Nov-10] [info] [spectre] Watching <path_to_your_app_folder>/ for modifications
   [20:09:47 23-Nov-10] [info] [spectre] Rebuildind pod <your_app_name> as file:<...>
   [20:09:47 23-Nov-10] [info] [spectre] Starting pod <...>_reloaded_1
@@ -20,7 +20,7 @@ To run development server, you’ll need both Fantom 1.0.57 and Spectre installe
   
 To bind on specific port use::
 
-  >>> fan spectre::RunDevServer -port 8000 <path_to_your_app_folder>
+  >>> spectre rundevserver <path_to_your_app_folder> -port 8000
  
 Serving static files
 --------------------
@@ -42,6 +42,6 @@ Production mode
 
 To run server in production mode, use ``RunServer`` class::
 
-  >>> fan spectre::RunServer <path_to_your_app_folder>
+  >>> spectre runserver <path_to_your_app_folder>
 
-It will disable hot app reloading, enable usage of mustache templates cache, so your app will perform faster. If you want to change something in your application depending of server mode, use :attr:`Settings.debug` attribute which will be set to ``false`` when in production mode.
+It will disable hot app reloading, enable usage of Mustache templates cache, so your app will perform faster. If you want to change something in your application depending of server mode, use :attr:`Settings.debug` attribute which will be set to ``false`` when in production mode.

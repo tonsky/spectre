@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Spectre development server &mdash; Spectre v1.0 documentation</title>
+    <title>Spectre development server &mdash; Spectre v0.8 documentation</title>
     <link rel="stylesheet" href="_static/standalone.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.0',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Spectre v1.0 documentation" href="index.html" />
+    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
     <link rel="next" title="Understanding basics" href="turtles.html" />
     <link rel="prev" title="Defining an app" href="settings.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="settings.html" title="Defining an app"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
 
@@ -50,8 +50,8 @@
 <p>Spectre comes with built-in development server. Its main purpose is to monitor source files in you app’s folder and reload them when something has been changed, so you’ll see a new version in your browser with no need to restart server manually.</p>
 <div class="section" id="running-devserver">
 <h2>Running devserver<a class="headerlink" href="#running-devserver" title="Permalink to this headline">¶</a></h2>
-<p>To run development server, you’ll need both Fantom 1.0.57 and Spectre installed (see <a class="reference internal" href="installation.html"><em>Installing Spectre</em></a>). Execute the following in your command prompt:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fan</span> <span class="n">spectre</span><span class="p">::</span><span class="n">RunDevServer</span> <span class="o">&lt;</span><span class="n">path_to_your_app_folder</span><span class="o">&gt;</span>
+<p>To run development server, you’ll need Spectre installed (see <a class="reference internal" href="installation.html"><em>Installing Spectre</em></a>). Execute the following in your command prompt:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">spectre</span> <span class="n">rundevserver</span> <span class="o">&lt;</span><span class="n">path_to_your_app_folder</span><span class="o">&gt;</span>
 <span class="go">[20:09:47 23-Nov-10] [info] [spectre] Watching &lt;path_to_your_app_folder&gt;/ for modifications</span>
 <span class="go">[20:09:47 23-Nov-10] [info] [spectre] Rebuildind pod &lt;your_app_name&gt; as file:&lt;...&gt;</span>
 <span class="go">[20:09:47 23-Nov-10] [info] [spectre] Starting pod &lt;...&gt;_reloaded_1</span>
@@ -59,7 +59,7 @@
 </pre></div>
 </div>
 <p>To bind on specific port use:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fan</span> <span class="n">spectre</span><span class="p">::</span><span class="n">RunDevServer</span> <span class="o">-</span><span class="n">port</span> <span class="mi">8000</span> <span class="o">&lt;</span><span class="n">path_to_your_app_folder</span><span class="o">&gt;</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">spectre</span> <span class="n">rundevserver</span> <span class="o">&lt;</span><span class="n">path_to_your_app_folder</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">port</span> <span class="mi">8000</span>
 </pre></div>
 </div>
 </div>
@@ -78,10 +78,10 @@
 <div class="section" id="production-mode">
 <span id="devserver-production-mode"></span><h2>Production mode<a class="headerlink" href="#production-mode" title="Permalink to this headline">¶</a></h2>
 <p>To run server in production mode, use <tt class="docutils literal"><span class="pre">RunServer</span></tt> class:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fan</span> <span class="n">spectre</span><span class="p">::</span><span class="n">RunServer</span> <span class="o">&lt;</span><span class="n">path_to_your_app_folder</span><span class="o">&gt;</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">spectre</span> <span class="n">runserver</span> <span class="o">&lt;</span><span class="n">path_to_your_app_folder</span><span class="o">&gt;</span>
 </pre></div>
 </div>
-<p>It will disable hot app reloading, enable usage of mustache templates cache, so your app will perform faster. If you want to change something in your application depending of server mode, use <a class="reference internal" href="settings.html#Settings.debug" title="Settings.debug"><tt class="xref py py-attr docutils literal"><span class="pre">Settings.debug</span></tt></a> attribute which will be set to <tt class="docutils literal"><span class="pre">false</span></tt> when in production mode.</p>
+<p>It will disable hot app reloading, enable usage of Mustache templates cache, so your app will perform faster. If you want to change something in your application depending of server mode, use <a class="reference internal" href="settings.html#Settings.debug" title="Settings.debug"><tt class="xref py py-attr docutils literal"><span class="pre">Settings.debug</span></tt></a> attribute which will be set to <tt class="docutils literal"><span class="pre">false</span></tt> when in production mode.</p>
 </div>
 </div>
 
@@ -99,11 +99,11 @@
         <li class="right" >
           <a href="settings.html" title="Defining an app"
              >previous</a> |</li>
-        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010–2011, Nikita Prokopov (xored.com).
+        &copy; Copyright 2010–2011, Nikita Prokopov, Xored Software Inc.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

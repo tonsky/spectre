@@ -18,7 +18,7 @@ The messages framework allows you to temporarily store messages in one request a
 Setting up
 ----------
 
-To set up messages, you have to add :class:`MessageMiddleware` it to the :attr:`Setting.middlewares` list. Messages can be stored in session, cookie or in some custom store, but right from the box Spectre supports only :class:`SessionMessageStore`. To use it, you’ll need :class:`SessionMiddleware` in the middlewares list before :class:`MessageMiddleware`.
+To set up messages, you have to add :class:`MessageMiddleware` it to the :attr:`Settings.middlewares` list. Messages can be stored in session, cookie or in some custom store, but right from the box Spectre supports only :class:`SessionMessageStore`. To use it, you’ll need :class:`SessionMiddleware` in the middlewares list before :class:`MessageMiddleware`.
 
 Example::
 

@@ -5,7 +5,7 @@
  Cookies
 ==========
 
-Cookie models an HTTP cookie used to pass data between the server and brower as defined by the original Netscape cookie specification and `RFC 2109 <http://tools.ietf.org/html/rfc2109.html>`_. Note the newer RFC 2965 is unsupported by most browsers, and even 2109 isn’t really supported by some of the major browsers.
+Cookie models an HTTP cookie used to pass data between a server and a brower as defined by the original Netscape cookie specification and `RFC 2109 <http://tools.ietf.org/html/rfc2109.html>`_. Note the newer RFC 2965 is unsupported by most browsers, and even 2109 isn’t really supported by some of the major browsers.
 
 Since only strict subset of ASCII is allowed in http headers, spectre encodes/decodes cookie values automatically using following scheme:
 

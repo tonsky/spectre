@@ -1,7 +1,7 @@
 using build
 class Build : build::BuildPod {
   new make() {
-    version = Version.fromStr("1.0")
+    version = Version.fromStr("0.8")
     podName = "spectre"
     summary = ""
     srcDirs = [`fan/`,

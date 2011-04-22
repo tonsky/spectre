@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Getting started &mdash; Spectre v1.0 documentation</title>
+    <title>Getting started &mdash; Spectre v0.8 documentation</title>
     <link rel="stylesheet" href="_static/standalone.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.0',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Spectre v1.0 documentation" href="index.html" />
+    <link rel="top" title="Spectre v0.8 documentation" href="index.html" />
     <link rel="next" title="Defining an app" href="settings.html" />
     <link rel="prev" title="Installing Spectre" href="installation.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="installation.html" title="Installing Spectre"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
 
@@ -47,39 +47,51 @@
   <img alt="_images/getting_started.png" class="article-cover cover-getting-started" src="_images/getting_started.png" />
 <div class="section" id="getting-started">
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
-<p>Let’s create your first Spectre application. Create a folder where you’ll keep all your app files:</p>
+<p>Once you have Spectre installed, use:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">spectre</span> <span class="n">startapp</span> <span class="o">&lt;</span><span class="n">appname</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>to create an application stub. For example, let’s create <tt class="docutils literal"><span class="pre">getting_started</span></tt> app. Type:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">spectre</span> <span class="n">startapp</span> <span class="n">getting_started</span>
+</pre></div>
+</div>
+<p>You’ll see a folder created for you::</p>
 <div class="highlight-python"><pre>getting_started/
   fan/
   static/
   templates/
   build.fan</pre>
 </div>
-<p>The only thing mandatory here is the <tt class="docutils literal"><span class="pre">build.fan</span></tt> file, it must exists in the root folder of your app. Everything else may be changed to better fit your needs.</p>
-<p>In <tt class="docutils literal"><span class="pre">build.fan</span></tt>, specify dependency on Spectre v.1.0:</p>
+<p>You can test you app by starting development server:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">spectre</span> <span class="n">rundevserver</span> <span class="n">getting_started</span>
+</pre></div>
+</div>
+<p>and pointing your browser at <a class="reference external" href="http://localhost:8080/">http://localhost:8080/</a>. You should see Spectre stub page. Let’s see how it works.</p>
+<p>The only thing mandatory in stub app is the <tt class="docutils literal"><span class="pre">build.fan</span></tt> file, it must exists in the root folder of your app. Anything else may be changed to better fit your needs. In <tt class="docutils literal"><span class="pre">build.fan</span></tt> you can see a dependency on Spectre specified:</p>
 <div class="highlight-python"><pre>using build
 class Build : build::BuildPod {
   new make() {
     podName = "getting_started"
     summary = ""
     srcDirs = [`fan/`]
-    depends = ["sys 1.0", "spectre 1.0"]
+    depends = ["sys 1.0", "spectre 0.8"]
   }
 }</pre>
 </div>
-<p>In <tt class="docutils literal"><span class="pre">fan/</span></tt> create your root application’s class:</p>
+<p>In <tt class="docutils literal"><span class="pre">fan/app.fan</span></tt> you’ll see a root application’s class:</p>
 <div class="highlight-python"><pre>using spectre
 
-class DemoApp : Settings {
+class Getting_startedApp : Settings {
   new make(Str:Obj? params) : super(params) {
-
+    ...
   }
 }</pre>
 </div>
 <p>You’ll need one and only one <a class="reference internal" href="settings.html#Settings" title="Settings"><tt class="xref py py-class docutils literal"><span class="pre">Settings</span></tt></a> implementation in your app, it will be used as a root of your application. For application to work, you set <a class="reference internal" href="settings.html#Settings.root" title="Settings.root"><tt class="xref py py-attr docutils literal"><span class="pre">Settings.root</span></tt></a> property to the root <a class="reference internal" href="turtles.html#Turtle" title="Turtle"><tt class="xref py py-class docutils literal"><span class="pre">Turtle</span></tt></a> of your application.</p>
-<p>To add routes we create <a class="reference internal" href="routing.html#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> class and pass a list of <tt class="docutils literal"><span class="pre">[route</span> <span class="pre">path,</span> <span class="pre">view</span> <span class="pre">method]</span></tt> tuples to it:</p>
+<p>You also should see a couple of routes specified. Routes are specified by creating <a class="reference internal" href="routing.html#Router" title="Router"><tt class="xref py py-class docutils literal"><span class="pre">Router</span></tt></a> class and passing a list of <tt class="docutils literal"><span class="pre">[route</span> <span class="pre">path,</span> <span class="pre">view</span> <span class="pre">method]</span></tt> tuples to it. Let’s change it a little:</p>
 <div class="highlight-python"><pre>using spectre
 
-class DemoApp : Settings {
+class Getting_startedApp : Settings {
   new make(Str:Obj? params) : super() {
     routes = Router {
       ["/", IndexView#index],
@@ -95,11 +107,7 @@ class DemoApp : Settings {
   }
 }</pre>
 </div>
-<p>Now you can run:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fan</span> <span class="n">spectre</span><span class="p">::</span><span class="n">RunDevServer</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">demo_app</span><span class="o">/</span>
-</pre></div>
-</div>
-<p>and point your browser at <a class="reference external" href="http://localhost:8080/">http://localhost:8080/</a>. You should see your hello message. Relax, take a cup of coffee, take a deep breath. We’re just in the beginning.</p>
+<p>If you refresh <a class="reference external" href="http://localhost:8080/">http://localhost:8080/</a> in browser, you should see your hello message. Relax, take a cup of coffee, take a deep breath. We’re just in the beginning.</p>
 <p>What we’ve done is the simplest possible way to implement view: just return <a class="reference internal" href="res.html#Res" title="Res"><tt class="xref py py-class docutils literal"><span class="pre">Res</span></tt></a> instance with all the content of html page. However, we are not using any power of templates at all. Let’s fix that in <tt class="xref py py-class docutils literal"><span class="pre">ItemsView</span></tt>:</p>
 <div class="highlight-python"><pre>class ItemsView {
   [Str:Obj][] items() {
@@ -130,8 +138,8 @@ class DemoApp : Settings {
   &lt;/body&gt;
 &lt;/html&gt;</pre>
 </div>
-<p>Syntax used here is the &#8220;mustache&#8221; template language. You can find a really short introduction to musatche syntax <a class="reference external" href="http://mustache.github.com/mustache.5.html">on their website</a>.</p>
-<p>For this template to work, we should set up template renderer, in our case it will be <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt> class. After that, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will then be properly intercepted by it and rendered to the proper HTML. Add this to <tt class="xref py py-class docutils literal"><span class="pre">DemoApp</span></tt> constructor:</p>
+<p>Syntax used here is the Mustache template language. You can find a really short introduction to Musatche syntax <a class="reference external" href="http://mustache.github.com/mustache.5.html">on their website</a>.</p>
+<p>For this template to work, we should set up template renderer, in our case it will be <tt class="xref py py-class docutils literal"><span class="pre">MustacheRenderer</span></tt> class. After that, <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> will then be properly intercepted by it and rendered to the proper HTML. Add this to <tt class="xref py py-class docutils literal"><span class="pre">Getting_startedApp</span></tt> constructor:</p>
 <div class="highlight-python"><pre>renderer = MustacheRenderer([appDir + `templates/`])</pre>
 </div>
 <p>And don’t forget to add a route to our brand-new <tt class="xref py py-class docutils literal"><span class="pre">ItemsView</span></tt> class:</p>
@@ -226,6 +234,10 @@ class DemoApp : Settings {
 </div>
 <p>Here we just return <a class="reference internal" href="res.html#ResRedirect" title="ResRedirect"><tt class="xref py py-class docutils literal"><span class="pre">ResRedirect</span></tt></a> from view that will issue 302 FOUND http redirect. We also <tt class="xref py py-func docutils literal"><span class="pre">encode()</span></tt> message value, so if it contains any of <tt class="docutils literal"><span class="pre">&amp;</span></tt>, <tt class="docutils literal"><span class="pre">=</span></tt> or <tt class="docutils literal"><span class="pre">;</span></tt> characters they will be backslash-escaped.</p>
 <p>Congratulations! You’ve just completed this tutorial and should have basic undestanding of how to build applications with Spectre. You may now continue by reading <a class="reference internal" href="turtles.html"><em>Understanding basics</em></a> to get a deeper understanding of how these things actually work. Wish you good luck!</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Full source code of this tutorial can be found in <tt class="docutils literal"><span class="pre">examples/getting_started</span></tt> dir inside Spectre distribution.</p>
+</div>
 </div>
 
 
@@ -242,11 +254,11 @@ class DemoApp : Settings {
         <li class="right" >
           <a href="installation.html" title="Installing Spectre"
              >previous</a> |</li>
-        <li><a href="index.html">Spectre v1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Spectre v0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010–2011, Nikita Prokopov (xored.com).
+        &copy; Copyright 2010–2011, Nikita Prokopov, Xored Software Inc.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

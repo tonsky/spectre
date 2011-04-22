@@ -5,13 +5,15 @@
  Res
 =====
 
-:class:`Res` is your way to tell spectre what it should send to the client in response to his request. :class:`Res` may be returned by view or any middleware. Moreover, middlewares are allowed to change returned :class:`Res` as they need, or return their own instead.
+:class:`Res` is your way to tell Spectre what it should send to the client in response to his request. :class:`Res` may be returned by view or by any middleware. Moreover, middlewares are allowed to change returned :class:`Res` as they need, or return their own instead.
 
 Typical usage is to pass the content of the page to constructor as a :class:`Str`::
   
   Res("<h1>Hello world!</h1>")
 
 You can also pass :class:`InStream`, :class:`File` or :class:`List` (merged content of list elements, converted to strings, will be sent), or any other :class:`Obj` that supports :func:`~Obj.toStr`.
+
+Also see :doc:`templates`.
 
 .. class:: Res
 

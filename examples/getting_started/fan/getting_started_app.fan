@@ -1,6 +1,6 @@
 using spectre
 
-class DemoApp : Settings {
+class Getting_startedApp : Settings {
   new make(Str:Obj? params) : super(params) {
     routes = Router {
       ["/", IndexView#index],

@@ -8,9 +8,9 @@
   a.button { height: 20px; line-height: 20px; vertical-align: middle }
   a.button img { vertical-align: middle; margin: 0 4px 0 0 }
 </style>
-<a href="#" class="button" onclick="testWebSocket(); return false"><img src="/i/dial.png"/>Звонить</a>
-<a href="#" class="button" onclick="doSend('Титька!'); return false"><img src="/i/say.png"/>Послать</a>
-<a href="#" class="button" onclick="websocket.close(); return false"><img src="/i/cancel.png"/>Повесить трубку</a>
+<a href="#" class="button" onclick="testWebSocket(); return false"><img src="/i/dial.png"/>Dial</a>
+<a href="#" class="button" onclick="doSend('Tits!'); return false"><img src="/i/say.png"/>Tell</a>
+<a href="#" class="button" onclick="websocket.close(); return false"><img src="/i/cancel.png"/>Hang up</a>
 <pre id="output" style="height: 400px; overflow-y: scroll; font-size: 15px"></pre>
 
 <script type="text/javascript">
@@ -29,19 +29,19 @@
     websocket.onerror = function(evt) { onError(evt) };
   }
     
-  function onOpen(evt) { writeToScreen("Дозвонились"); }  
-  function onClose(evt) { writeToScreen("Обрыв связи"); }
+  function onOpen(evt) { writeToScreen("Connected"); }
+  function onClose(evt) { writeToScreen("Connection lost"); }
   
   function onMessage(evt) {
-    writeToScreen('<span style="color: #D85300;"><em>Там:</em> ' + evt.data+'</span>');
+    writeToScreen('<span style="color: #D85300;"><em>They:</em> ' + evt.data+'</span>');
   }
   
   function onError(evt) {
-    writeToScreen('<span style="color: red;"><em>Ошибка</em>:</span> ' + evt.data);
+    writeToScreen('<span style="color: red;"><em>Error</em>:</span> ' + evt.data);
   }
   
   function doSend(message) {
-    writeToScreen("<em>Вы:</em> " + message);
+    writeToScreen("<em>You:</em> " + message);
     websocket.send(message);
   }
   

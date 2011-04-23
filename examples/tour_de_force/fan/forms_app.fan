@@ -21,8 +21,8 @@ class SampleForm : Form, SafeStrUtil {
   StrField nameF := StrField("name", safe("Str required<span style=\"color: red\">*</span>"), [Required()])
   PasswordField passwd := PasswordField("passwd", "Passwd") {}
   PasswordField passwd2 := PasswordField("passwd2", "Passwd repeated") {}
-  TextareaField textarea := TextareaField("text", "Textarea (no ‘!’ allowed)", 
-    [MatchesFunc{(it as Str).contains("!") ? ["Should not contain ‘!’"] : [,]}]) {
+  TextareaField textarea := TextareaField("text", "Textarea (no “!” allowed)", 
+    [MatchesFunc{(it as Str).contains("!") ? ["Should not contain “!”"] : [,]}]) {
     attrs = ["cols": "25", "rows": "5"]
   }
   IntField age := IntField("age", "Int, initial=18") { data = 18; attrs = ["id": "age", "size": "3"] }

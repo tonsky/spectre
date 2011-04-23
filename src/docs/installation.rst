@@ -9,7 +9,7 @@ Installing Spectre
 
 2. Download and unpack latest Spectre release from `spectreframework.org <http://spectreframework.org/>`_;
 
-3. Add `<SPECTRE_DIR>/bin` to your classpath.
+3. Add ``<SPECTRE_DIR>/bin`` to your classpath.
 
 Testing installation
 --------------------
@@ -18,6 +18,6 @@ To test you have everything set up properly, run the following command:::
 
   >>> spectre rundevserver <SPECTRE_DIR>/examples/tour_de_force/
   
-And point you browser at `<http://localhots:8080/>`_. If you see Spectre demo app, than you’ve done everything all right. 
+And point you browser at `<http://localhost:8080/>`_. If you see Spectre demo app, than you’ve done everything all right. 
 
 Congratulations! You now have Spectre installed. Proceed to the :doc:`getting_started` section.

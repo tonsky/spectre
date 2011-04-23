@@ -11,13 +11,6 @@ a:hover { color: #333; text-decoration: underline; }
 a:visited { color: #A3566C; }
 a.external { text-decoration: underline;}
 
-h1 { 
-  font-size: 1.25em;
-  letter-spacing: 0.3px;
-  line-height: 1.75em;
-  margin-bottom: 0.75em;
-  color: #A3566C;
-}
 
 h2 { 
   font-size: 1.1em;

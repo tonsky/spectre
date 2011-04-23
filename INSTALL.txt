@@ -1,0 +1,14 @@
+Installation
+------------
+
+1. Install Fantom 1.0.58 from http://fantom.org/
+2. Add <SPECTRE_DIR>/bin to your $PATH
+
+Testing installation
+--------------------
+
+To test you have everything set up properly, run the following command::
+
+  >>> spectre rundevserver <SPECTRE_DIR>/examples/tour_de_force/
+
+And point you browser at http://localhost:8080/. If you see Spectre demo app, than you’ve done everything all right.

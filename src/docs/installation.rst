@@ -5,11 +5,11 @@
 Installing Spectre
 ==================
 
-1. Setup Fantom 1.0.58 `from official site <http://fantom.org/doc/docIntro/StartHere.html#quickStart>`_;
+1. Install Fantom 1.0.58 `from official site <http://fantom.org/doc/docIntro/StartHere.html#quickStart>`_;
 
 2. Download and unpack latest Spectre release from `spectreframework.org <http://spectreframework.org/>`_;
 
-3. Add ``<SPECTRE_DIR>/bin`` to your classpath.
+3. Add ``<SPECTRE_DIR>/bin`` to your ``$PATH``.
 
 Testing installation
 --------------------

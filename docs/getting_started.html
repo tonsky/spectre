@@ -51,22 +51,22 @@
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">spectre</span> <span class="n">startapp</span> <span class="o">&lt;</span><span class="n">appname</span><span class="o">&gt;</span>
 </pre></div>
 </div>
-<p>to create an application stub. For example, let’s create <tt class="docutils literal"><span class="pre">getting_started</span></tt> app. Type:</p>
+<p>to create an application stub. For example, let’s create <tt class="docutils literal"><span class="pre">getting_started</span></tt> app. Type in command prompt:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">spectre</span> <span class="n">startapp</span> <span class="n">getting_started</span>
 </pre></div>
 </div>
-<p>You’ll see a folder created for you::</p>
+<p>You’ll see a folder was created:</p>
 <div class="highlight-python"><pre>getting_started/
   fan/
   static/
   templates/
   build.fan</pre>
 </div>
-<p>You can test you app by starting development server:</p>
+<p>Test you app by starting development server:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">spectre</span> <span class="n">rundevserver</span> <span class="n">getting_started</span>
 </pre></div>
 </div>
-<p>and pointing your browser at <a class="reference external" href="http://localhost:8080/">http://localhost:8080/</a>. You should see Spectre stub page. Let’s see how it works.</p>
+<p>and pointing browser at <a class="reference external" href="http://localhost:8080/">http://localhost:8080/</a>. You should see Spectre stub page. Let’s see how it works.</p>
 <p>The only thing mandatory in stub app is the <tt class="docutils literal"><span class="pre">build.fan</span></tt> file, it must exists in the root folder of your app. Anything else may be changed to better fit your needs. In <tt class="docutils literal"><span class="pre">build.fan</span></tt> you can see a dependency on Spectre specified:</p>
 <div class="highlight-python"><pre>using build
 class Build : build::BuildPod {

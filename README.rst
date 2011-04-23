@@ -2,6 +2,10 @@
  Spectre
 =========
 
+What is it?
+-----------
+
+
 Spectre is the general-purpose web application framework for `Fantom <http://fantom.org>`_ language.
 
 Main features
@@ -21,15 +25,15 @@ Main features
 Documentation
 -------------
 
-Spectre documentation can be found at `spectreframework.org/documents/ <http://spectreframework.org/documents/>`_ or in a ``doc`` folder of Spectre distribution.
+Spectre documentation can be found at `spectreframework.org/documents/ <http://spectreframework.org/documents/>`_ or in a ``doc/`` folder of Spectre distribution.
 
 
 Sample application
 ------------------
 ::
 
-	using spectre
-
+  using spectre
+  
   class HelloWorldApp : Settings {
     new make(Str:Obj? params) : super(params) {
       routes = Router {
@@ -38,7 +42,7 @@ Sample application
     }
   }
 
-For more examples take a look at ``examples`` folder of Spectre distribution.
+For more examples take a look at ``examples/`` folder of Spectre distribution.
 
 Building Spectre from sources
 -----------------------------

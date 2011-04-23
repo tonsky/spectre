@@ -1,5 +1,5 @@
-Spectre web framework
-===================================
+Official Spectre documentation
+==============================
 
 .. toctree::
    :maxdepth: 1

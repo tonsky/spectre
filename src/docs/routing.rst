@@ -1,4 +1,4 @@
-.. image:: _images/routing.png
+.. image:: _images/routing.jpg
    :class: article_cover cover_routing
 
 =========

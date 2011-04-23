@@ -1,4 +1,4 @@
-.. image:: _images/views.png
+.. image:: _images/views.jpg
    :class: article_cover cover_views
 
 =======

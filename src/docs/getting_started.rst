@@ -1,4 +1,4 @@
-.. image:: _images/getting_started.png
+.. image:: _images/getting_started.jpg
    :class: article_cover cover_getting_started
 
 =================

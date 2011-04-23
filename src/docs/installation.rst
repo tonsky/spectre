@@ -1,4 +1,4 @@
-.. image:: _images/installation.png
+.. image:: _images/installation.jpg
    :class: article_cover cover_installation
 
 ==================

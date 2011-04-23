@@ -1,4 +1,4 @@
-.. image:: _images/response.png
+.. image:: _images/response.jpg
    :class: article_cover cover_response
 
 =====

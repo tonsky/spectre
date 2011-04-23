@@ -6,7 +6,7 @@ Usually you’ll need pages a little bit more complex than just a :class:`Str` w
 
 Templates are simple text files (html, xml, csv, etc.) with special instructions in them. For now, Spectre comes with built-in support for Mustache templates only. You can find a really short introduction to Musatche syntax `on their website <http://mustache.github.com/mustache.5.html>`_.
 
-.. image:: _images/mustache.png
+.. image:: _images/mustache.jpg
    :class: cover_mustache
 
 The recommended way to deal with templating is to return :class:`TemplateRes` object from the view and then intercept it and render in template rendering middleware. This decouples view from presentation details and leaves you a place to do something site-wide with :class:`TemplateRes` after it was returned from view (e.g. populate :attr:`~TemplateRes.context` with some site-wide attributes like current user’s name, or change path to :class:`~TemplateRes.template` basing on client’s platform, moving this logic out of view).

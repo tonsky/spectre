@@ -2,29 +2,27 @@
  Spectre
 =========
 
-Spectre is a general-purpose web application framework for `Fantom <http://fantom.org>`_ language.
+Spectre is the general-purpose web application framework for `Fantom <http://fantom.org>`_ language.
 
 Main features
 -------------
 
 * higly customizable;
-* flexible url router;
-* mustache templates for presentation layer;
-* cookies;
-* messages;
-* pluggable session store support;
-* full-featured forms processing library;
+* batteries included: flexible url router, cookies, messages, custom sessions;
+* full-featured forms library;
+* Mustache templates for presentation layer;
 * development server with:
 
-  * instant app reload;
+  * non-blocking IO cycle for perfect scalability;
   * WebSocket protocol draft 76 support;
-  * static files serve ability.
+  * instant app reload in dev mode.
 
 
 Documentation
 -------------
 
-**Please take a look at doc/build/html/index.html**. It’s a complete documentation pack including usage examples, and it’s pretty nice, actually.
+Spectre documentation can be found at `spectreframework.org/documents/ <http://spectreframework.org/documents/>`_ or in a ``doc`` folder of Spectre distribution.
+
 
 Sample application
 ------------------
@@ -32,64 +30,33 @@ Sample application
 
 	using spectre
 
-	class DemoApp : Settings {
-	  new make(File appDir) : super() {
-	    routes := Router {
-	      ["/", IndexView#index],
-	      ["/items/", ItemsView#list],
-	      ["/items/{itemId}/", ItemsView#edit],
-	    }
-    
-	    tempalteRenderer := MustacheRenderer { templateDirs = [appDir + `getting_started/templates/`] }
+  class HelloWorldApp : Settings {
+    new make(Str:Obj? params) : super(params) {
+      routes = Router {
+        ["/*", |->Res| { Res("Hello, world!") }]
+      }
+    }
+  }
 
-	    root = Handler500().wrap(
-	             Handler404().wrap(
-	               tempalteRenderer.wrap(
-	                 routes
-	               )
-	             )
-	           )
-	  }
-	}
+For more examples take a look at ``examples`` folder of Spectre distribution.
 
+Building Spectre from sources
+-----------------------------
 
-	class IndexView {
-	  Res? index() {
-	    return Res("<html><body><h1>Hello from the other world!</h1><a href='/items/'>List of items</a></body></html>")
-	  }
-	}
+You’ll need:
 
-	class ItemsView {
-	  [Str:Obj][] items() {
-	    [["id": 1, "name": "Item 1"], ["id": 2, "name": "Item 2"], ["id": 3, "name": "Item 3"]]
-	  }
+* `Fantom 1.0.58 <http://fantom.org>`_;
+* `Printf <https://bitbucket.org/ivan_inozemtsev/printf>`_;
+* `Mustache <https://bitbucket.org/xored/mustache>`_;
+* And `Spectre <https://bitbucket.org/xored/spectre>`_ of course.
 
-	  TemplateRes list() {
-	    return TemplateRes("items_list.html", ["items": items])
-	  }
-  
-	  Res edit(Str itemId, Req req) {
-	    Int _itemId := Int.fromStr(itemId)
-	    item := items.find { it["id"] as Int == _itemId }
-    
-	    if (req.method == "POST") {
-	      item["name"] = req.post["name"]
-	      Str message := "Item ’" + item["name"] + "’ saved"
-	      return ResRedirect(Uri.fromStr("/items/" + item["id"] + "/?message=" + Util.urlencode(message)))
-	    }
+Set up Fantom’s ``jdkHome`` property in ``$FAN_HOME/etc/build/config.props``. Then run::
 
-	    Str message := req.get.get("message", "")
+  >>> fan printf/build.fan
+  >>> fan mustache/build.fan
+  >>> fan spectre/src/build.fan
+  >>> cp $FAN_HOME/lib/fan/printf.pod spectre/lib/fan/
+  >>> cp $FAN_HOME/lib/fan/mustache.pod spectre/lib/fan/
+  >>> cp $FAN_HOME/lib/fan/spectre.pod spectre/lib/fan/
 
-	    return TemplateRes("item_edit.html", ["id": item["id"], "name": item["name"], "message": message])
-	  }
-	}
-
-For more examples take a look at `<http://bitbucket.org/xored/spectre_demo_app>`_.
-
-Requirements
-------------
-
-* `fantom 1.0.57 <http://fantom.org>`_
-* `printf <https://bitbucket.org/prokopov/printf>`_
-* `mustache <https://bitbucket.org/xored/mustache>`_
-
+Now add ``spectre/bin`` to your ``$PATH`` and that’s it.

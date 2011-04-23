@@ -9,11 +9,11 @@ Once you have Spectre installed, use::
 
     >>> spectre startapp <appname>
     
-to create an application stub. For example, let’s create ``getting_started`` app. Type::
+to create an application stub. For example, let’s create ``getting_started`` app. Type in command prompt::
 
     >>> spectre startapp getting_started
 
-You’ll see a folder created for you:::
+You’ll see a folder was created::
 
   getting_started/
     fan/
@@ -21,11 +21,11 @@ You’ll see a folder created for you:::
     templates/    
     build.fan
 
-You can test you app by starting development server::
+Test you app by starting development server::
 
     >>> spectre rundevserver getting_started
 
-and pointing your browser at `<http://localhost:8080/>`_. You should see Spectre stub page. Let’s see how it works.
+and pointing browser at `<http://localhost:8080/>`_. You should see Spectre stub page. Let’s see how it works.
 
 The only thing mandatory in stub app is the ``build.fan`` file, it must exists in the root folder of your app. Anything else may be changed to better fit your needs. In ``build.fan`` you can see a dependency on Spectre specified::
     

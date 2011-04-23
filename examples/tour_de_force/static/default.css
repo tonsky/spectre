@@ -24,8 +24,8 @@ h2 { margin-top: 24px }
 #footer {
     font-size: 10px;
     color: #999;
-    padding: 0 60px;
-    background: url('/static/i/logo.gif') 32px 0 no-repeat;
+    padding: 0 0 0 60px;
+    background: url('/static/i/favicon.gif') 32px 0 no-repeat;
     height: 24px;
 }
 

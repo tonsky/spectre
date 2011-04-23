@@ -68,20 +68,20 @@ const class SpectreWsProcessor : WsActor {
   
   // synchronous processing
   override Void onReady(WsConn conn) {
-    conn.writeStr("Слушаю вас...")
+    conn.writeStr("I’m listening to you...")
     Buf? data := conn.read() // first message to be processed here, all the rest to be received asynchronously
     if (data == null) { conn.close; return }
-    conn.writeStr("Что значит „${data.readAllStr}?“")
+    conn.writeStr("What do you mean “${data.readAllStr}?”")
     
-    sendLater(0.5sec) |->|{ conn.writeStr("Алло!?") }
-    sendLater(1sec)   |->|{ conn.writeStr("Кто это говорит?") }
-    sendLater(2sec)   |->|{ conn.writeStr("Вы у меня доиграетесь!") }
-    sendLater(3sec)   |->|{ conn.writeStr("Все, вешаю трубку!"); conn.close }
+    sendLater(0.5sec) |->|{ conn.writeStr("Hello!?") }
+    sendLater(1sec)   |->|{ conn.writeStr("Who is it?") }
+    sendLater(2sec)   |->|{ conn.writeStr("I’m going to hang up the phone!") }
+    sendLater(3sec)   |->|{ conn.writeStr("Hanging up, bye!"); conn.close }
   }
 
   // asynchronous processing
   override Void asyncOnMsg(WsConn conn, Buf msg) {
-    conn.writeStr("Кто сказал „" + msg.readAllStr + "?“")
+    conn.writeStr("Is it you just saying “" + msg.readAllStr + "?”")
   }
 }
 

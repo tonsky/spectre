@@ -11,6 +11,13 @@ body, tt { font: 18px/25px 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
 tt { font-style: italic; }
 
 h1, h2, h3 { font-family: 'Helvetica Neue', Helvetica, Arial, 'sans serif'; }
+h1 { 
+  font-size: 1.25em;
+  letter-spacing: 0.3px;
+  margin-bottom: 0.75em;
+  line-height: 1.75em;
+  color: #A3566C;
+}
 
 .document { 
   margin: 0 2.5em;

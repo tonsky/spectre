@@ -1,4 +1,4 @@
-.. image:: _images/turtles.png
+.. image:: _images/turtles.jpg
    :class: article_cover cover_turtles_wo_border
 
 ====================

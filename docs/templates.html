@@ -48,7 +48,7 @@
 <h1>Templates<a class="headerlink" href="#templates" title="Permalink to this headline">¶</a></h1>
 <p>Usually you’ll need pages a little bit more complex than just a <tt class="xref py py-class docutils literal"><span class="pre">Str</span></tt> with substitution variables. That’s where you’ll need templates.</p>
 <p>Templates are simple text files (html, xml, csv, etc.) with special instructions in them. For now, Spectre comes with built-in support for Mustache templates only. You can find a really short introduction to Musatche syntax <a class="reference external" href="http://mustache.github.com/mustache.5.html">on their website</a>.</p>
-<img alt="_images/mustache.png" class="cover-mustache" src="_images/mustache.png" />
+<img alt="_images/mustache.jpg" class="cover-mustache" src="_images/mustache.jpg" />
 <p>The recommended way to deal with templating is to return <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> object from the view and then intercept it and render in template rendering middleware. This decouples view from presentation details and leaves you a place to do something site-wide with <tt class="xref py py-class docutils literal"><span class="pre">TemplateRes</span></tt> after it was returned from view (e.g. populate <tt class="xref py py-attr docutils literal"><span class="pre">context</span></tt> with some site-wide attributes like current user’s name, or change path to <tt class="xref py py-class docutils literal"><span class="pre">template</span></tt> basing on client’s platform, moving this logic out of view).</p>
 <div class="section" id="how-to-use-templates">
 <h2>How to use templates<a class="headerlink" href="#how-to-use-templates" title="Permalink to this headline">¶</a></h2>

@@ -1,4 +1,4 @@
-.. image:: _images/devserver.png
+.. image:: _images/devserver.jpg
    :class: article_cover cover_devserver
 
 ============================

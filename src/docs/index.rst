@@ -1,4 +1,4 @@
-Official Spectre documentation
+Spectre official documentation
 ==============================
 
 .. toctree::

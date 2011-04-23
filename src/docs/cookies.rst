@@ -1,4 +1,4 @@
-.. image:: _images/cookies.png
+.. image:: _images/cookies.jpg
    :class: article_cover cover_cookies
 
 ==========

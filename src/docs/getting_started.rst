@@ -171,6 +171,13 @@ now add a route::
   
 Now on `<http://localhost:8080/items/1/>`_ you should see a form, but the button doesn’t work. Let’s change our view a little::
 
+  // Warning! Not safe for real-world use with concurrent website access.
+  static const Unsafe itemsUnsafe := Unsafe(
+    [["id": 1, "name": "Item 1"],
+     ["id": 2, "name": "Item 2"],
+     ["id": 3, "name": "Item 3"]])
+  [Str:Obj][] items() { itemsUnsafe.val }
+
   TemplateRes edit(Str itemId, Req req) {
     Int _itemId := Int.fromStr(itemId)
     item := items.find { it["id"] as Int == _itemId }
@@ -189,7 +196,7 @@ Now on `<http://localhost:8080/items/1/>`_ you should see a form, but the button
 
 Here we detect form posting via :attr:`Req.method` attribute, and then access form data through :attr:`Req.post` which is a map-like object containing all POST parameters.
 
-“Save changes” button should work now. If you were watching close enough you’ll see that changes are not actually persisted, but hey, it’s just a demo. You should get the general idea.
+We’ve changed items to be stored in the static array (only one instance for app) using :class:`Unsafe`. As you can get from the name, it’s not safe for multi-threaded environment, but ok for our single-user demo. “Save changes” button should work now. Of course, changes won’t persist across application restart, but hey, it’s just a demo. You should get the general idea.
 
 Last thing is missing: we should redirect back to page using GET after processing POST request to avoid form reposting on page refresh. Let’s see how we can do this::
 

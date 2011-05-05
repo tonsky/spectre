@@ -44,7 +44,7 @@
       <div class="documentwrapper">
           <div class="body">
             
-  <img alt="_images/getting_started.jpg" class="article-cover cover-getting-started" src="_images/getting_started.jpg" />
+  <img alt="_images/getting_started1.jpg" class="article-cover cover-getting-started" src="_images/getting_started1.jpg" />
 <div class="section" id="getting-started">
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
 <p>Once you have Spectre installed, use:</p>
@@ -195,7 +195,14 @@ class Getting_startedApp : Settings {
 &lt;/html&gt;</pre>
 </div>
 <p>Now on <a class="reference external" href="http://localhost:8080/items/1/">http://localhost:8080/items/1/</a> you should see a form, but the button doesn’t work. Let’s change our view a little:</p>
-<div class="highlight-python"><pre>TemplateRes edit(Str itemId, Req req) {
+<div class="highlight-python"><pre>// Warning! Not safe for real-world use with concurrent website access.
+static const Unsafe itemsUnsafe := Unsafe(
+  [["id": 1, "name": "Item 1"],
+   ["id": 2, "name": "Item 2"],
+   ["id": 3, "name": "Item 3"]])
+[Str:Obj][] items() { itemsUnsafe.val }
+
+TemplateRes edit(Str itemId, Req req) {
   Int _itemId := Int.fromStr(itemId)
   item := items.find { it["id"] as Int == _itemId }
 
@@ -212,7 +219,7 @@ class Getting_startedApp : Settings {
 }</pre>
 </div>
 <p>Here we detect form posting via <a class="reference internal" href="req.html#Req.method" title="Req.method"><tt class="xref py py-attr docutils literal"><span class="pre">Req.method</span></tt></a> attribute, and then access form data through <a class="reference internal" href="req.html#Req.post" title="Req.post"><tt class="xref py py-attr docutils literal"><span class="pre">Req.post</span></tt></a> which is a map-like object containing all POST parameters.</p>
-<p>“Save changes” button should work now. If you were watching close enough you’ll see that changes are not actually persisted, but hey, it’s just a demo. You should get the general idea.</p>
+<p>We’ve changed items to be stored in the static array (only one instance for app) using <tt class="xref py py-class docutils literal"><span class="pre">Unsafe</span></tt>. As you can get from the name, it’s not safe for multi-threaded environment, but ok for our single-user demo. “Save changes” button should work now. Of course, changes won’t persist across application restart, but hey, it’s just a demo. You should get the general idea.</p>
 <p>Last thing is missing: we should redirect back to page using GET after processing POST request to avoid form reposting on page refresh. Let’s see how we can do this:</p>
 <div class="highlight-python"><pre>Res edit(Str itemId, Req req) {
   Int _itemId := Int.fromStr(itemId)

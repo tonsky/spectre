@@ -19,11 +19,12 @@ class IndexView {
 }
 
 class ItemsView {
-  [Str:Obj][] items() {
+  // Warning! Not safe for real-world use with concurrent website access.
+  static const Unsafe itemsUnsafe := Unsafe(
     [["id": 1, "name": "Item 1"],
      ["id": 2, "name": "Item 2"],
-     ["id": 3, "name": "Item 3"]]
-  }
+     ["id": 3, "name": "Item 3"]])
+  [Str:Obj][] items() { itemsUnsafe.val }
 
   TemplateRes list() {
     return TemplateRes("items_list.html", ["items": items])

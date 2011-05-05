@@ -61,41 +61,47 @@ class SpectreMustacheParser : MustacheParser {
   TemplateLoader templateLoader
   new make(|This|? f): super(f) {}
   
-  override MustacheToken partialToken(Str key) { PartialToken(templateLoader, key, otag, ctag) }  
-  override MustacheToken defaultToken(Str content) { EscapedToken(content, otag, ctag) }
+  override MustacheToken partialToken(Str key, Str indentStr) { PartialToken(templateLoader, key, indentStr, otag, ctag) }  
+  override MustacheToken defaultToken(Str content, Bool afterNewLine) { EscapedToken(content, otag, ctag, afterNewLine) }
 }
 
 internal const class EscapedToken : MustacheToken {
   const Str key
   const Str otag
   const Str ctag
+  const Bool afterNewLine
 
-  new make(Str key, Str otag, Str ctag) {
+  new make(Str key, Str otag, Str ctag, Bool afterNewLine) {
     this.key = key
     this.otag = otag
     this.ctag = ctag
+    this.afterNewLine = afterNewLine
   }
 
-  override Void render(StrBuf output, Obj? context, [Str:Mustache]partials, Mustache[] callStack) {
-    Obj? value := valueOf(key, context, partials, callStack, "")
+  override Void render(StrBuf output, Obj? context, [Str:Mustache]partials, Obj?[] callStack, Str indentStr) {
+    if (afterNewLine) output.add(indentStr)
+    // TRICKY: According to specs lambda result expansion procedure expects standard 
+    // double/triple mustache tags. It is not affected by currently set delimiter.
+    Obj? value := format(valueOf(key, context, partials, callStack, indentStr, "{{", "}}", ""))
     if (value == null)
       return
-    if (value is SafeStr) {
+    if (value is SafeStr)
       output.add(value)
-      return
-    }
-    Str str := value.toStr
-    str.each {
-      switch (it) {
-        case '<': output.add("&lt;")
-        case '>': output.add("&gt;")
-        case '&': output.add("&amp;")
-        case '"': output.add("&quot;")
-        case '\'': output.add("&#39;")
-        default: output.addChar(it)
+    else {
+      Str str := value.toStr
+      str.each {
+        switch (it) {
+          case '<': output.add("&lt;")
+          case '>': output.add("&gt;")
+          case '&': output.add("&amp;")
+          case '"': output.add("&quot;")
+          case '\'': output.add("&#39;")
+          default: output.addChar(it)
+        }
       }
     }
   }
+
   override Str templateSource() {
     b := StrBuf()
     b.add(otag)
@@ -108,23 +114,25 @@ internal const class PartialToken : MustacheToken {
   const TemplateLoader loader
   const Str key
   const Str otag
-  const Str ctag  
+  const Str ctag
+  const Str partialIndent
 
-  new make(TemplateLoader loader, Str key, Str otag, Str ctag) {
+  new make(TemplateLoader loader, Str key, Str partialIndent, Str otag, Str ctag) {
     this.loader = loader
     this.key = key
+    this.partialIndent = partialIndent
     this.otag = otag
     this.ctag = ctag
   }
 
-  override Void render(StrBuf output, Obj? context, [Str:Mustache]partials, Mustache[] callStack) {
-    Str? partialName := valueOf(key.trim, context, partials, callStack, "") ?: key.trim
+  override Void render(StrBuf output, Obj? context, [Str:Mustache]partials, Obj?[] callStack, Str indentStr) {
+    Str? partialName := (valueOf(key.trim, context, partials, callStack, indentStr, "{{", "}}", "")?.toStr ?: key)?.trim
     if (partialName == null)
       throw Err("Partial ‘$key’ is not defined.")
     
-    partial := loader.loadTemplate(partialName.trim)
+    partial := loader.loadTemplate(partialName)
     callStack.insert(0, partial)
-    output.add(partial.render(context, partials, callStack))
+    output.add(partial.render(context, partials, callStack, indentStr+partialIndent))
     callStack.removeAt(0)
   }
 

@@ -15,6 +15,7 @@ WebServer
  
 Spectre
 -------
+(v) Port to latest mustache
 ( ) TESTING
 ( ) Display broken file when reporting compilation errors
 ( ) Cannot remove __utmz and __utma google cookies
@@ -63,4 +64,6 @@ Middlewares
 APPEND_SLASH
 PREPEND_WWW
 
-
+Examples
+--------
+( ) use session to store data in getting_started

@@ -30,6 +30,6 @@ rundevserver) fan spectre::RunDevServer "$@"
     ;;
 runserver) fan spectre::RunServer "$@"
     ;;
-*) echo "Use 'spectre (startapp|rundevserver|runserver) <arg>'"
+*) echo "Unknown command \"$CMD\", use \"spectre (startapp|rundevserver|runserver) <arg>\""
    ;;
 esac

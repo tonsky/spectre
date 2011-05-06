@@ -12,7 +12,7 @@ class RunDevServer : AbstractMain {
   @Opt { help = "http port" }
   Int port := 8080
 
-  @Arg { help = "path to app dir (must contains build.fan and spectre::App implementation)" }
+  @Arg { help = "path to app dir (must contains build.fan and spectre::Settings implementation)" }
   File? appDir
   
   virtual Str mode := "development"
@@ -31,7 +31,7 @@ class RunDevServer : AbstractMain {
       onWs := |WsHandshakeReq req->WsProcessor?| {
         app := appHolder->sendGetLatest->get->val
         if (app is Err)
-          throw (app as Err) ?: Err("I can’t believe it")
+          throw (app as Err) ?: Err("I can't believe this")
         return (app as Settings).wsProcessor(req)
       }
   
@@ -73,7 +73,7 @@ const class AppHolder : DynActor {
   
   protected virtual Void tryUnload() {
     if (app is Settings) {
-      log.info("Unloading ‘$appPod’")
+      log.info("Unloading app: $appPod")
       (app as Settings).onUnload()
       app = null
     }
@@ -87,13 +87,13 @@ const class AppHolder : DynActor {
       t0 := DateTime.now
       reloadedPod := podReloader.getLatest
       if (reloadedPod === appPod && app is Settings) {
-        if (log.isDebug) log.debug("App is up to date: ‘$appPod’")
+        if (log.isDebug) log.debug("App is up to date: $appPod")
         return Unsafe(app)
       }
 
       tryUnload
       appPod = reloadedPod
-      log.info("Loading new version of ‘$appPod’")
+      log.info("Reloading app: $appPod")
       Type? appType := appPod.types.find { it.fits(Settings#) }
       if (appType == null)
         throw Err("Cannot find spectre::Settings implementation in ${appDir}")
@@ -102,7 +102,7 @@ const class AppHolder : DynActor {
       if (mode == "production")
         args[0]["debug"] = false
       app = appType.make(args)
-      log.info("App reloaded in " + (DateTime.now-t0) + ": ‘$appPod’")
+      log.info("App reloaded in " + (DateTime.now-t0) + ": $appPod")
       return Unsafe(app)
     } catch (Err e) {
       log.err("Err", e)

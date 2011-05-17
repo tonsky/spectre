@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 public class SelActorPeer {
   public java.nio.channels.Selector _sel;
-  public Map<SelectionKey, Object> _channels = new HashMap();
+  public Map<SelectionKey, Object> _channels = new HashMap<SelectionKey, Object>();
   
   public static SelActorPeer make(SelActor selector) { return new SelActorPeer(); }
   public SelActorPeer() { 

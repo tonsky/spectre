@@ -11,8 +11,8 @@ public class ChInBlockingTestPeer {
   
   public void testR(ChInBlockingTest fan) {
     for (ChannelInStream in: new ChannelInStream[] {
-      new ChannelInStream(new ChMock(new String[] {"a", "", "", "bcd", new String(new byte[]{(byte)0xFF})}, true), 10, true),
-      new ChannelInStream(new ChMock(new String[] {"a", "", "", "bcd", new String(new byte[]{(byte)0xFF})}, true), 2, true)
+      new ChannelInStream(new ChMock(new Object[] {"a", "", "", "bcd", new byte[]{(byte)0xFF}}, true), 10, true),
+      new ChannelInStream(new ChMock(new Object[] {"a", "", "", "bcd", new byte[]{(byte)0xFF}}, true), 2, true)
     }) {
       fan.verifyEq((char)in.r(), 'a'); // simple read
       fan.verifyEq((char)in.r(), 'b'); // chunk > buffer, partially read

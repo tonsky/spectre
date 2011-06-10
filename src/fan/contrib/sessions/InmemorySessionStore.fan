@@ -25,7 +25,7 @@ class InmemorySessionStore : SessionStore {
     return InmemorySession { map = [:].toImmutable }
   }
   
-  override Str? save(Session session, Str? sessionId, Bool forceSave) {
+  override Str? save(Session session, Str? sessionId, Bool forceSave := true) {
     if (session.map.isEmpty) {
       if (sessionId != null)
         actor->sendDelete(sessionId)

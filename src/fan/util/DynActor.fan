@@ -69,7 +69,7 @@ const class DynActor : Actor {
     return "_" + trappedName.decapitalize
   }
   
-  override Obj? trap(Str name, Obj?[]? args) {
+  override Obj? trap(Str name, Obj?[]? args := null) {
     Str methodName := toMethodName(name)
     Method method := this.typeof.method(methodName, true) //checked
     return this.send(DynActorCommand(method, args))

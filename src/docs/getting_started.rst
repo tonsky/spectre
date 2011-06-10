@@ -35,7 +35,7 @@ The only thing mandatory in stub app is the ``build.fan`` file, it must exists i
         podName = "getting_started"
         summary = ""
         srcDirs = [`fan/`]
-        depends = ["sys 1.0", "spectre 0.8"]
+        depends = ["sys 1.0", "spectre 0.8+"]
       }
     }
 

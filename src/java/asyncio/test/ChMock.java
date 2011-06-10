@@ -23,11 +23,11 @@ class ChMock implements ReadableByteChannel {
         else if (chunks[i] instanceof byte[])
           _chunks[i] = (byte[])chunks[i];
         else
-          throw Err.make("ChMock accepts only ASCII String or byte[], not " + chunks[i].getClass()).val;
+          throw Err.make("ChMock accepts only ASCII String or byte[], not " + chunks[i].getClass());
       }
       this._blocking = blocking;
     } catch (java.io.UnsupportedEncodingException e) {
-      throw Err.make("What, no UTF-8?", e).val;
+      throw Err.make("What, no UTF-8?", e);
     }
   }
   

@@ -20,6 +20,7 @@ Spectre official documentation
    cookies
    messages
    websockets
+   changelog
 
 .. note::
 

@@ -57,7 +57,7 @@ public class TcpSocketPeer {
       int javaPort = (port == null) ? 0 : port.intValue();
       _ch.socket().bind(new InetSocketAddress(javaAddr, javaPort));
       return fan;
-    } catch (IOException e) { throw IOErr.make(e).val; }
+    } catch (IOException e) { throw IOErr.make(e); }
   }
 
   // public TcpSocket connect(TcpSocket fan, IpAddr addr, long port, Duration timeout) {
@@ -66,7 +66,7 @@ public class TcpSocketPeer {
   //     _ch = SocketChannel.open(new InetSocketAddress(addr.peer.java, (int)port)/*, javaTimeout*/); //TODO use timeout
   //     connected(fan, _ch);
   //     return fan;
-  //   } catch (IOException e) { throw IOErr.make(e).val; }
+  //   } catch (IOException e) { throw IOErr.make(e); }
   // }
 
   void connected(TcpSocket fan, SocketChannel _ch) throws IOException {
@@ -85,12 +85,12 @@ public class TcpSocketPeer {
   }
   
   public InStream in(TcpSocket fan) {
-    if (_in == null) throw IOErr.make("not connected").val;
+    if (_in == null) throw IOErr.make("not connected");
     return _in;
   }
   
   public OutStream out(TcpSocket fan) {
-    if (_out == null) throw IOErr.make("not connected").val;
+    if (_out == null) throw IOErr.make("not connected");
     return _out;
   }
 
@@ -112,7 +112,7 @@ public class TcpSocketPeer {
   }
 
   public void setInBufferSize(TcpSocket fan, Long v) {
-    if (_in != null) throw Err.make("Must set inBufferSize before connection").val;
+    if (_in != null) throw Err.make("Must set inBufferSize before connection");
     _inBufSize = (v == null) ? 0 : v.intValue();
   }
 
@@ -121,7 +121,7 @@ public class TcpSocketPeer {
   }
 
   public void setOutBufferSize(TcpSocket fan, Long v) {
-    if (_in != null) throw Err.make("Must set outBufSize before connection").val;
+    if (_in != null) throw Err.make("Must set outBufSize before connection");
     _outBufSize = (v == null) ? 0 : v.intValue();
   }
 
@@ -131,42 +131,42 @@ public class TcpSocketPeer {
 
   public boolean getKeepAlive(TcpSocket fan) {
     try { return _ch.socket().getKeepAlive(); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public void setKeepAlive(TcpSocket fan, boolean v) {
     try { _ch.socket().setKeepAlive(v); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public long getReceiveBufferSize(TcpSocket fan) {
     try { return _ch.socket().getReceiveBufferSize(); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public void setReceiveBufferSize(TcpSocket fan, long v) {
     try { _ch.socket().setReceiveBufferSize((int)v); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public long getSendBufferSize(TcpSocket fan) {
     try { return _ch.socket().getSendBufferSize(); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public void setSendBufferSize(TcpSocket fan, long v) {
     try { _ch.socket().setSendBufferSize((int)v); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public boolean getReuseAddr(TcpSocket fan) {
     try { return _ch.socket().getReuseAddress(); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public void setReuseAddr(TcpSocket fan, boolean v) {
     try { _ch.socket().setReuseAddress(v); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public Duration getLinger(TcpSocket fan) {
@@ -174,7 +174,7 @@ public class TcpSocketPeer {
       int linger = _ch.socket().getSoLinger();
       if (linger < 0) return null;
       return Duration.makeSec(linger);
-    } catch (IOException e) { throw IOErr.make(e).val; }
+    } catch (IOException e) { throw IOErr.make(e); }
   }
 
   public void setLinger(TcpSocket fan, Duration v) {
@@ -183,7 +183,7 @@ public class TcpSocketPeer {
         _ch.socket().setSoLinger(false, 0);
       else
         _ch.socket().setSoLinger(true, (int)(v.sec()));
-    } catch (IOException e) { throw IOErr.make(e).val; }
+    } catch (IOException e) { throw IOErr.make(e); }
   }
 
   public Duration getReceiveTimeout(TcpSocket fan) {
@@ -191,7 +191,7 @@ public class TcpSocketPeer {
       int timeout = _ch.socket().getSoTimeout();
       if (timeout <= 0) return null;
       return Duration.makeMillis(timeout);
-    } catch (IOException e) { throw IOErr.make(e).val; }
+    } catch (IOException e) { throw IOErr.make(e); }
   }
 
   public void setReceiveTimeout(TcpSocket fan, Duration v) {
@@ -200,26 +200,26 @@ public class TcpSocketPeer {
         _ch.socket().setSoTimeout(0);
       else
         _ch.socket().setSoTimeout((int)(v.millis()));
-    } catch (IOException e) { throw IOErr.make(e).val; }
+    } catch (IOException e) { throw IOErr.make(e); }
   }
 
   public boolean getNoDelay(TcpSocket fan) {
     try { return _ch.socket().getTcpNoDelay(); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public void setNoDelay(TcpSocket fan, boolean v) {
     try { _ch.socket().setTcpNoDelay(v); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public long getTrafficClass(TcpSocket fan) {
     try { return _ch.socket().getTrafficClass(); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public void setTrafficClass(TcpSocket fan, long v) {
     try { _ch.socket().setTrafficClass((int)v); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 }

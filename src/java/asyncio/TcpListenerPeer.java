@@ -13,7 +13,7 @@ public class TcpListenerPeer {
   
   public static TcpListenerPeer make(TcpListener fan) {
     try { return new TcpListenerPeer(); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   protected TcpListenerPeer() throws IOException {
@@ -45,7 +45,7 @@ public class TcpListenerPeer {
       _ch.configureBlocking(false);      
       _ch.socket().bind(new InetSocketAddress(javaAddr, javaPort), (int)backlog);
       return fan;
-    } catch (IOException e) { throw IOErr.make(e).val; }
+    } catch (IOException e) { throw IOErr.make(e); }
   }
 
   public TcpSocket doAccept(TcpListener fan) {
@@ -55,7 +55,7 @@ public class TcpListenerPeer {
       TcpSocket s = TcpSocket.make();
       s.peer.connected(s, __ch);
       return s;
-    } catch (IOException e) { throw IOErr.make(e).val; }
+    } catch (IOException e) { throw IOErr.make(e); }
   }
 
   public boolean close(TcpListener fan) {
@@ -71,22 +71,22 @@ public class TcpListenerPeer {
 
   public long getReceiveBufferSize(TcpListener fan) {
     try { return _ch.socket().getReceiveBufferSize(); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public void setReceiveBufferSize(TcpListener fan, long v) {
     try { _ch.socket().setReceiveBufferSize((int)v); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public boolean getReuseAddr(TcpListener fan) {
     try { return _ch.socket().getReuseAddress(); } 
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public void setReuseAddr(TcpListener fan, boolean v) {
     try { _ch.socket().setReuseAddress(v); }
-    catch (IOException e) { throw IOErr.make(e).val; }
+    catch (IOException e) { throw IOErr.make(e); }
   }
 
   public Duration getReceiveTimeout(TcpListener fan) {
@@ -94,7 +94,7 @@ public class TcpListenerPeer {
       int timeout = _ch.socket().getSoTimeout();
       if (timeout <= 0) return null;
       return Duration.makeMillis(timeout);
-    } catch (IOException e) { throw IOErr.make(e).val; }
+    } catch (IOException e) { throw IOErr.make(e); }
   }
 
   public void setReceiveTimeout(TcpListener fan, Duration v) {
@@ -103,6 +103,6 @@ public class TcpListenerPeer {
         _ch.socket().setSoTimeout(0);
       else
         _ch.socket().setSoTimeout((int)(v.millis()));
-    } catch (IOException e) { throw IOErr.make(e).val; }
+    } catch (IOException e) { throw IOErr.make(e); }
   }
 }

@@ -51,7 +51,7 @@ class ChannelOutStream extends OutStream {
       return this;
     } catch (IOException e) { 
       close();
-      throw IOErr.make(e).val;
+      throw IOErr.make(e);
     }
   }
 

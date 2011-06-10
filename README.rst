@@ -49,7 +49,7 @@ Building Spectre from sources
 
 You’ll need:
 
-* `Fantom 1.0.58 <http://fantom.org>`_;
+* `Fantom 1.0.59 <http://fantom.org>`_;
 * `Printf <https://bitbucket.org/ivan_inozemtsev/printf>`_;
 * `Mustache <https://bitbucket.org/xored/mustache>`_;
 * And `Spectre <https://bitbucket.org/xored/spectre>`_ of course.

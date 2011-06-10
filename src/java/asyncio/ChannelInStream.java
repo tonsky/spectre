@@ -44,7 +44,7 @@ public class ChannelInStream extends InStream {
         return (int) _ub.pop() & 0xFF;
       int status = _tryRead();
       return _bb.hasRemaining() ? (int) _bb.get() & 0xFF : status == - 1 ? -1 : -2;
-    } catch (IOException e) { throw IOErr.make(e).val; }
+    } catch (IOException e) { throw IOErr.make(e); }
   }
 
   public Long readBuf(Buf buf, long n) {
@@ -61,7 +61,7 @@ public class ChannelInStream extends InStream {
         if (this._blocking || status <= 0 || (int)n - read <= 0) // never loop in blocking mode
           return read > 0 ? Long.valueOf(read) : status == -1 ? null : Long.valueOf(0);
       }
-    } catch (IOException e) { throw IOErr.make(e).val; }
+    } catch (IOException e) { throw IOErr.make(e); }
   }
 
   public InStream unread(long n) { return unread((int)n); }
@@ -73,8 +73,8 @@ public class ChannelInStream extends InStream {
         _ub = new CircularByteBuffer(128);
       _ub.push((byte)n);
       return this;
-    } catch (BufferUnderflowException e) { throw IOErr.make(e).val; }
-      catch (BufferOverflowException e) { throw IOErr.make(e).val; }
+    } catch (BufferUnderflowException e) { throw IOErr.make(e); }
+      catch (BufferOverflowException e) { throw IOErr.make(e); }
   }
 
   public long skip(long n) {
@@ -92,7 +92,7 @@ public class ChannelInStream extends InStream {
         if (this._blocking || status <= 0 || (int)n-skipped <= 0)  // never loop in blocking mode
           return skipped > 0 ? Long.valueOf(skipped) : Long.valueOf(status);
       }
-    } catch (IOException e) { throw IOErr.make(e).val; }
+    } catch (IOException e) { throw IOErr.make(e); }
   }
 
   public boolean close() {

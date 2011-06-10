@@ -5,7 +5,7 @@
 Installing Spectre
 ==================
 
-1. Install Fantom 1.0.58 `from official site <http://fantom.org/doc/docIntro/StartHere.html#quickStart>`_;
+1. Install Fantom 1.0.59 `from official site <http://fantom.org/doc/docIntro/StartHere.html#quickStart>`_;
 
 2. Download and unpack latest Spectre release from `spectreframework.org <http://spectreframework.org/>`_;
 

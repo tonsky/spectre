@@ -1,7 +1,7 @@
 Installation
 ------------
 
-1. Install Fantom 1.0.58 from http://fantom.org/
+1. Install Fantom 1.0.59 from http://fantom.org/
 2. Add <SPECTRE_DIR>/bin to your $PATH
 
 Testing installation

@@ -17,7 +17,7 @@ public class SelActorPeer {
   public static SelActorPeer make(SelActor selector) { return new SelActorPeer(); }
   public SelActorPeer() { 
     try { _sel = java.nio.channels.Selector.open(); }
-    catch(IOException e) { throw IOErr.make(e).val; }
+    catch(IOException e) { throw IOErr.make(e); }
   }
   
   public void _register(SelActor fan, Object s) {
@@ -26,7 +26,7 @@ public class SelActorPeer {
     else if (s instanceof TcpListener)
       _register(fan, (TcpListener) s);
     else
-      throw ArgErr.make("SelActor#register accepts only TcpSocket or TcpListener, not " + s.getClass()).val;
+      throw ArgErr.make("SelActor#register accepts only TcpSocket or TcpListener, not " + s.getClass());
   }
 
   public void _register(SelActor fan, TcpSocket s) {
@@ -34,7 +34,7 @@ public class SelActorPeer {
       s.peer._ch.configureBlocking(false); // we need this for select to work
       SelectionKey key = s.peer._ch.register(_sel, OP_READ);
       _channels.put(key, s);
-    } catch(IOException e) { throw IOErr.make(e).val; }
+    } catch(IOException e) { throw IOErr.make(e); }
   }
   
   public void _register(SelActor fan, TcpListener s) {
@@ -42,7 +42,7 @@ public class SelActorPeer {
       s.peer._ch.configureBlocking(false);
       SelectionKey key = s.peer._ch.register(_sel, OP_ACCEPT);
       _channels.put(key, s);
-    } catch(IOException e) { throw IOErr.make(e).val; }
+    } catch(IOException e) { throw IOErr.make(e); }
   }
 
   public void _unregister(SelActor fan, Object s) {
@@ -51,7 +51,7 @@ public class SelActorPeer {
     else if (s instanceof TcpListener)
       _unregister(fan, (TcpListener) s);
     else
-      throw ArgErr.make("SelActor#unregister accepts only TcpSocket or TcpListener, not " + s.getClass()).val;
+      throw ArgErr.make("SelActor#unregister accepts only TcpSocket or TcpListener, not " + s.getClass());
   }
   
   public void _unregister(SelActor fan, TcpSocket s) {
@@ -65,7 +65,7 @@ public class SelActorPeer {
         // so we doing non-blocking selectNow in between.
         _sel.selectNow(); 
       }
-    } catch(IOException e) { throw IOErr.make(e).val; }
+    } catch(IOException e) { throw IOErr.make(e); }
   }
   
   public void _unregister(SelActor fan, TcpListener s) {
@@ -79,7 +79,7 @@ public class SelActorPeer {
         // so we doing non-blocking selectNow in between.
         _sel.selectNow();
       }
-    } catch(IOException e) { throw IOErr.make(e).val; }
+    } catch(IOException e) { throw IOErr.make(e); }
   }
 
   public void _wakeup(SelActor fan) {
@@ -105,6 +105,6 @@ public class SelActorPeer {
           break; // FIXME take a look at concurrent modification above
         }
       }
-    } catch(IOException e) { throw IOErr.make(e).val; }
+    } catch(IOException e) { throw IOErr.make(e); }
   }
 }

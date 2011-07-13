@@ -15,7 +15,12 @@ class CookiesViews {
   
   virtual Res setCookie(Req req) {
     res := ResRedirect(`../`)
-      .setCookie(Cookie { name = req.get["cookie-name"]; val = req.get["cookie-value"]; maxAge = Duration.fromStr("1day")})
+      .setCookie(Cookie { 
+        name = req.get["cookie-name"]
+        val = req.get["cookie-value"]
+        maxAge = Duration.fromStr("1day")
+        domain = req.get["cookie-domain"] == "" ? null : req.get["cookie-domain"]
+      })
       .setCookie(Cookie { name = "secondcookie"; val = "b"; maxAge = Duration.fromStr("5sec")})
       .setCookie(Cookie { name = "thirdcookie"; val = "c"; maxAge = Duration.fromStr("15sec") })
     return res

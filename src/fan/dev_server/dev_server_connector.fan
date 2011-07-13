@@ -151,7 +151,7 @@ const class SpectreHttpProcessor {
 
 class SpectreReq : Req {
   HttpReq req
-  override Settings app
+  override Settings? app
   new make(HttpReq req, Settings app) { this.req = req; this.app = app }
   
   once override QueryMap get() { return QueryMap.decodeQuery(req.uri.queryStr).ro }

@@ -8,7 +8,7 @@ abstract class Req {
   ** All values presented in `#context` can be used as view arguments (resolved by name).
   ** This slot and its value are both readonly. See `#dupWith`.
   internal Str:Obj? _context := ["req": this].ro
-  internal abstract Settings app()
+  internal abstract Settings? app()
   
   ** Resolve injectible data stored in `Req#context` or `Req#app` slots or `Req` itself, by name.
   Obj? context(Str name, Bool raiseErr := true, Obj? def := null) {
@@ -54,7 +54,7 @@ abstract class Req {
     
     [Str:Str] result := [:]
     cookies := spectre::Cookie.load(cookieHeader)
-    cookies.each { result.add(it.name, it.val) }
+    cookies.each { if (!result.containsKey(it.name)) result.add(it.name, it.val) }
     return result.toImmutable
   }
 }
@@ -76,5 +76,5 @@ internal class ReqWrapper : Req {
   override Str method() { impl.method }
   
   override InStream in() { impl.in }
-  internal override Settings app() { impl.app }
+  internal override Settings? app() { impl.app }
 }

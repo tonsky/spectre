@@ -65,7 +65,7 @@ It is also possible to use single :class:`Field` on its own. :class:`Field` have
 Rendering form and fields
 -------------------------
 
-:class:`Form` can be rendered with :func:`~Form.asTable` method. It will return :class:`SafeStr` html snippet with fields’ labels, widgets in their current state and error messages, wrapped with ``<tr><th></th><td></td></tr>``. It won’t contain the ``<table>`` tag, you should write it by yourself::
+:class:`Form` can be rendered with either :func:`~Form.asTable` or :func:`~Form.asDl` method. It will return :class:`SafeStr` html snippet with fields’ labels, widgets in their current state and error messages, wrapped with ``<tr><th></th><td></td></tr>`` (``<dt></dt><dd></dd>`` correspondingly). It won’t contain the ``<table>`` tag, you should write it by yourself::
 
   >>> myForm.asTable
   

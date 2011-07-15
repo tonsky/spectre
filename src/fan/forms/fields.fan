@@ -88,6 +88,9 @@ abstract class Field: SafeStrUtil {
   ** will be stored in `data`. 
   protected virtual Obj? parseData(Obj dataMap) { return dataMap->get(name, null)?->trim }
   
+  ** If field should be rendered as a separate row
+  virtual Bool visible() { true }
+  
   ** Render field’s input widget, without errors or label.
   abstract SafeStr renderWidget()
   
@@ -166,6 +169,7 @@ class TextareaField: spectre::StrField {
 ** '<input type="hidden">' field which will be converted to `Str` object.
 class HiddenField: spectre::StrField {
   override SafeStr renderWidget() { renderInput(data, id, "hidden") }
+  override Bool visible() { false }
   new make(Str name, Validator[] validators := [,], |This|? f := null): super(name, "", validators, f) {}
 }
 

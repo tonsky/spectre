@@ -113,12 +113,35 @@ class Form: SafeStrUtil {
     safe(
       (errors.isEmpty ? "" : "<tr class=\"form_errorrow\"><td colspan=\"2\">${renderErrors}</td></tr>")
       + fields.map {
-        "<tr" + (it.isBound && !it.isValid ? " class=\"errorrow\"" : "") + "><th>"
-          + it.renderLabel
-        + "</th><td>"
-          + it.renderErrors
-          + it.renderWidget
-        + "</td></tr>"
+        !visible() ? it.renderWidget :
+          "<tr" + (it.isBound && !it.isValid ? " class=\"errorrow\"" : "") + "><th>"
+            + it.renderLabel
+          + "</th><td>"
+            + it.renderErrors
+            + it.renderWidget
+          + "</td></tr>"
+      }.join
+    )
+  }
+
+  **
+  ** Render form as a list of 
+  **   <dt> {field’s label} </dt>
+  **   <dd> {field errors} {field} </dd>
+  ** 
+  ** with form’s errors as first <dd>.
+  **
+  virtual SafeStr asDl() {
+    safe(
+      (errors.isEmpty ? "" : "<dt></dt><dd class=\"form_errorrow\">${renderErrors}</dd>")
+      + fields.map {
+        !visible() ? it.renderWidget :
+          "<dt" + (it.isBound && !it.isValid ? " class=\"errorrow\"" : "") + ">"
+            + it.renderLabel
+          + "</dt><dd" + (it.isBound && !it.isValid ? " class=\"errorrow\"" : "") + ">"
+            + it.renderErrors
+            + it.renderWidget
+          + "</dd>"
       }.join
     )
   }

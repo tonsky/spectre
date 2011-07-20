@@ -39,6 +39,8 @@ class InmemorySessionStore : SessionStore {
   }
   
   Bool isModified(Session session) { !session.map.isImmutable }
+  
+  static Void invalidateAll() { actor->sendInvalidateAll->get }
 }
 
 **
@@ -104,4 +106,6 @@ internal const class InmemorySessionActor : DynActor {
     }
     this.sendLater(cleanupPeriod, DynActorCommand(#_cleanup, [maxSessionAge, cleanupPeriod]))
   }
+  
+  protected Void _invalidateAll() { sessions.clear }
 }

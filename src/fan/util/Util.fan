@@ -23,9 +23,10 @@ mixin Util {
   
   static [Obj:Obj?[]] groupby(Obj?[] list, |Obj?->Obj| groupKey) {
     [Obj:Obj[]] result := [:]
+    result.ordered = true
     list.each { 
       gKey := groupKey.call(it)
-      result.getOrAdd(gKey) { Obj[,] }.add(it)        
+      result.getOrAdd(gKey) { Obj[,] }.add(it)
     }
     return result
   }

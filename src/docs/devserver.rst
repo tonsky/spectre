@@ -22,6 +22,10 @@ To bind on specific port use::
 
   >>> spectre rundevserver <path_to_your_app_folder> -port 8000
  
+There’s also an option to write log to a file::
+
+   >>> spectre rundevserver <path_to_your_app_folder> -logto /var/log/spectre.log
+
 Serving static files
 --------------------
 

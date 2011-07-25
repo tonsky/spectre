@@ -15,11 +15,19 @@ class RunDevServer : AbstractMain {
   @Arg { help = "path to app dir (must contains build.fan and spectre::Settings implementation)" }
   File? appDir
   
+  @Opt { help = "logfile" }
+  File? logto
+  
   virtual Str mode := "development"
   
   static const Duration reloadTimeout := 2000ms
   
   override Int run() {
+    if (logto != null) {
+      logger := FileLogger {  dir = logto.parent; filename = logto.name }
+      Log.addHandler |rec| { logger.writeLogRec(rec) }
+    }
+    
     return runServices([ WebServer {
       processorPool = ActorPool { maxThreads = 10 }
       it.port = this.port

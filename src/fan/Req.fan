@@ -6,7 +6,7 @@ abstract class Req {
 
   ** Map of arbitrary values usually populated by `Middleware`s to prepare values for views. 
   ** All values presented in `#context` can be used as view arguments (resolved by name).
-  ** This slot and its value are both readonly. See `#dupWith`.
+  ** This slot and its value are both readonly. See `#dup`.
   internal Str:Obj? _context := ["req": this].ro
   internal abstract Settings? app()
   

@@ -8,8 +8,8 @@ mixin Turtle {
   
   @Operator
   Turtle plusTurtle(Turtle t) {
-    Selector { children = [,].addAll(this is Selector ? this->children : [this])
-                             .addAll(t    is Selector ? t->children    : [t]) }
+    Selector { children = [,].addAll(this.typeof == Selector# ? this->children : [this])
+                             .addAll(t.typeof    == Selector# ? t->children    : [t]) }
   }
 }
 

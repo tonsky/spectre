@@ -45,6 +45,13 @@ class Router : Selector {
   }
 }
 
+class MethodRouter : Turtle {
+  Str method
+  Turtle child
+  ** Method: '"GET"' or '"POST"' or anything
+  new make(Str method, Turtle child) { this.method = method; this.child = child }
+  override Res? dispatch(Req req) { return req.method == method ? child.dispatch(req) : null }
+}
 
 const class Pathterm {
   const static Regex var := Regex <|\{([^:]*)\:?([^:]*)?\}|>

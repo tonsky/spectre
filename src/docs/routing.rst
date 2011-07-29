@@ -15,7 +15,7 @@ Routing scheme of spectre app is defined as one or more :class:`Router` :class:`
 
 ::
 
-  router = Router {
+  routes = Router {
     ["/", ViewClass#index],
     ["/items/", ViewClass#itemsList],
     ["/item/{idx:\\d{4}}", ViewClass#itemByIdx],
@@ -60,7 +60,7 @@ Where to route?
 
 You can pass any :class:`Turtle` instead of view function::
 
-  router = Router {
+  routes = Router {
     ["/", ViewClass#index],
     ["/comments", commentsAppTurtle],
     ...
@@ -68,11 +68,35 @@ You can pass any :class:`Turtle` instead of view function::
 
 or you can include any turtle *instead* of route-view tuple::
 
-  router = Router {
+  routes = Router {
     ["/", ViewClass#index],
     commentsAppTurtle,
     ...
   }
+
+RESTfullnes
+-----------
+
+.. class:: MethodRouter
+
+   Takes a method name (``"GET"``, ``"POST"`` or other) and other turtle (usually a :class:`Router`) to route if :func:`Req.method` match.
+
+.. rubric:: Example
+
+::
+
+  routes = 
+    MethodRouter("GET", Router { 
+      ["/rest/{client}/facts/", RestApi#getFacts],
+      ["/rest/{client}/facts/{factId}/", RestApi#getFact],
+      ["/rest/{client}/partners/", RestApi#getPartners],
+    }) +
+    MethodRouter("POST", Router { 
+      ["/rest/{client}/facts/", RestApi#postFact],
+    } +
+    MethodRouter("PUT", Router { 
+      ["/rest/{client}/facts/{factId}/", RestApi#putFact],
+    })
 
 .. note::
 

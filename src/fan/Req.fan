@@ -15,7 +15,7 @@ abstract class Req {
     if (_context.containsKey(name)) return _context[name]
     if (TypeUtil.supports(app, name)) return app.trap(name)
     if (raiseErr) throw ArgErr("Cannot resolve ‘$name’, options are: $_context + app slots: " 
-      + app.typeof.slots.findAll { it.isField || (it.isMethod && (it as Method).params.size == 0)}.map { name } )
+      + app.typeof.slots.findAll { it.isField || (it.isMethod && (it as Method).params.size == 0)}.map { it.name } )
     else return def
   }
   

@@ -17,7 +17,11 @@ class StaticView : Turtle {
   override Res? dispatch(Req req) {
     File file := path
     if (path.isDir) {
-      pathRest := req.context(UrlMatcher.PATH_TAIL_PARAM)
+      pathRest := req.context(UrlMatcher.PATH_TAIL_PARAM, false)
+      if (pathRest == null)
+        throw Err("You are trying to serve folder '$path' under a single-resource url '$req.pathInfo'.\n"
+          + "  To serve single files, create 'StaticView' with specific file, not dir.\n"
+          + "  To serve whole folders, specify '/*' at the end of your url.\n")
       file = path + Uri.fromStr(pathRest)
     }
     

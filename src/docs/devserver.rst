@@ -39,6 +39,8 @@ When developing app, you’ll probably want to serve static files from the same 
     ["/favicon.ico", StaticView(appDir + `static/img/favicon.ico`)]
   }
 
+To serve single files (as ``/favicon.ico``), create :class:`StaticView` with a path to this specific file. To serve whole folders, specify ``/*`` at the end of the url (as in ``/css/*``).
+
 .. _devserver-production-mode:
   
 Production mode

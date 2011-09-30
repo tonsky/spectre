@@ -2,6 +2,11 @@
  Changelog
 ===========
 
+0.8.3 / Sep 30, 2011
+--------------------
+
+* MethodRouter to make routes based on HTTP method (REST).
+
 0.8.2 / July 27, 2011
 ---------------------
 

@@ -394,7 +394,7 @@ class MultiCheckboxField: spectre::SelectField {
 ** Multiselect field which will be converted to a list of provided `choices`.
 ** Will be rendered as a '<select multiple="multiple">'. See `MultiCheckboxField`.
 class MultiSelectField: MultiCheckboxField {
-  override SafeStr renderLabel() { spectre::Field.super.renderLabel() }
+  override SafeStr renderLabel() { super.renderLabel() }
   override SafeStr renderWidget() {
     selectedKeys := _selectedKeys(data)
     return safe(escape(prefix)

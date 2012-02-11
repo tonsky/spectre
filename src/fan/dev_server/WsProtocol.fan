@@ -43,24 +43,22 @@ const class WsProtocol : Protocol {
           the nonce to be forwarded to us afterward in order to finish the
           Draft 76 handshake.
       */
-      out.writeChars("HTTP/1.1 101 WebSocket Protocol Handshake\r\n")
-      out.writeChars("Upgrade: WebSocket\r\n")
+      out.writeChars("HTTP/1.1 101 Switching Protocols\r\n")
+         .writeChars("Upgrade: websocket\r\n")
          .writeChars("Connection: Upgrade\r\n")
-         .writeChars("Sec-WebSocket-Location: " + handshakeRes.location + "\r\n")
          .writeChars("Sec-WebSocket-Origin: " + handshakeRes.origin + "\r\n")
-      if (handshakeRes.protocol != null)
+         .writeChars("Sec-WebSocket-Accept: " + handshakeRes.accept + "\r\n")
+      if (handshakeRes.protocol != null) {
          out.writeChars("Sec-WebSocket-Protocol: " + handshakeRes.protocol + "\r\n")
+      }
       out.writeChars("\r\n").flush
-
-      key3 := in.readBufFully(null, 8)
-      out.writeBuf(handshakeRes.challenge(key3)).flush
 
       _conn = WsConnImpl(handshakeReq, socket, this)
 
       _processor.onReady(_conn)
       return ProtocolRes.keep
     } catch(IOErr e) {
-      log.debug("Error in web socket communication", e) // IOErrs are just ok
+      log.debug("IO Error in WebSocket communication", e) // IOErrs are just ok
     } catch(Err e) {
       log.err("Error in WebSocket communication", e)
     }
@@ -73,6 +71,7 @@ const class WsProtocol : Protocol {
   }
   
   override ProtocolRes onNextConnections(TcpSocket socket) {
+    echo("onNextConnections()")
     try {      
       if (!_conn.closed.val) {
         msg := _conn.read
@@ -140,22 +139,23 @@ const class WsConnImpl : WsConn {
       // before we start reading message set a receive timeout in case
       // the client fails to send us data in a timely fashion
       socket.options.receiveTimeout = protocol.receiveTimeout
-      frame := WsFrame_HIXIE_76.read(socket.in)
-      return frame?.data
+      frame :=  WsFrame.read(socket.in)
+      return frame.data
     } finally {
       reading.val = false
     }
   }
   
   override Void writeStr(Str msg) {
-    if (!closed.val && !socket.isClosed)
-      WsFrame_HIXIE_76 { data = msg.toBuf }.write(socket.out)
+    if (!closed.val && !socket.isClosed) {
+      WsFrame { data = msg.toBuf; opcode = WsOpcode.text }.write(socket.out)
+    }
   }
   
   override Void close() {
     if (closed.compareAndSet(false, true))
       try {
-        WsFrame_HIXIE_76.close(socket.out)
+        //WsFrame.close(socket.out)
         socket.close
       } catch {}
   }
@@ -180,9 +180,9 @@ const mixin WsProcessor {
 }
 
 const class WsHandshakeReq {
-  const Str key1
-  const Str key2
+  const Str key
   const Str? protocols
+  const Str version
   const Str host
   const Str origin
   const Uri uri
@@ -190,12 +190,16 @@ const class WsHandshakeReq {
 
   new make(HttpReq req) {
     h := req.headers
+
+    echo("WsHandshakeReq.make()");
+    h.each |v,k| { echo("$k: $v") }
+    
     uri = req.uri
-    key1 = h["Sec-WebSocket-Key1"]
-    key2 = h["Sec-WebSocket-Key2"]
+    key = h["Sec-WebSocket-Key"]
     origin = h["Origin"]
     host = h["Host"]
     protocols = h["Sec-WebSocket-Protocol"]
+    version = h["Sec-WebSocket-Version"]
   }
 
   new makeTest(|This|? f := null) { f?.call(this) }
@@ -205,149 +209,118 @@ const class WsHandshakeRes {
   const Str? protocol
   const Str location
   const Str origin
+  const Str key
+  const Str guid := "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
   
-  internal const Int part1
-  internal const Int part2
+  internal const Int part
   
   new make(WsHandshakeReq req, |This|? f := null) {
     protocol = req.protocols
     origin = req.origin
     location = (origin.startsWith("https") ? "wss" : "ws") + "://" + req.host + req.uri.pathStr
-    
-    keyNumber1 := keyToNum(req.key1)
-    keyNumber2 := keyToNum(req.key2)
-    spaces1 := spaces(req.key1)
-    spaces2 := spaces(req.key2)
-    if (spaces1 == 0 || keyNumber1 % spaces1 != 0)
-      throw Err("Incorrect WebSocket key1: $req.key1")    
-    if (spaces2 == 0 || keyNumber2 % spaces2 != 0)
-      throw Err("Incorrect WebSocket key2: $req.key2")
-    part1 = keyNumber1 / spaces1
-    part2 = keyNumber2 / spaces2
+    key = req.key
     
     f?.call(this)
   }
   
-  internal Buf challenge(Buf key3) {
-    buf := Buf(16) { endian = Endian.big }
-    buf.writeI4(part1)
-    buf.writeI4(part2)
-    buf.writeBuf(key3, 8)
-    
-    return buf.toDigest("MD5")
-  }
-  
-  internal static Int keyToNum(Str key) {
-    digits := key.chars.findAll { it.isDigit }
-    return Str.fromChars(digits).toInt
-  }
-  
-  internal static Int spaces(Str key) {
-    amount := 0
-    key.chars.each { if (it == ' ') ++amount }
-    return amount
+  Str accept() {
+    return (key+guid).toBuf.toDigest("SHA1").toBase64
   }
 }
 
-**
-** DataFrame that parses and sends data through web socket connection.
-** Conforms to draft-hixie-thewebsocketprotocol-76
-** 
-class WsFrame_HIXIE_76 {
-  Buf data
-
-  new make(|This| f) { f.call(this) }
-  
-  Void write(OutStream out) {
-    out.write(0x00).writeBuf(data).write(0xFF).flush
-  }
-
-  static Void close(OutStream out) {
-    out.write(0xFF).write(0x00).flush
-  }
-  
-  static WsFrame_HIXIE_76? read(InStream in) {
-    b := in.read
-    if (b != 0x00) {
-      if (b == null || (b == 0xFF && in.read == 0x00)) // FIXME setUp readTimeout
-        return null
-      
-      throw IOErr("Protocol error")
-    }
-
-    buf := Buf()
-    while(true) { 
-      b = in.read
-      if (b == null)
-        throw IOErr("Protocol error")
-      if (b == 0xFF)
-        break
-      buf.write(b)
-    }
-
-    return WsFrame_HIXIE_76 { data = buf.seek(0) }
-  }
-}
-
-**
-** DataFrame that parses and sends data through web socket connection.
-** To be used when browsers will catch up. 
-** Conforms to draft-ietf-hybi-thewebsocketprotocol-03 protocol
-**  
-class WsFrame_IETF_03 {
-  static const Int continuation := 0
-  static const Int close := 1
-  static const Int ping := 2
-  static const Int pong := 3
-  static const Int text := 4
-  static const Int binary := 5
-
-  const Bool more := false
+class WsFrame {
+  const Bool fin := true
   const Bool rsv1 := false
   const Bool rsv2 := false
   const Bool rsv3 := false
-  const Bool rsv4 := false
-  const Int opcode := text
+  const WsOpcode opcode := WsOpcode.text
+  const Bool mask := false
+  const Int maskingKey
   Buf data
   
-  new make(|This| f) { f.call(this) }
+  new make(|This| f) {
+    f.call(this)
+    if (mask) {
+      maskingKey = Int.random.shiftr(32) // 32 bit random integer
+    }
+  }
+  
   Void write(OutStream out) {
     len := data.size
     
-    out.write((more ? 0x80 : 0).or(rsv1 ? 0x40 : 0).or(rsv2 ? 0x20 : 0).or(rsv3 ? 0x10 : 0).or(opcode.and(0x0F)))
-    out.write((rsv4 ? 0x80 : 0).or(len <= 125 ? len : (len <= 0xFFFF ? 126 : 127)))
+    out.write((fin ? 0x80 : 0).or(rsv1 ? 0x40 : 0).or(rsv2 ? 0x20 : 0).or(rsv3 ? 0x10 : 0).or(opcode.ordinal.and(0x0f)))
+    out.write((mask ? 0x80 : 0).or(len <= 125 ? len : (len <= 0xffff ? 126 : 127)))
     if (len > 125) {
-      if (len <= 0xFFFF)
+      if (len <= 0xFFFF) {
         out.writeI2(len)
-      else
+      } else {
         out.writeI8(len)
+        }
     }
-    out.writeBuf(data).flush
+    
+    if (mask) {
+      out.writeI4(maskingKey)
+      out.writeBuf(maskData(data, maskingKey)).flush
+    } else {
+      out.writeBuf(data).flush
+    }
   }
   
   // TODO support continuation
   new read(InStream in) {
+    // read first byte containing fin, rsv1, rsv2, rsv3 and the operation code
     b1 := in.read
-    if (b1 == null)
-      throw IOErr("Cannot read data frame")
-    more = b1.and(0x80) != 0
+    if (b1 == null) {
+      throw IOErr("Cannot read data frame (first byte)")
+    }
+    fin = b1.and(0x80) != 0
     rsv1 = b1.and(0x40) != 0
     rsv2 = b1.and(0x20) != 0
     rsv3 = b1.and(0x10) != 0
-    opcode = b1.and(0x0F)
+    opcode = WsOpcode.vals[b1.and(0x0F)]
     
+    // read the second byte containing whether the is a mask or not and the length of the payload data
+    // if the length is 126 then next 2 bytes are used to store the length and for 127 the next 8 bytes
     b2 := in.read
-    if (b2 == null)
-      throw IOErr("Cannot read data frame")
-    rsv4 = b2.and(0x80) != 0
+    if (b2 == null) {
+      throw IOErr("Cannot read data frame (second byte)")
+    }
+    mask = b2.and(0x80) != 0
     len := b2.and(0x7F)
     if (len == 126) {
-      len = in.readU2()
+      len = in.readU2
     } else if (len == 127) {
-      len = in.readS8()
+      len = in.readS8
     }
     
-    // TODO support binary
+    // if there mask read its for bytes
+    if (mask) {
+      maskingKey = in.readU4
+    }
+    
+    // read the payload data
     data = in.readBufFully(null, len)
+    if (mask) {
+      data = maskData(data, maskingKey)
+    }
+  }
+  
+  private Buf maskData(Buf dataBuf, Int key) {
+    // split up the key in its 4 bytes (maskingKey is only a 32bit integer)
+    Int[] maskBytes := [key.shiftr(24).and(0xff), key.shiftr(16).and(0xff), key.shiftr(8).and(0xff), key.and(0xff)]
+  
+    Buf maskedData := Buf(dataBuf.size)
+    for (i := 0; i < dataBuf.size; i++) {
+        b := dataBuf.get(i)
+        j := maskBytes[i % 4]
+        maskedData.write(b.xor(j))
+      }
+      return maskedData.seek(0)    
   }
 }
+
+enum class WsOpcode {
+  continuation, text, binary, reserved3, reserved4, reserved5, reserved6, reserved7,
+  reconnectionClose, ping, pong, reservedB, reservedC, reservedD, reservedE, reservedF
+}
+

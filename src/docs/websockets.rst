@@ -2,7 +2,7 @@
  WebSocket support
 ===================
 
-Spectre currently supports `draft 76 <http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76>`_ of WebSocket Protocol specification, the same that’s implemented in latest browsers for now. WebSocket client API documentation can be found `here <http://dev.w3.org/html5/websockets/>`_.
+Spectre currently supports `version 13 <http://tools.ietf.org/html/rfc6455>`_ of WebSocket Protocol specification, the same that’s implemented in latest browsers for now. WebSocket client API documentation can be found `here <http://dev.w3.org/html5/websockets/>`_.
 
 To process WebSocket connections in Spectre, your app instance must override :func:`~Settings.wsProcessor` factory method::
 
@@ -21,9 +21,9 @@ To process WebSocket connections in Spectre, your app instance must override :fu
 
       Will be called after connection has been successfully negotiated.
       
-   .. function:: asyncOnMsg(WsConn conn, Buf msg)
+   .. function:: asyncOnMsg(WsConn conn, Obj msg)
 
-      When message has been received from client.
+      When message has been received from client. Obj could be Str or Buf for text and binary fragments, respectively.
 
    .. function:: asyncOnClose(WsConn conn)
 
@@ -39,11 +39,15 @@ When you need to interoperate with WebSocket, use ``conn`` argument:
 
    .. function:: read()
 
-      ``Buf?``. Read next message from socket. This operation blocks until there’ll be a message in WebSocket. Returns ``null`` if connection was closed before anything was received.
+      ``Str``, ``Buf`` or ``null``. Read next message from socket. This operation blocks until there’ll be a message in WebSocket. Returns ``null`` if connection was closed before anything was received.
 
    .. function:: writeStr(Str msg)
 
       Write text message to the WebSocket.
+
+   .. function:: writeBinary(Buf msg)
+
+      Write binary message to the WebSocket.
 
    .. function:: close()
 
@@ -68,7 +72,7 @@ Synchronous WebSocket processing can be done by extending :class:`WsProcessor` i
 
          Will be called after connection has been successfully negotiated.
 
-      .. function:: onMsg(WsConn conn, Buf msg)
+      .. function:: onMsg(WsConn conn, Obj msg)
 
          When message has been received from client.
 
@@ -86,12 +90,12 @@ Finally, an example of :class:`WsActor` implementation demonstrates both sync an
       conn.writeStr("Waiting for your message")
       
       // Processing of this socket will block until read returns:      
-      Buf? data := conn.read()
-      if (data == null) { conn.close; return }
+      Obj? data := conn.read()
+      if (data == null) { return }
       
       // First message to be processed here, 
       // all the rest to be received asynchronously:      
-      conn.writeStr("Received ‘${data.readAllStr}’ (synchronously)")
+      conn.writeStr("Received ‘${data}’ (synchronously)")
 
       // Sheduling some work for later:    
       sendLater(0.5sec) |->|{ conn.writeStr("Send after 0.5sec") }
@@ -100,7 +104,7 @@ Finally, an example of :class:`WsActor` implementation demonstrates both sync an
     }
 
     // asynchronous processing example
-    override Void asyncOnMsg(WsConn conn, Buf msg) {
-      conn.writeStr("Received ‘" + msg.readAllStr + "’ (asynchronously)")
+    override Void asyncOnMsg(WsConn conn, Obj msg) {
+      conn.writeStr("Received ‘" + msg + "’ (asynchronously)")
     }
   }

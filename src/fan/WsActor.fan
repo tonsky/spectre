@@ -31,13 +31,13 @@ const class WsActor : DynActor, WsProcessor {
   protected virtual Void asyncOnReady(WsConn conn) {}
   
   ** When message has been received from client.
-  protected virtual Void asyncOnMsg  (WsConn conn, Buf msg) {}
+  protected virtual Void asyncOnMsg(WsConn conn, Obj msg) {}
   
   ** When client has closed connection. It’s invalid to read/send messages from/to 'conn' in this method.
   protected virtual Void asyncOnClose(WsConn conn) {}
   
   protected Void _asyncOnReady(WsConn conn)          { try asyncOnReady(conn); catch (Err e) log.err("Error in web socket processor", e) }
-  protected Void _asyncOnMsg  (WsConn conn, Buf msg) { try asyncOnMsg  (conn, msg); catch (Err e) log.err("Error in web socket processor", e) }  
+  protected Void _asyncOnMsg  (WsConn conn, Obj msg) { try asyncOnMsg  (conn, msg); catch (Err e) log.err("Error in web socket processor", e) }  
   protected Void _asyncOnClose(WsConn conn)          { try asyncOnClose(conn); catch (Err e) log.err("Error in web socket processor", e) }
 
   // WsProcessor impl part (synchronous processing).
@@ -47,7 +47,7 @@ const class WsActor : DynActor, WsProcessor {
   override Void onReady(WsConn conn)          { this->sendAsyncOnReady(conn) }
   
   ** When message has been received from client.
-  override Void onMsg  (WsConn conn, Buf msg) { this->sendAsyncOnMsg(conn, Unsafe(msg)) }
+  override Void onMsg  (WsConn conn, Obj msg) { this->sendAsyncOnMsg(conn, Unsafe(msg)) }
   
   ** When client has closed connection. It’s invalid to read/send messages from/to 'conn' in this method.
   override Void onClose(WsConn conn)          { this->sendAsyncOnClose(conn) }

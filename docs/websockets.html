@@ -46,7 +46,7 @@
             
   <div class="section" id="websocket-support">
 <h1>WebSocket support<a class="headerlink" href="#websocket-support" title="Permalink to this headline">¶</a></h1>
-<p>Spectre currently supports <a class="reference external" href="http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76">draft 76</a> of WebSocket Protocol specification, the same that’s implemented in latest browsers for now. WebSocket client API documentation can be found <a class="reference external" href="http://dev.w3.org/html5/websockets/">here</a>.</p>
+<p>Spectre currently supports <a class="reference external" href="http://tools.ietf.org/html/rfc6455">version 13</a> of WebSocket Protocol specification, the same that’s implemented in latest browsers for now. WebSocket client API documentation can be found <a class="reference external" href="http://dev.w3.org/html5/websockets/">here</a>.</p>
 <p>To process WebSocket connections in Spectre, your app instance must override <a class="reference internal" href="settings.html#Settings.wsProcessor" title="Settings.wsProcessor"><tt class="xref py py-func docutils literal"><span class="pre">wsProcessor()</span></tt></a> factory method:</p>
 <div class="highlight-python"><pre>override WsProcessor? wsProcessor(WsHandshakeReq req) {
   if (req.uri.pathStr == "/") return FooWsProcessor(pool)
@@ -66,8 +66,8 @@
 
 <dl class="function">
 <dt id="WsActor.asyncOnMsg">
-<tt class="descname">asyncOnMsg</tt><big>(</big><em>WsConn conn</em>, <em>Buf msg</em><big>)</big><a class="headerlink" href="#WsActor.asyncOnMsg" title="Permalink to this definition">¶</a></dt>
-<dd><p>When message has been received from client.</p>
+<tt class="descname">asyncOnMsg</tt><big>(</big><em>WsConn conn</em>, <em>Obj msg</em><big>)</big><a class="headerlink" href="#WsActor.asyncOnMsg" title="Permalink to this definition">¶</a></dt>
+<dd><p>When message has been received from client. Obj could be Str or Buf for text and binary fragments, respectively.</p>
 </dd></dl>
 
 <dl class="function">
@@ -91,13 +91,19 @@
 <dl class="function">
 <dt id="WsConn.read">
 <tt class="descname">read</tt><big>(</big><big>)</big><a class="headerlink" href="#WsConn.read" title="Permalink to this definition">¶</a></dt>
-<dd><p><tt class="docutils literal"><span class="pre">Buf?</span></tt>. Read next message from socket. This operation blocks until there’ll be a message in WebSocket. Returns <tt class="docutils literal"><span class="pre">null</span></tt> if connection was closed before anything was received.</p>
+<dd><p><tt class="docutils literal"><span class="pre">Str</span></tt>, <tt class="docutils literal"><span class="pre">Buf</span></tt> or <tt class="docutils literal"><span class="pre">null</span></tt>. Read next message from socket. This operation blocks until there’ll be a message in WebSocket. Returns <tt class="docutils literal"><span class="pre">null</span></tt> if connection was closed before anything was received.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="WsConn.writeStr">
 <tt class="descname">writeStr</tt><big>(</big><em>Str msg</em><big>)</big><a class="headerlink" href="#WsConn.writeStr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write text message to the WebSocket.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="WsConn.writeBinary">
+<tt class="descname">writeBinary</tt><big>(</big><em>Buf msg</em><big>)</big><a class="headerlink" href="#WsConn.writeBinary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write binary message to the WebSocket.</p>
 </dd></dl>
 
 <dl class="function">
@@ -132,7 +138,7 @@
 
 <dl class="function">
 <dt id="WsProcessor.onMsg">
-<tt class="descname">onMsg</tt><big>(</big><em>WsConn conn</em>, <em>Buf msg</em><big>)</big><a class="headerlink" href="#WsProcessor.onMsg" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">onMsg</tt><big>(</big><em>WsConn conn</em>, <em>Obj msg</em><big>)</big><a class="headerlink" href="#WsProcessor.onMsg" title="Permalink to this definition">¶</a></dt>
 <dd><p>When message has been received from client.</p>
 </dd></dl>
 
@@ -154,12 +160,12 @@
     conn.writeStr("Waiting for your message")
 
     // Processing of this socket will block until read returns:
-    Buf? data := conn.read()
-    if (data == null) { conn.close; return }
+    Obj? data := conn.read()
+    if (data == null) { return }
 
     // First message to be processed here,
     // all the rest to be received asynchronously:
-    conn.writeStr("Received ‘${data.readAllStr}’ (synchronously)")
+    conn.writeStr("Received ‘${data}’ (synchronously)")
 
     // Sheduling some work for later:
     sendLater(0.5sec) |-&gt;|{ conn.writeStr("Send after 0.5sec") }
@@ -168,8 +174,8 @@
   }
 
   // asynchronous processing example
-  override Void asyncOnMsg(WsConn conn, Buf msg) {
-    conn.writeStr("Received ‘" + msg.readAllStr + "’ (asynchronously)")
+  override Void asyncOnMsg(WsConn conn, Obj msg) {
+    conn.writeStr("Received ‘" + msg + "’ (asynchronously)")
   }
 }</pre>
 </div>

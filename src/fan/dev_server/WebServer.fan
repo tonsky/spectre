@@ -60,7 +60,6 @@ const class SocketProcessor : DynActor {
     try {
       res := ProtocolRes.skip
       if (_protocol == null) { // first time
-
         socket.options.receiveTimeout = 10sec
         // First time we are parsing header by ourself
         req := HttpProtocol.parseReq(socket)

@@ -10,7 +10,7 @@
 </style>
 <a href="#" class="button" onclick="testWebSocket(); return false"><img src="/i/dial.png"/>Dial</a>
 <a href="#" class="button" onclick="doSend('Tits!'); return false"><img src="/i/say.png"/>Tell</a>
-<a href="#" class="button" onclick="websocket.close(); return false"><img src="/i/cancel.png"/>Hang up</a>
+<a href="#" class="button" onclick="websocket.close(1000, 'Bye!'); return false"><img src="/i/cancel.png"/>Hang up</a>
 <pre id="output" style="height: 400px; overflow-y: scroll; font-size: 15px"></pre>
 
 <script type="text/javascript">

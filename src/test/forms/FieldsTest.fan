@@ -99,7 +99,7 @@ class FieldsTest: Test, FieldTestMixin {
   Void testDecimalField() {
     verifyInputField(DecimalField("f", "label"), ["f": ""], true, null, null)
     verifyInputField(DecimalField("f", "label"), ["f": "1 200"], true, Decimal.fromStr("1200"),   "1200")
-    verifyInputField(DecimalField("f", "label"), ["f": " - 1 200,776 "], true, -1200.776, "-1200.776")
+    verifyInputField(DecimalField("f", "label"), ["f": " - 1 200,776 "], true, -1200.776d, "-1200.776")
     verifyInputField(DecimalField("f", "label"), ["f": "1-200"], false, null, "1-200")
   }
   

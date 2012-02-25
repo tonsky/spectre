@@ -90,7 +90,7 @@ const class UrlMatcher {
     this.freeTail = freeTail
   }
   
-  static UrlMatcher fromStr(Str pattern) {
+  static new fromStr(Str pattern) {
     Str[] segments := pattern.split('/').exclude { it == "" }
     freeTail := segments.size >= 1 && segments[-1] == "*"
     if (segments.size >= 2)

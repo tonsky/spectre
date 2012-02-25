@@ -26,8 +26,8 @@ class SampleForm : Form, SafeStrUtil {
     attrs = ["cols": "25", "rows": "5"]
   }
   IntField age := IntField("age", "Int, initial=18") { data = 18; attrs = ["id": "age", "size": "3"] }
-  DecimalField decimal := DecimalField("body_temp", "Decimal, 0..100", [MinValue(0.0), MaxValue(100.0)]) {
-    data = 36.6
+  DecimalField decimal := DecimalField("body_temp", "Decimal, 0..100", [MinValue(0.0d), MaxValue(100.0d)]) {
+    data = 36.6d
     printFractionSep = ","
     attrs = ["size": "3"]
     suffix = safe("&deg;C")

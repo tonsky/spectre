@@ -53,7 +53,7 @@ class ValidatorsTest: Test, FieldTestMixin {
   }
   
   Void testRegexValidator() {
-    validator := MatchesRegex(Regex("H(e)+llo"), "You should salute me")
+    validator := MatchesRegex(Regex.fromStr("H(e)+llo"), "You should salute me")
 
     verifyInputField(StrField ("name", "label",  [validator]), ["name": " Hello  "], true, "Hello", "Hello")
     verifyInputField(StrField ("name", "label",  [validator]), ["name": "Heeeello"], true, "Heeeello", "Heeeello")

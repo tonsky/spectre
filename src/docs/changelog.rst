@@ -2,6 +2,12 @@
  Changelog
 ===========
 
+0.8.4 / Feb 25, 2012
+--------------------
+
+* WebSocket support upgraded to v13 (`RFC 6455 <http://tools.ietf.org/html/rfc6455>`_).
+* Fantom 1.0.62 support
+
 0.8.3 / Sep 30, 2011
 --------------------
 
